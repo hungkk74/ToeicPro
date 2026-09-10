@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "application",
+      "type": "com.toeic.subscription.config.ApplicationProperties",
+      "sourceType": "com.toeic.subscription.config.ApplicationProperties"
+    },
+    {
+      "name": "application.liquibase",
+      "type": "com.toeic.subscription.config.ApplicationProperties$Liquibase",
+      "sourceType": "com.toeic.subscription.config.ApplicationProperties",
+      "sourceMethod": "getLiquibase()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "application.liquibase.async-start",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.toeic.subscription.config.ApplicationProperties$Liquibase",
+      "defaultValue": true
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "generator-jhipster": {
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "subscriptionservice",
+    "buildTool": "maven",
+    "cacheProvider": "redis",
+    "clientFramework": "no",
+    "creationTimestamp": 1703126422020,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "entities": ["Plan", "Subscription", "PaymentTransaction"],
+    "jhipsterVersion": "9.3.0",
+    "jwtSecretKey": "MGJkNGRmN2IyNTgwNDE2MWY5Yjc0N2Y5MmQ4ZmY4MTY1NGM5NDA4MmJjZDc2OWE5OWFlOTk5NzZjZDQ2ZThjMTJjMmViNzYxMGNhN2FhMGZhZWZiY2ZiNDAzMjE4ZmIyMmMwNmM3ZTkyYjc2YzcwMWQyOGFmZWJmOGQ1Nzg5NTA=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1703126602000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.toeic.subscription",
+    "prodDatabaseType": "mysql",
+    "serverPort": "8082",
+    "serviceDiscoveryType": "consul",
+    "skipClient": true,
+    "skipCommitHook": true
+  }
+}

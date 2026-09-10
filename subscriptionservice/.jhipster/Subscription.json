@@ -1,0 +1,51 @@
+{
+  "annotations": {
+    "changelogDate": "20231221024222"
+  },
+  "applications": ["subscriptionservice"],
+  "clientRootFolder": "subscriptionservice",
+  "databaseType": "sql",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "36"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "SubscriptionStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "TRIAL,ACTIVE,EXPIRED,CANCELLED"
+    },
+    {
+      "fieldName": "startsAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "expiresAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "subscriptionservice",
+  "name": "Subscription",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "plan",
+      "relationshipName": "plan",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
