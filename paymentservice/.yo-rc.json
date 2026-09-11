@@ -1,0 +1,26 @@
+{
+  "generator-jhipster": {
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "paymentservice",
+    "buildTool": "maven",
+    "cacheProvider": "redis",
+    "clientFramework": "no",
+    "creationTimestamp": 1702035377500,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "entities": ["PaymentTransaction", "PaymentWebhookLog"],
+    "jhipsterVersion": "9.3.0",
+    "jwtSecretKey": "MzQxNWQ2MWE4NDdhYzkxODZlNmNlYjQ5OTY4MDE1Y2I1ZjdlMDE3YTI4NGZiM2M3YzY5MWRmNTMyNDczNWNiODVjN2UyMTE0NTBhOWY0NDRlZmQ1NmM5YjE2NTcyOTYxOWQyNjZmOTJlZjBjMmMyNDY4MGNiMTU4Y2NhZTc3YjM=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1702035497000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.toeic.payment",
+    "prodDatabaseType": "mysql",
+    "serverPort": "8083",
+    "serviceDiscoveryType": "consul",
+    "skipClient": true,
+    "skipCommitHook": true
+  }
+}

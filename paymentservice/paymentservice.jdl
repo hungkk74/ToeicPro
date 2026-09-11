@@ -1,0 +1,65 @@
+application {
+  config {
+    baseName paymentservice
+    applicationType microservice
+    packageName com.toeic.payment
+    serverPort 8083
+    authenticationType oauth2
+    serviceDiscoveryType consul
+    databaseType sql
+    devDatabaseType mysql
+    prodDatabaseType mysql
+    cacheProvider redis
+    buildTool maven
+    clientFramework no
+  }
+  entities PaymentTransaction, PaymentWebhookLog
+}
+
+/**
+ * Giao dịch thanh toán chính
+ */
+entity PaymentTransaction {
+  orderCode String required unique maxlength(50)
+  userId String required maxlength(36)             // UUID user từ Keycloak
+  subscriptionId Long required                     // ID gói tham chiếu từ subscriptionservice
+  amount BigDecimal required                       // Số tiền thanh toán
+  currency String required maxlength(10)           // Loại tiền (VND, USD)
+  gateway PaymentGateway required                  // Cổng thanh toán (VNPAY, MOMO, STRIPE...)
+  gatewayTransId String maxlength(100)             // Mã giao dịch từ cổng thanh toán trả về
+  status PaymentStatus required                    // Trạng thái giao dịch
+  paymentUrl String maxlength(1000)
+  ipAddress String maxlength(50)
+  paymentTime Instant
+  createdAt Instant required
+}
+
+/**
+ * Log Webhook/IPN từ cổng thanh toán (dùng để đối soát & chống replay)
+ */
+entity PaymentWebhookLog {
+  orderCode String required maxlength(50)          // Mã đơn đối chiếu
+  gateway PaymentGateway required                  // Cổng gửi callback
+  rawPayload TextBlob required                     // Toàn bộ dữ liệu callback nhận được
+  signature String maxlength(255)                  // Chữ ký checksum từ gateway
+  isVerified Boolean required                      // Kết quả xác thực chữ ký
+  responseCode String maxlength(20)                // Mã kết quả từ gateway trả về
+  createdAt Instant required                       // Thời điểm nhận webhook
+}
+
+enum PaymentGateway {
+  VNPAY, MOMO, ZALOPAY, STRIPE, BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING, SUCCESS, FAILED, CANCELLED, REFUNDED
+}
+
+relationship ManyToOne {
+  PaymentWebhookLog{paymentTransaction(orderCode)} to PaymentTransaction
+}
+
+// Cấu hình sinh code
+dto * with mapstruct
+service * with serviceImpl
+paginate PaymentTransaction, PaymentWebhookLog with pagination

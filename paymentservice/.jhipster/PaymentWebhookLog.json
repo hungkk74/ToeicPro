@@ -1,0 +1,65 @@
+{
+  "annotations": {
+    "changelogDate": "20231208113817"
+  },
+  "applications": ["paymentservice"],
+  "clientRootFolder": "paymentservice",
+  "databaseType": "sql",
+  "documentation": "Log Webhook/IPN từ cổng thanh toán (dùng để đối soát & chống replay)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "orderCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "gateway",
+      "fieldType": "PaymentGateway",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "VNPAY,MOMO,ZALOPAY,STRIPE,BANK_TRANSFER"
+    },
+    {
+      "fieldName": "rawPayload",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "signature",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "isVerified",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "responseCode",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "20"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "paymentservice",
+  "name": "PaymentWebhookLog",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "orderCode",
+      "otherEntityName": "paymentTransaction",
+      "relationshipName": "paymentTransaction",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

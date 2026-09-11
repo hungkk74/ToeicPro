@@ -63,4 +63,12 @@ public interface SubscriptionService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Activate a subscription.
+     *
+     * @param userSubscriptionId the id of the entity.
+     * @param gatewayTransId the transaction or user reference.
+     */
+    void activateSubscription(Long userSubscriptionId, String gatewayTransId);
 }

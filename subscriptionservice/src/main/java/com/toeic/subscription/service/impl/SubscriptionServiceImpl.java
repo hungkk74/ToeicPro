@@ -12,6 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.toeic.subscription.domain.enumeration.SubscriptionStatus;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Service Implementation for managing {@link com.toeic.subscription.domain.Subscription}.
@@ -84,5 +87,34 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public void delete(Long id) {
         LOG.debug("Request to delete Subscription : {}", id);
         subscriptionRepository.deleteById(id);
+    }
+
+    @Override
+    public void activateSubscription(Long userSubscriptionId, String gatewayTransId) {
+        LOG.debug("Request to activate Subscription : {}, gatewayTransId : {}", userSubscriptionId, gatewayTransId);
+        if (userSubscriptionId == null) {
+            LOG.warn("Subscription id is null, skipping activation");
+            return;
+        }
+        subscriptionRepository
+            .findOneWithToOneRelationships(userSubscriptionId)
+            .ifPresentOrElse(
+                subscription -> {
+                    subscription.setStatus(SubscriptionStatus.ACTIVE);
+                    Instant now = Instant.now();
+                    subscription.setStartsAt(now);
+                    int durationDays = 30;
+                    if (subscription.getPlan() != null && subscription.getPlan().getDurationDays() != null) {
+                        durationDays = subscription.getPlan().getDurationDays();
+                    }
+                    Instant baseTime = (subscription.getExpiresAt() != null && subscription.getExpiresAt().isAfter(now))
+                        ? subscription.getExpiresAt()
+                        : now;
+                    subscription.setExpiresAt(baseTime.plus(durationDays, ChronoUnit.DAYS));
+                    subscriptionRepository.save(subscription);
+                    LOG.info("Subscription {} activated successfully for user {}", subscription.getId(), subscription.getUserId());
+                },
+                () -> LOG.warn("Subscription not found for id: {}", userSubscriptionId)
+            );
     }
 }
