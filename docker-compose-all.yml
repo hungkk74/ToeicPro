@@ -1,0 +1,436 @@
+# =============================================================================
+# Docker Compose - TOEIC Pro Platform (Full Stack Orchestration)
+# =============================================================================
+# Khởi chạy toàn bộ hệ thống TOEIC Pro chỉ với 1 lệnh:
+#   docker compose -f docker-compose-all.yml up -d
+#
+# Yêu cầu: Đã build sẵn 7 Docker Images bằng script build-all-images
+# =============================================================================
+name: toeic-pro
+
+networks:
+  toeic-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  redis-data:
+  kafka-data:
+
+services:
+  # ===========================================================================
+  #  HẠ TẦNG CHUNG (Infrastructure)
+  # ===========================================================================
+
+  # --- MySQL Database Server ---
+  mysql:
+    image: mysql:8.4
+    container_name: toeic-mysql
+    networks:
+      - toeic-network
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql:/docker-entrypoint-initdb.d:ro
+    command: mysqld --lower_case_table_names=1 --skip-mysqlx --character_set_server=utf8mb4 --explicit_defaults_for_timestamp --max_connections=1000
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -uroot -p123456 -e 'SHOW DATABASES;'"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+
+  # --- Redis Cache Server ---
+  redis:
+    image: redis:8.10.1
+    container_name: toeic-redis
+    networks:
+      - toeic-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  # --- Consul Service Discovery & Config ---
+  consul:
+    image: hashicorp/consul:2.0.3
+    container_name: toeic-consul
+    networks:
+      - toeic-network
+    ports:
+      - "8300:8300"
+      - "8500:8500"
+      - "8600:8600"
+    command: consul agent -dev -ui -client 0.0.0.0 -log-level=INFO
+
+  consul-config-loader:
+    image: jhipster/consul-config-loader:v0.4.1
+    container_name: toeic-consul-config-loader
+    networks:
+      - toeic-network
+    volumes:
+      - ./gateway/src/main/docker/central-server-config:/config
+    environment:
+      INIT_SLEEP_SECONDS: 5
+      CONSUL_URL: consul
+      CONSUL_PORT: 8500
+    depends_on:
+      - consul
+
+  # --- Keycloak Identity & Access Management ---
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.2-1
+    container_name: toeic-keycloak
+    networks:
+      - toeic-network
+    command: "start-dev --import-realm"
+    volumes:
+      - ./gateway/src/main/docker/realm-config:/opt/keycloak/data/import
+      - ./gateway/src/main/docker/realm-config/keycloak-health-check.sh:/opt/keycloak/health-check.sh
+    environment:
+      KC_DB: dev-file
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_FEATURES: scripts
+      KC_HTTP_PORT: 9080
+      KC_HTTPS_PORT: 9443
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_MANAGEMENT_PORT: 9990
+    ports:
+      - "9080:9080"
+      - "9443:9443"
+    healthcheck:
+      test: "bash /opt/keycloak/health-check.sh"
+      interval: 5s
+      timeout: 5s
+      retries: 50
+      start_period: 10s
+
+  # --- Kafka Message Broker ---
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: toeic-kafka
+    networks:
+      - toeic-network
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+
+  # --- Kafka UI (Quản lý Topic trực quan) ---
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: toeic-kafka-ui
+    networks:
+      - toeic-network
+    ports:
+      - "8989:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: "true"
+      KAFKA_CLUSTERS_0_NAME: toeic-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    depends_on:
+      - kafka
+
+  # --- Kafka Init (Tự động tạo sẵn các Topic nghiệp vụ) ---
+  kafka-init:
+    image: apache/kafka:3.8.0
+    container_name: toeic-kafka-init
+    networks:
+      - toeic-network
+    depends_on:
+      - kafka
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      "
+      until /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --list > /dev/null 2>&1; do
+        echo 'Waiting for Kafka broker...'
+        sleep 2
+      done
+
+      echo 'Provisioning Kafka topics...'
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic payment-completed-topic --partitions 3 --replication-factor 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic payment-completed-topic.DLT --partitions 3 --replication-factor 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic exam-finished-topic --partitions 3 --replication-factor 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:29092 --create --if-not-exists --topic lesson-completed-topic --partitions 3 --replication-factor 1
+
+      echo 'Kafka topics provisioned successfully.'
+      "
+
+  # ===========================================================================
+  #  MICROSERVICES (7 Services)
+  # ===========================================================================
+
+  # --- API Gateway (React Frontend + Spring Cloud Gateway) ---
+  gateway:
+    image: gateway:latest
+    container_name: toeic-gateway
+    networks:
+      - toeic-network
+    ports:
+      - "8080:8080"
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: web_app
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: web_app
+      SPRING_R2DBC_URL: r2dbc:mysql://mysql:3306/gateway?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_R2DBC_USERNAME: root
+      SPRING_R2DBC_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/gateway?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_LIQUIBASE_USER: root
+      SPRING_LIQUIBASE_PASSWORD: "123456"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started
+
+  # --- User Service ---
+  userservice:
+    image: userservice:latest
+    container_name: toeic-userservice
+    networks:
+      - toeic-network
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: internal
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: internal
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/userservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/userservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
+      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8081; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started
+
+  # --- Subscription Service ---
+  subscriptionservice:
+    image: subscriptionservice:latest
+    container_name: toeic-subscriptionservice
+    networks:
+      - toeic-network
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: internal
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: internal
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/subscriptionservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/subscriptionservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
+      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8082; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started
+
+  # --- Payment Service ---
+  paymentservice:
+    image: paymentservice:latest
+    container_name: toeic-paymentservice
+    networks:
+      - toeic-network
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: internal
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: internal
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/paymentservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/paymentservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
+      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8083; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      kafka:
+        condition: service_started
+
+  # --- Exam Service ---
+  examservice:
+    image: examservice:latest
+    container_name: toeic-examservice
+    networks:
+      - toeic-network
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: internal
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: internal
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/examservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/examservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
+      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8084; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      kafka:
+        condition: service_started
+
+  # --- Course Service ---
+  courseservice:
+    image: courseservice:latest
+    container_name: toeic-courseservice
+    networks:
+      - toeic-network
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: internal
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: internal
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/courseservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/courseservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
+      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8085; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started
+      kafka:
+        condition: service_started
+
+  # --- Notification Service ---
+  notificationservice:
+    image: notificationservice:latest
+    container_name: toeic-notificationservice
+    networks:
+      - toeic-network
+    environment:
+      _JAVA_OPTIONS: -Xmx512m -Xms256m
+      SPRING_PROFILES_ACTIVE: prod,api-docs,secret-samples
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OIDC_ISSUER_URI: http://keycloak:9080/realms/jhipster
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_ID: internal
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_OIDC_CLIENT_SECRET: internal
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/notificationservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/notificationservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
+      JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
+      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8086; printf \"GET /management/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; grep -q \"\\\"status\\\":\\\"UP\\\"\" <&3'"
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      consul:
+        condition: service_started

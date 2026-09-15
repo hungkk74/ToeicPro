@@ -134,7 +134,7 @@
         </processorPath>
         <module name="userservice" />
       </profile>
-      <profile name="Annotation profile for Notificationservice" enabled="true">
+      <profile name="Annotation profile for Courseservice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -161,8 +161,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/glassfish/jaxb/txw2/4.0.9/txw2-4.0.9.jar" />
           <entry name="$MAVEN_REPOSITORY$/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar" />
         </processorPath>
-        <module name="notificationservice" />
         <module name="courseservice" />
+        <module name="notificationservice" />
         <module name="examservice" />
       </profile>
     </annotationProcessing>
