@@ -1,0 +1,72 @@
+{
+  "annotations": {
+    "changelogDate": "20231209174121"
+  },
+  "applications": ["courseservice"],
+  "clientRootFolder": "courseservice",
+  "databaseType": "sql",
+  "documentation": "Chi tiết từng bài học (Video bài giảng, Tài liệu PDF, hoặc Bài tập)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "lessonType",
+      "fieldType": "LessonType",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "VIDEO,DOCUMENT,QUIZ"
+    },
+    {
+      "fieldName": "videoUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "durationSeconds",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "documentUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "isFreePreview",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sortOrder",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "1"
+    }
+  ],
+  "microserviceName": "courseservice",
+  "name": "Lesson",
+  "pagination": "infinite-scroll",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "chapter",
+      "relationshipName": "chapter",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

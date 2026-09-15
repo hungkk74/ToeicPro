@@ -1,0 +1,47 @@
+{
+  "annotations": {
+    "changelogDate": "20231218014140"
+  },
+  "applications": ["examservice"],
+  "clientRootFolder": "examservice",
+  "databaseType": "sql",
+  "documentation": "Chi tiết đáp án học viên chọn cho từng câu hỏi",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "selectedOption",
+      "fieldType": "AnswerOption",
+      "fieldValues": "A,B,C,D"
+    },
+    {
+      "fieldName": "isCorrect",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldName": "timeSpentSeconds",
+      "fieldType": "Integer"
+    }
+  ],
+  "microserviceName": "examservice",
+  "name": "UserAnswer",
+  "pagination": "infinite-scroll",
+  "relationships": [
+    {
+      "otherEntityName": "examAttempt",
+      "relationshipName": "examAttempt",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityField": "questionNumber",
+      "otherEntityName": "question",
+      "relationshipName": "question",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

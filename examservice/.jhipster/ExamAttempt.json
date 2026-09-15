@@ -1,0 +1,85 @@
+{
+  "annotations": {
+    "changelogDate": "20231218014040"
+  },
+  "applications": ["examservice"],
+  "clientRootFolder": "examservice",
+  "databaseType": "sql",
+  "documentation": "Lịch sử lần làm bài thi của học viên",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "36"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "AttemptStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "IN_PROGRESS,COMPLETED,ABANDONED"
+    },
+    {
+      "fieldName": "listeningScore",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "495",
+      "fieldValidateRulesMin": "5"
+    },
+    {
+      "fieldName": "readingScore",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "495",
+      "fieldValidateRulesMin": "5"
+    },
+    {
+      "fieldName": "totalScore",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMax": "990",
+      "fieldValidateRulesMin": "10"
+    },
+    {
+      "fieldName": "correctAnswers",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "wrongAnswers",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "skippedAnswers",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "timeSpentSeconds",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "startedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "completedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "examservice",
+  "name": "ExamAttempt",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "exam",
+      "relationshipName": "exam",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

@@ -1,0 +1,103 @@
+/**
+ * ===================================================================
+ * JDL Specification for NOTIFICATION SERVICE (notificationservice)
+ * Toeic Pro Microservices Ecosystem
+ * ===================================================================
+ */
+
+application {
+  config {
+    baseName notificationservice
+    applicationType microservice
+    packageName com.toeic.notification
+    serverPort 8086
+    authenticationType oauth2
+    serviceDiscoveryType consul
+    databaseType sql
+    devDatabaseType mysql
+    prodDatabaseType mysql
+    cacheProvider redis
+    buildTool maven
+    clientFramework no
+  }
+  entities Notification, NotificationTemplate, NotificationLog
+}
+
+/**
+ * Phân loại sự kiện thông báo trong hệ sinh thái
+ */
+enum NotificationType {
+  PAYMENT_SUCCESS,
+  EXAM_RESULT,
+  COURSE_ENROLLED,
+  SYSTEM_ANNOUNCEMENT,
+  STUDY_REMINDER
+}
+
+/**
+ * Kênh gửi thông báo
+ */
+enum NotificationChannel {
+  EMAIL,
+  PUSH_NOTIFICATION,
+  IN_APP,
+  SMS
+}
+
+/**
+ * Trạng thái xử lý gửi thông báo ra kênh ngoài
+ */
+enum NotificationStatus {
+  PENDING,
+  SENT,
+  FAILED
+}
+
+/**
+ * In-App Notification Inbox (Hộp thư thông báo hiển thị trên giao diện người dùng)
+ */
+entity Notification {
+  userId String required maxlength(36)               // Keycloak UUID của người nhận
+  title String required maxlength(255)               // Tiêu đề thông báo
+  content TextBlob required                          // Nội dung thông báo hiển thị
+  type NotificationType required                     // PAYMENT_SUCCESS, EXAM_RESULT, etc.
+  targetUrl String maxlength(500)                    // Đường dẫn màn hình điều hướng khi click
+  isRead Boolean required                            // false = Chưa đọc, true = Đã đọc
+  createdAt Instant required
+  readAt Instant
+}
+
+/**
+ * Quản lý mẫu nội dung thông báo đa kênh (Email / Push / In-App)
+ */
+entity NotificationTemplate {
+  code String required unique maxlength(100)         // EMAIL_PAYMENT_SUCCESS, EMAIL_EXAM_RESULT...
+  channel NotificationChannel required               // EMAIL, PUSH_NOTIFICATION, IN_APP...
+  subject String required maxlength(255)             // Tiêu đề email hoặc notification
+  bodyTemplate TextBlob required                     // Nội dung mẫu (chứa placeholder)
+  isActive Boolean required                          // Trạng thái kích hoạt mẫu
+  createdAt Instant required
+  updatedAt Instant
+}
+
+/**
+ * Nhật ký lưu vết và audit gửi thông báo qua kênh ngoài (Email / FCM / SMS)
+ */
+entity NotificationLog {
+  userId String required maxlength(36)               // Keycloak UUID
+  recipient String required maxlength(255)           // Địa chỉ email hoặc device token FCM
+  channel NotificationChannel required               // Kênh gửi
+  status NotificationStatus required                 // PENDING, SENT, FAILED
+  errorMessage TextBlob                              // Ghi nhận lỗi nếu gửi thất bại
+  retryCount Integer                                 // Số lần thử lại
+  sentAt Instant
+  createdAt Instant required
+}
+
+/**
+ * Cấu hình sinh mã nguồn chuẩn nghiệp vụ
+ */
+dto * with mapstruct
+service * with serviceImpl
+paginate Notification, NotificationLog with pagination
+paginate NotificationTemplate with pagination

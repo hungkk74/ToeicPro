@@ -1,0 +1,31 @@
+id;user_id;title;content;type;target_url;is_read;created_at;read_at
+1;hungrily;times;../fake-data/blob/hipster.txt;COURSE_ENROLLED;savour recount arrogantly;true;2023-12-11T01:15:12;2023-12-10T18:35:12
+2;amid waft;yak behest outset;../fake-data/blob/hipster.txt;EXAM_RESULT;perfection grimy circa;false;2023-12-11T11:13:42;2023-12-11T12:10:06
+3;unlike;below limited;../fake-data/blob/hipster.txt;EXAM_RESULT;thunderbolt;true;2023-12-11T16:05:27;2023-12-11T15:50:50
+4;gray;transplant prohibition cinder;../fake-data/blob/hipster.txt;EXAM_RESULT;ramp birdbath huzzah;true;2023-12-11T03:26:09;2023-12-11T16:21:08
+5;cuckoo;circa pace;../fake-data/blob/hipster.txt;COURSE_ENROLLED;browse not justly;true;2023-12-11T05:28:43;2023-12-11T14:00:42
+6;glaring into horn;ick;../fake-data/blob/hipster.txt;COURSE_ENROLLED;pixellate so meh;false;2023-12-10T21:33:57;2023-12-11T14:03:32
+7;efface victoriously;internalize;../fake-data/blob/hipster.txt;STUDY_REMINDER;nor;false;2023-12-10T19:25:57;2023-12-11T13:29:10
+8;casket impassioned;prance huzzah small;../fake-data/blob/hipster.txt;EXAM_RESULT;whoa;true;2023-12-10T18:17:31;2023-12-11T11:18:48
+9;meanwhile round because;intently oh oh;../fake-data/blob/hipster.txt;COURSE_ENROLLED;geez though;false;2023-12-11T02:00:53;2023-12-11T14:13:27
+10;urgently joyously like;enthusiastically instead mothball;../fake-data/blob/hipster.txt;STUDY_REMINDER;if couch furiously;false;2023-12-11T05:59:42;2023-12-11T01:56:47
+11;hence;per flood;../fake-data/blob/hipster.txt;EXAM_RESULT;gosh seriously inspect;true;2023-12-10T17:43:52;2023-12-11T08:45:23
+12;finally slope;quietly;../fake-data/blob/hipster.txt;PAYMENT_SUCCESS;till exalted;true;2023-12-11T14:04:10;2023-12-10T18:33:10
+13;unless sideboard outside;as critical;../fake-data/blob/hipster.txt;PAYMENT_SUCCESS;pfft;true;2023-12-11T04:05:17;2023-12-10T22:36:47
+14;after speedy informal;aha;../fake-data/blob/hipster.txt;EXAM_RESULT;the;false;2023-12-11T10:00:39;2023-12-11T04:08:01
+15;aw quarterly;that councilman yum;../fake-data/blob/hipster.txt;STUDY_REMINDER;knottily lawful;true;2023-12-10T23:13:39;2023-12-10T19:46:40
+16;regarding;stunning;../fake-data/blob/hipster.txt;EXAM_RESULT;tepid;false;2023-12-11T11:02:06;2023-12-10T22:11:23
+17;flash;bliss sadly;../fake-data/blob/hipster.txt;STUDY_REMINDER;at scorn;false;2023-12-11T06:41:57;2023-12-11T04:33:40
+18;lustrous now molasses;aha cycle;../fake-data/blob/hipster.txt;PAYMENT_SUCCESS;why supposing;false;2023-12-11T05:58:42;2023-12-11T14:23:32
+19;till unusual whoa;license gee;../fake-data/blob/hipster.txt;STUDY_REMINDER;scarification shipper boldly;false;2023-12-11T05:35:18;2023-12-10T20:34:08
+20;horst shyly till;psst unfortunately finished;../fake-data/blob/hipster.txt;SYSTEM_ANNOUNCEMENT;furthermore ick;false;2023-12-10T20:23:16;2023-12-10T17:49:04
+21;the oily;aw consequently vice;../fake-data/blob/hipster.txt;STUDY_REMINDER;weakly rigid;false;2023-12-10T23:03:53;2023-12-11T03:48:18
+22;coordination stiffen tentacle;boo discontinue;../fake-data/blob/hipster.txt;PAYMENT_SUCCESS;flustered;false;2023-12-11T03:21:46;2023-12-11T11:22:06
+23;reluctantly afford yawningly;anxiously rudely;../fake-data/blob/hipster.txt;COURSE_ENROLLED;concentration;true;2023-12-10T21:41:55;2023-12-11T11:41:41
+24;outrun supposing till;gadzooks bookcase;../fake-data/blob/hipster.txt;PAYMENT_SUCCESS;clamp now;false;2023-12-11T03:56:45;2023-12-11T04:00:57
+25;phooey;modulo pish ostrich;../fake-data/blob/hipster.txt;SYSTEM_ANNOUNCEMENT;ascribe focused;false;2023-12-10T18:46:53;2023-12-11T00:49:51
+26;indeed ah;inasmuch traditionalism feline;../fake-data/blob/hipster.txt;STUDY_REMINDER;bitterly cumbersome;true;2023-12-11T05:52:44;2023-12-11T09:04:52
+27;about tag import;signature;../fake-data/blob/hipster.txt;SYSTEM_ANNOUNCEMENT;quantify tighten;true;2023-12-11T04:02:04;2023-12-10T18:47:31
+28;synergy;nor knife whine;../fake-data/blob/hipster.txt;SYSTEM_ANNOUNCEMENT;until display yieldingly;true;2023-12-11T04:44:52;2023-12-10T22:45:48
+29;which;against;../fake-data/blob/hipster.txt;EXAM_RESULT;thoroughly once;false;2023-12-10T20:34:53;2023-12-10T19:57:45
+30;range;despite rapidly um;../fake-data/blob/hipster.txt;EXAM_RESULT;father replicate what;true;2023-12-11T06:19:32;2023-12-10T20:18:59

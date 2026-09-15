@@ -1,0 +1,62 @@
+{
+  "annotations": {
+    "changelogDate": "20231211171301"
+  },
+  "applications": ["notificationservice"],
+  "clientRootFolder": "notificationservice",
+  "databaseType": "sql",
+  "documentation": "In-App Notification Inbox (Hộp thư thông báo hiển thị trên giao diện người dùng)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "36"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "type",
+      "fieldType": "NotificationType",
+      "fieldTypeDocumentation": "Phân loại sự kiện thông báo trong hệ sinh thái",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PAYMENT_SUCCESS,EXAM_RESULT,COURSE_ENROLLED,SYSTEM_ANNOUNCEMENT,STUDY_REMINDER"
+    },
+    {
+      "fieldName": "targetUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "500"
+    },
+    {
+      "fieldName": "isRead",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "readAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "notificationservice",
+  "name": "Notification",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

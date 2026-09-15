@@ -1,0 +1,53 @@
+{
+  "annotations": {
+    "changelogDate": "20231209174321"
+  },
+  "applications": ["courseservice"],
+  "clientRootFolder": "courseservice",
+  "databaseType": "sql",
+  "documentation": "Theo dõi tiến độ học tập chi tiết của học viên cho từng bài học",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "36"
+    },
+    {
+      "fieldName": "isCompleted",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "lastWatchedSecond",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "completedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "courseservice",
+  "name": "LessonProgress",
+  "pagination": "infinite-scroll",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "lesson",
+      "relationshipName": "lesson",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

@@ -1,0 +1,56 @@
+{
+  "annotations": {
+    "changelogDate": "20231211171401"
+  },
+  "applications": ["notificationservice"],
+  "clientRootFolder": "notificationservice",
+  "databaseType": "sql",
+  "documentation": "Quản lý mẫu nội dung thông báo đa kênh (Email / Push / In-App)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "channel",
+      "fieldType": "NotificationChannel",
+      "fieldTypeDocumentation": "Kênh gửi thông báo",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "EMAIL,PUSH_NOTIFICATION,IN_APP,SMS"
+    },
+    {
+      "fieldName": "subject",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "bodyTemplate",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "isActive",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "notificationservice",
+  "name": "NotificationTemplate",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

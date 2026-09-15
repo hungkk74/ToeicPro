@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity Question.
+    -->
+    <changeSet id="20231218013940-1" author="jhipster">
+        <createTable tableName="question" remarks="Chi tiết từng câu hỏi trắc nghiệm">
+            <column name="id" type="bigint" autoIncrement="true" startWith="1500">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="question_number" type="integer">
+                <constraints nullable="false" />
+            </column>
+            <column name="content" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="image_url" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="audio_url" type="varchar(1000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="option_a" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="option_b" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="option_c" type="${clobType}">
+                <constraints nullable="false" />
+            </column>
+            <column name="option_d" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="correct_option" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="explanation" type="${clobType}">
+                <constraints nullable="true" />
+            </column>
+            <column name="part_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="question_group_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+    </changeSet>
+
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
+
+    <!--
+        Load sample data generated with Faker.js
+        - This data can be easily edited using a CSV editor (or even MS Excel) and
+          is located in the 'src/main/resources/config/liquibase/fake-data' directory
+        - By default this data is applied when running with the JHipster 'dev' profile.
+          This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
+          Spring Boot configuration key.
+    -->
+    <changeSet id="20231218013940-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="../fake-data/question.csv"
+                  relativeToChangelogFile="true"
+                  separator=";"
+                  tableName="question"
+                  usePreparedStatements="true">
+            <column name="id" type="numeric"/>
+            <column name="question_number" type="numeric"/>
+            <column name="content" type="clob"/>
+            <column name="image_url" type="string"/>
+            <column name="audio_url" type="string"/>
+            <column name="option_a" type="clob"/>
+            <column name="option_b" type="clob"/>
+            <column name="option_c" type="clob"/>
+            <column name="option_d" type="clob"/>
+            <column name="correct_option" type="string"/>
+            <column name="explanation" type="clob"/>
+            <column name="part_id" type="numeric"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

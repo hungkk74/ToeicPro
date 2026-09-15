@@ -1,0 +1,48 @@
+{
+  "annotations": {
+    "changelogDate": "20231209174221"
+  },
+  "applications": ["courseservice"],
+  "clientRootFolder": "courseservice",
+  "databaseType": "sql",
+  "documentation": "Ghi nhận quyền sở hữu khóa học của học viên sau khi thanh toán",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "36"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "EnrollmentStatus",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACTIVE,EXPIRED,CANCELLED"
+    },
+    {
+      "fieldName": "enrolledAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "expiresAt",
+      "fieldType": "Instant"
+    }
+  ],
+  "microserviceName": "courseservice",
+  "name": "CourseEnrollment",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

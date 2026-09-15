@@ -1,0 +1,44 @@
+{
+  "annotations": {
+    "changelogDate": "20231218013740"
+  },
+  "applications": ["examservice"],
+  "clientRootFolder": "examservice",
+  "databaseType": "sql",
+  "documentation": "7 Phần thi TOEIC (Part 1 -> Part 7)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "partNumber",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min", "max"],
+      "fieldValidateRulesMax": "7",
+      "fieldValidateRulesMin": "1"
+    },
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "100"
+    },
+    {
+      "fieldName": "totalQuestions",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "examservice",
+  "name": "Part",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "exam",
+      "relationshipName": "exam",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

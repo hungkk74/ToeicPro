@@ -1,0 +1,85 @@
+{
+  "annotations": {
+    "changelogDate": "20231218013940"
+  },
+  "applications": ["examservice"],
+  "clientRootFolder": "examservice",
+  "databaseType": "sql",
+  "documentation": "Chi tiết từng câu hỏi trắc nghiệm",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "questionNumber",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min", "max"],
+      "fieldValidateRulesMax": "200",
+      "fieldValidateRulesMin": "1"
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "imageUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "audioUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "optionA",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "optionB",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "optionC",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "optionD",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "correctOption",
+      "fieldType": "AnswerOption",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "A,B,C,D"
+    },
+    {
+      "fieldName": "explanation",
+      "fieldType": "TextBlob"
+    }
+  ],
+  "microserviceName": "examservice",
+  "name": "Question",
+  "pagination": "infinite-scroll",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "part",
+      "relationshipName": "part",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityName": "questionGroup",
+      "relationshipName": "questionGroup",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

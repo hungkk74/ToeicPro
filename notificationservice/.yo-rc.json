@@ -1,0 +1,26 @@
+{
+  "generator-jhipster": {
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "notificationservice",
+    "buildTool": "maven",
+    "cacheProvider": "redis",
+    "clientFramework": "no",
+    "creationTimestamp": 1702314721800,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "entities": ["Notification", "NotificationTemplate", "NotificationLog"],
+    "jhipsterVersion": "9.3.0",
+    "jwtSecretKey": "ZmU0ZWNhYmI2NDE4ZGY2MWQ1MWJlNDUzMDUwNzljMmYxMDU4NzJhNWQwYTJkYjM0OTQzYWZkMWY1ODgzNTMwMWFkZDJiMzY4ZDFiMmY0MjkyOTMxMWQ5ODI0MTRmMGI4NTlkZWIzNzE0ZDYwNDEyYzI5MzZlMWFjMWFhMzRjNTg=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1702314901000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.toeic.notification",
+    "prodDatabaseType": "mysql",
+    "serverPort": "8086",
+    "serviceDiscoveryType": "consul",
+    "skipClient": true,
+    "skipCommitHook": true
+  }
+}

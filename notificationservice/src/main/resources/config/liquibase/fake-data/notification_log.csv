@@ -1,0 +1,31 @@
+id;user_id;recipient;channel;status;error_message;retry_count;sent_at;created_at
+1;quickly;why amid;SMS;PENDING;../fake-data/blob/hipster.txt;15168;2023-12-10T19:34:24;2023-12-11T17:08:20
+2;frankly upside-down uncommon;orient ah;PUSH_NOTIFICATION;FAILED;../fake-data/blob/hipster.txt;26031;2023-12-11T04:47:34;2023-12-11T15:56:35
+3;drat;remorseful;PUSH_NOTIFICATION;PENDING;../fake-data/blob/hipster.txt;19543;2023-12-11T06:26:29;2023-12-11T05:46:50
+4;ew midst since;leading from mostly;SMS;FAILED;../fake-data/blob/hipster.txt;9499;2023-12-11T08:12:18;2023-12-10T19:27:48
+5;knickers papa;bravely cheerfully;PUSH_NOTIFICATION;SENT;../fake-data/blob/hipster.txt;30159;2023-12-10T20:58:59;2023-12-10T22:44:36
+6;majestic;defiantly apud;SMS;SENT;../fake-data/blob/hipster.txt;11582;2023-12-11T02:25:38;2023-12-11T01:32:34
+7;through affect fragrant;amidst;IN_APP;SENT;../fake-data/blob/hipster.txt;12134;2023-12-11T00:02:10;2023-12-10T21:23:11
+8;underneath;kookily kosher conversation;SMS;FAILED;../fake-data/blob/hipster.txt;15728;2023-12-11T12:37:30;2023-12-11T13:36:14
+9;moisten;enrage;EMAIL;PENDING;../fake-data/blob/hipster.txt;24975;2023-12-11T05:25:30;2023-12-10T21:14:50
+10;cram jut;spook an;EMAIL;PENDING;../fake-data/blob/hipster.txt;2383;2023-12-10T17:53:18;2023-12-11T00:52:39
+11;indeed foolhardy;neighboring off;SMS;PENDING;../fake-data/blob/hipster.txt;26630;2023-12-11T13:36:23;2023-12-11T06:03:23
+12;unless behind;lay rapidly best-seller;SMS;PENDING;../fake-data/blob/hipster.txt;22267;2023-12-11T09:20:53;2023-12-11T07:29:20
+13;ick;commodity prioritize via;IN_APP;PENDING;../fake-data/blob/hipster.txt;5106;2023-12-11T03:59:41;2023-12-11T17:14:53
+14;redraw;instantly;SMS;FAILED;../fake-data/blob/hipster.txt;11863;2023-12-10T19:09:58;2023-12-11T08:54:58
+15;monthly fooey;utterly;IN_APP;SENT;../fake-data/blob/hipster.txt;3163;2023-12-10T23:44:33;2023-12-10T18:57:54
+16;whoa psst;submitter boo;IN_APP;FAILED;../fake-data/blob/hipster.txt;22566;2023-12-11T15:59:38;2023-12-10T22:06:08
+17;mysteriously where;outside;EMAIL;FAILED;../fake-data/blob/hipster.txt;18273;2023-12-11T04:10:27;2023-12-11T09:11:34
+18;harmful dial;commandeer instead whereas;SMS;SENT;../fake-data/blob/hipster.txt;29981;2023-12-11T12:28:04;2023-12-11T13:59:06
+19;and;opposite;SMS;FAILED;../fake-data/blob/hipster.txt;21463;2023-12-11T05:16:39;2023-12-11T07:57:56
+20;noted;whoever quarrelsomely short-term;IN_APP;FAILED;../fake-data/blob/hipster.txt;28757;2023-12-11T16:50:51;2023-12-11T12:42:14
+21;bah for;unto wonderfully;EMAIL;PENDING;../fake-data/blob/hipster.txt;22311;2023-12-11T15:21:20;2023-12-10T23:08:08
+22;who;ugh snarling shush;SMS;SENT;../fake-data/blob/hipster.txt;18618;2023-12-11T15:09:10;2023-12-11T02:25:24
+23;clear;untried;EMAIL;SENT;../fake-data/blob/hipster.txt;10438;2023-12-11T03:05:15;2023-12-11T00:46:08
+24;yippee arbitrate beyond;uh-huh;EMAIL;PENDING;../fake-data/blob/hipster.txt;28088;2023-12-10T19:10:23;2023-12-11T13:30:37
+25;illustrious internationalize;greatly diver why;PUSH_NOTIFICATION;SENT;../fake-data/blob/hipster.txt;19364;2023-12-10T20:10:22;2023-12-11T03:11:43
+26;teeming separately bashfully;reassuringly;IN_APP;FAILED;../fake-data/blob/hipster.txt;25030;2023-12-10T20:19:53;2023-12-10T21:25:35
+27;majestically;impartial now indeed;SMS;SENT;../fake-data/blob/hipster.txt;22358;2023-12-11T17:11:48;2023-12-10T22:58:58
+28;transcend cluttered;an confirm antagonize;SMS;FAILED;../fake-data/blob/hipster.txt;9399;2023-12-11T04:14:35;2023-12-10T20:17:55
+29;bah meanwhile capsize;provided quietly;IN_APP;PENDING;../fake-data/blob/hipster.txt;20518;2023-12-10T22:40:59;2023-12-11T15:12:37
+30;phew whoa;not kielbasa eventually;EMAIL;PENDING;../fake-data/blob/hipster.txt;25308;2023-12-11T07:01:28;2023-12-11T14:57:31

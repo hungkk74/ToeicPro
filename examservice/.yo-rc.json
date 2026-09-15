@@ -1,0 +1,26 @@
+{
+  "generator-jhipster": {
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "examservice",
+    "buildTool": "maven",
+    "cacheProvider": "redis",
+    "clientFramework": "no",
+    "creationTimestamp": 1702863340394,
+    "databaseType": "sql",
+    "devDatabaseType": "mysql",
+    "entities": ["Exam", "Part", "QuestionGroup", "Question", "ExamAttempt", "UserAnswer"],
+    "jhipsterVersion": "9.3.0",
+    "jwtSecretKey": "YzYzZTc5YzQxMGFlZmRkOTFlZmY3ZjZlNmEyZTUwMzQxMjAzNDMwZmY0YWU0YjIzMGJjYTYzNzU3YWQ5NzNhZGQzZWJjMzg5NDI4ZWE1MjI4NGMyYTVlYzM2MDVmZmYxZjM5NjNiMjA0YzBjYTA4MDIwMDViY2ZiYjdlNzhhMTk=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1702863700000,
+    "monorepository": true,
+    "nativeLanguage": "en",
+    "packageName": "com.toeic.exam",
+    "prodDatabaseType": "mysql",
+    "serverPort": "8084",
+    "serviceDiscoveryType": "consul",
+    "skipClient": true,
+    "skipCommitHook": true
+  }
+}

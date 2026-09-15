@@ -1,0 +1,117 @@
+/**
+ * ===================================================================
+ * JDL Specification for COURSE SERVICE (courseservice)
+ * Toeic Pro Microservices Ecosystem
+ * ===================================================================
+ */
+
+application {
+  config {
+    baseName courseservice
+    applicationType microservice
+    packageName com.toeic.course
+    serverPort 8085
+    authenticationType oauth2
+    serviceDiscoveryType consul
+    databaseType sql
+    devDatabaseType mysql
+    prodDatabaseType mysql
+    cacheProvider redis
+    buildTool maven
+    clientFramework no
+  }
+  entities Course, Chapter, Lesson, CourseEnrollment, LessonProgress
+}
+
+/**
+ * Quản lý thông tin khóa học (Khóa 450+, 650+, Luyện phát âm, Từ vựng)
+ */
+entity Course {
+  code String required unique maxlength(50)          // Mã khóa: TOEIC_650_INTENSIVE
+  title String required maxlength(255)               // Tên khóa: Khóa học TOEIC 650+ Chuyên Sâu
+  slug String required unique maxlength(255)         // Đường dẫn URL thân thiện: toeic-650-chuyen-sau
+  description TextBlob                               // Mô tả chi tiết lộ trình học
+  price BigDecimal required min(0)                   // Giá gốc khóa học (VND)
+  discountPrice BigDecimal min(0)                    // Giá khuyến mãi (nếu có)
+  thumbnailUrl String maxlength(1000)                // Link ảnh bìa khóa học trên CDN
+  level CourseLevel required                         // Cấp độ: BEGINNER, INTERMEDIATE, ADVANCED, ALL_LEVELS
+  isPublished Boolean required                       // true = Hiển thị cho học viên mua
+  totalDurationSeconds Integer                       // Tổng thời lượng video (giây)
+  totalLessons Integer                               // Tổng số bài học
+  createdAt Instant required
+  updatedAt Instant
+}
+
+/**
+ * Chương / Phần học trong khóa học
+ */
+entity Chapter {
+  title String required maxlength(255)               // vd: Chương 1: Chiến thuật xử lý Part 1
+  description TextBlob                               // Tóm tắt mục tiêu của chương
+  sortOrder Integer required min(1)                  // Thứ tự hiển thị (1, 2, 3...)
+}
+
+/**
+ * Chi tiết từng bài học (Video bài giảng, Tài liệu PDF, hoặc Bài tập)
+ */
+entity Lesson {
+  title String required maxlength(255)               // vd: Bài 1: 50 Cụm từ thường gặp nhất Part 1
+  lessonType LessonType required                     // VIDEO, DOCUMENT, QUIZ
+  videoUrl String maxlength(1000)                    // Link video bài giảng trên CDN / S3 / HLS
+  durationSeconds Integer min(0)                     // Thời lượng bài học (giây)
+  documentUrl String maxlength(1000)                 // Link file PDF tài liệu đính kèm
+  content TextBlob                                   // Nội dung bài giảng dạng văn bản
+  isFreePreview Boolean required                     // true = Cho phép học viên học thử miễn phí
+  sortOrder Integer required min(1)                  // Thứ tự bài học trong chương
+}
+
+/**
+ * Ghi nhận quyền sở hữu khóa học của học viên sau khi thanh toán
+ */
+entity CourseEnrollment {
+  userId String required maxlength(36)               // UUID học viên từ Keycloak (claim 'sub')
+  status EnrollmentStatus required                   // ACTIVE, EXPIRED, CANCELLED
+  enrolledAt Instant required                        // Ngày bắt đầu sở hữu
+  expiresAt Instant                                  // Ngày hết hạn (null = sở hữu vĩnh viễn)
+}
+
+/**
+ * Theo dõi tiến độ học tập chi tiết của học viên cho từng bài học
+ */
+entity LessonProgress {
+  userId String required maxlength(36)               // UUID học viên từ Keycloak
+  isCompleted Boolean required                       // true = Đã hoàn thành bài học
+  lastWatchedSecond Integer min(0)                   // Vị trí giây đang xem dở (Resume watching)
+  completedAt Instant                                // Thời điểm học xong bài
+  updatedAt Instant required                         // Lần cập nhật tiến độ gần nhất
+}
+
+enum CourseLevel {
+  BEGINNER, INTERMEDIATE, ADVANCED, ALL_LEVELS
+}
+
+enum LessonType {
+  VIDEO, DOCUMENT, QUIZ
+}
+
+enum EnrollmentStatus {
+  ACTIVE, EXPIRED, CANCELLED
+}
+
+/**
+ * Định nghĩa mối quan hệ giữa các thực thể
+ */
+relationship ManyToOne {
+  Chapter{course(title) required} to Course
+  Lesson{chapter(title) required} to Chapter
+  CourseEnrollment{course(title) required} to Course
+  LessonProgress{lesson(title) required} to Lesson
+}
+
+/**
+ * Cấu hình sinh mã nguồn chuẩn nghiệp vụ
+ */
+dto * with mapstruct
+service * with serviceImpl
+paginate Course, CourseEnrollment with pagination
+paginate Chapter, Lesson, LessonProgress with infinite-scroll

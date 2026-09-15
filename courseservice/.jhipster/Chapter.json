@@ -1,0 +1,43 @@
+{
+  "annotations": {
+    "changelogDate": "20231209174021"
+  },
+  "applications": ["courseservice"],
+  "clientRootFolder": "courseservice",
+  "databaseType": "sql",
+  "documentation": "Chương / Phần học trong khóa học",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "sortOrder",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "1"
+    }
+  ],
+  "microserviceName": "courseservice",
+  "name": "Chapter",
+  "pagination": "infinite-scroll",
+  "relationships": [
+    {
+      "otherEntityField": "title",
+      "otherEntityName": "course",
+      "relationshipName": "course",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

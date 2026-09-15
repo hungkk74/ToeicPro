@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/courseservice/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/examservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/notificationservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/paymentservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/subscriptionservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/userservice/src/main/java" charset="UTF-8" />

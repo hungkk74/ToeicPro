@@ -1,0 +1,61 @@
+{
+  "annotations": {
+    "changelogDate": "20231211171501"
+  },
+  "applications": ["notificationservice"],
+  "clientRootFolder": "notificationservice",
+  "databaseType": "sql",
+  "documentation": "Nhật ký lưu vết và audit gửi thông báo qua kênh ngoài (Email / FCM / SMS)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "36"
+    },
+    {
+      "fieldName": "recipient",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "channel",
+      "fieldType": "NotificationChannel",
+      "fieldTypeDocumentation": "Kênh gửi thông báo",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "EMAIL,PUSH_NOTIFICATION,IN_APP,SMS"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "NotificationStatus",
+      "fieldTypeDocumentation": "Trạng thái xử lý gửi thông báo ra kênh ngoài",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "PENDING,SENT,FAILED"
+    },
+    {
+      "fieldName": "errorMessage",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "retryCount",
+      "fieldType": "Integer"
+    },
+    {
+      "fieldName": "sentAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "notificationservice",
+  "name": "NotificationLog",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

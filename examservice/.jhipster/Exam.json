@@ -1,0 +1,62 @@
+{
+  "annotations": {
+    "changelogDate": "20231218013640"
+  },
+  "applications": ["examservice"],
+  "clientRootFolder": "examservice",
+  "databaseType": "sql",
+  "documentation": "Danh mục đề thi (Full test 200 câu, Mini test, hoặc Practice)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "code",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique", "maxlength"],
+      "fieldValidateRulesMaxlength": "50"
+    },
+    {
+      "fieldName": "title",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "maxlength"],
+      "fieldValidateRulesMaxlength": "255"
+    },
+    {
+      "fieldName": "category",
+      "fieldType": "ExamCategory",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "FULL_TEST,MINI_TEST,PRACTICE_PART"
+    },
+    {
+      "fieldName": "durationMinutes",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "totalQuestions",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "audioFullUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "isPublished",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "examservice",
+  "name": "Exam",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

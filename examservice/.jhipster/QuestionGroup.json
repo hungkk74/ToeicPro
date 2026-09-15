@@ -1,0 +1,42 @@
+{
+  "annotations": {
+    "changelogDate": "20231218013840"
+  },
+  "applications": ["examservice"],
+  "clientRootFolder": "examservice",
+  "databaseType": "sql",
+  "documentation": "Nhóm câu hỏi (Dùng cho Part 3, 4, 6, 7 dùng chung bài đọc / audio hội thoại)",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "passageText",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "audioUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    },
+    {
+      "fieldName": "imageUrl",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "1000"
+    }
+  ],
+  "microserviceName": "examservice",
+  "name": "QuestionGroup",
+  "relationships": [
+    {
+      "otherEntityField": "name",
+      "otherEntityName": "part",
+      "relationshipName": "part",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
