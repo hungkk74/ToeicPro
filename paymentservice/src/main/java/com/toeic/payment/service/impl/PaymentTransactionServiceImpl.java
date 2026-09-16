@@ -6,6 +6,8 @@ import com.toeic.payment.service.PaymentTransactionService;
 import com.toeic.payment.service.dto.PaymentTransactionDTO;
 import com.toeic.payment.service.mapper.PaymentTransactionMapper;
 import java.util.Optional;
+import com.toeic.payment.domain.enumeration.PaymentStatus;
+import com.toeic.payment.service.PaymentEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -26,12 +28,16 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 
     private final PaymentTransactionMapper paymentTransactionMapper;
 
+    private final PaymentEventPublisher paymentEventPublisher;
+
     public PaymentTransactionServiceImpl(
         PaymentTransactionRepository paymentTransactionRepository,
-        PaymentTransactionMapper paymentTransactionMapper
+        PaymentTransactionMapper paymentTransactionMapper,
+        PaymentEventPublisher paymentEventPublisher
     ) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.paymentTransactionMapper = paymentTransactionMapper;
+        this.paymentEventPublisher = paymentEventPublisher;
     }
 
     @Override
@@ -39,14 +45,24 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         LOG.debug("Request to save PaymentTransaction : {}", paymentTransactionDTO);
         PaymentTransaction paymentTransaction = paymentTransactionMapper.toEntity(paymentTransactionDTO);
         paymentTransaction = paymentTransactionRepository.save(paymentTransaction);
+        paymentEventPublisher.publishIfSuccess(paymentTransaction);
         return paymentTransactionMapper.toDto(paymentTransaction);
     }
 
     @Override
     public PaymentTransactionDTO update(PaymentTransactionDTO paymentTransactionDTO) {
         LOG.debug("Request to update PaymentTransaction : {}", paymentTransactionDTO);
+        PaymentStatus oldStatus = paymentTransactionRepository
+            .findById(paymentTransactionDTO.getId())
+            .map(PaymentTransaction::getStatus)
+            .orElse(null);
+
         PaymentTransaction paymentTransaction = paymentTransactionMapper.toEntity(paymentTransactionDTO);
         paymentTransaction = paymentTransactionRepository.save(paymentTransaction);
+
+        if (paymentTransaction.getStatus() == PaymentStatus.SUCCESS && oldStatus != PaymentStatus.SUCCESS) {
+            paymentEventPublisher.publishIfSuccess(paymentTransaction);
+        }
         return paymentTransactionMapper.toDto(paymentTransaction);
     }
 
@@ -57,11 +73,14 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
         return paymentTransactionRepository
             .findById(paymentTransactionDTO.getId())
             .map(existingPaymentTransaction -> {
+                PaymentStatus oldStatus = existingPaymentTransaction.getStatus();
                 paymentTransactionMapper.partialUpdate(existingPaymentTransaction, paymentTransactionDTO);
-
-                return existingPaymentTransaction;
+                PaymentTransaction saved = paymentTransactionRepository.save(existingPaymentTransaction);
+                if (saved.getStatus() == PaymentStatus.SUCCESS && oldStatus != PaymentStatus.SUCCESS) {
+                    paymentEventPublisher.publishIfSuccess(saved);
+                }
+                return saved;
             })
-            .map(paymentTransactionRepository::save)
             .map(paymentTransactionMapper::toDto);
     }
 
