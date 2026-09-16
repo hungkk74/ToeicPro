@@ -1,0 +1,26 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 0,
+    "applicationType": "gateway",
+    "authenticationType": "oauth2",
+    "baseName": "gateway",
+    "clientFramework": "react",
+    "creationTimestamp": 1703252914559,
+    "databaseType": "sql",
+    "defaultCommand": "app",
+    "devDatabaseType": "h2Disk",
+    "devServerPort": null,
+    "entities": ["UserProfile"],
+    "jhipsterVersion": "9.3.0",
+    "jwtSecretKey": "NTA2MmZjNjJjYmFkZmY2MTU3OGJhNjQ3NDNmMWIyNjdjNTk1YmM1Yzc1YmVkOTUxMjRjODMwMjcwYWFmY2I3NjZkNGE3ZWFmZmU5YmQ4ZWUxMjczOGJlYjhhYjQwNGI3MTBiZTEzYzBmZTM4ZGMzYmU4Y2EwYjdmMzVkOGM5OGQ=",
+    "languages": ["en"],
+    "nativeLanguage": "en",
+    "packageName": "com.toeic.gateway",
+    "prodDatabaseType": "mysql",
+    "reactive": true,
+    "serverPort": 8080,
+    "serviceDiscoveryType": "consul",
+    "skipServer": true,
+    "testFrameworks": ["cypress"]
+  }
+}

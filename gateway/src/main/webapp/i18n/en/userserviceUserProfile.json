@@ -1,0 +1,32 @@
+{
+  "gatewayApp": {
+    "userserviceUserProfile": {
+      "home": {
+        "title": "User Profiles",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new User Profile",
+        "createOrEditLabel": "Create or edit a User Profile",
+        "notFound": "No User Profiles found"
+      },
+      "delete": {
+        "question": "Are you sure you want to delete User Profile {{ id }}?"
+      },
+      "detail": {
+        "title": "User Profile"
+      },
+      "id": "ID",
+      "userId": "User Id",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address"
+    }
+  },
+  "userserviceApp": {
+    "userserviceUserProfile": {
+      "created": "A new User Profile is created with identifier {{ param }}",
+      "updated": "A User Profile is updated with identifier {{ param }}",
+      "deleted": "A User Profile is deleted with identifier {{ param }}"
+    }
+  }
+}

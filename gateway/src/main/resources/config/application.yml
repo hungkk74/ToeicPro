@@ -1,0 +1,326 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overridden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+#
+# More information on profiles: https://www.jhipster.tech/profiles/
+# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# https://docs.spring.io/spring-boot/appendix/application-properties/index.html
+# ===================================================================
+
+---
+# Conditionally disable springdoc on missing api-docs profile
+spring:
+  config:
+    activate:
+      on-profile: '!api-docs'
+springdoc:
+  api-docs:
+    enabled: false
+---
+reactive:
+  feign:
+    circuit:
+      breaker:
+        enabled: true
+  # client:
+  #   config:
+  #     default:
+  #       connectTimeout: 5000
+  #       readTimeout: 5000
+management:
+  endpoints:
+    web:
+      base-path: /management
+      exposure:
+        include:
+          - configprops
+          - env
+          - gateway
+          - health
+          - info
+          - jhimetrics
+          - jhiopenapigroups
+          - logfile
+          - loggers
+          - prometheus
+          - threaddump
+          - liquibase
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: 'ROLE_ADMIN'
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState
+    jhimetrics:
+      access: read-only
+  info:
+    git:
+      mode: full
+    env:
+      enabled: true
+  health:
+    mail:
+      enabled: false # When using the MailService, configure an SMTP server and set this to true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+        step: 60
+  observations:
+    key-values:
+      application: ${spring.application.name}
+  metrics:
+    enable:
+      http: true
+      jvm: true
+      logback: true
+      process: true
+      system: true
+    distribution:
+      percentiles-histogram:
+        all: true
+      percentiles:
+        all: 0, 0.5, 0.75, 0.95, 0.99, 1.0
+    data:
+      repository:
+        autotime:
+          enabled: true
+    tags:
+      application: ${spring.application.name}
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    consul:
+      discovery:
+        healthCheckPath: /management/health
+        instanceId: gateway:${spring.application.instance-id:${random.value}}
+        service-name: gateway
+      config:
+        watch:
+          enabled: false
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - TokenRelay
+          routes:
+            # --- User Service ---
+            - id: userservice-route
+              uri: lb://userservice
+              predicates:
+                - Path=/api/user-profiles/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: userserviceCB
+
+            # --- Subscription Service ---
+            - id: subscriptionservice-plans-route
+              uri: lb://subscriptionservice
+              predicates:
+                - Path=/api/plans/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: subscriptionserviceCB
+
+            - id: subscriptionservice-subscriptions-route
+              uri: lb://subscriptionservice
+              predicates:
+                - Path=/api/subscriptions/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: subscriptionserviceCB
+
+            # --- Payment Service ---
+            - id: paymentservice-transactions-route
+              uri: lb://paymentservice
+              predicates:
+                - Path=/api/payment-transactions/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: paymentserviceCB
+
+            - id: paymentservice-webhooks-route
+              uri: lb://paymentservice
+              predicates:
+                - Path=/api/payment-webhook-logs/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: paymentserviceCB
+
+            # --- Exam Service ---
+            - id: examservice-route
+              uri: lb://examservice
+              predicates:
+                - Path=/api/exams/**, /api/parts/**, /api/question-groups/**, /api/questions/**, /api/exam-attempts/**, /api/user-answers/**, /api/score-conversions/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: examserviceCB
+
+            # --- Course Service ---
+            - id: courseservice-route
+              uri: lb://courseservice
+              predicates:
+                - Path=/api/courses/**, /api/chapters/**, /api/lessons/**, /api/course-enrollments/**, /api/lesson-progresses/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: courseserviceCB
+
+            # --- Notification Service ---
+            - id: notificationservice-route
+              uri: lb://notificationservice
+              predicates:
+                - Path=/api/notifications/**, /api/notification-templates/**, /api/notification-logs/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: notificationserviceCB
+
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+              predicates:
+                - name: Path
+                  args:
+                    pattern: "'/services/'+serviceId+'/**'"
+              filters:
+                - StripPrefix=2
+          httpclient:
+            pool:
+              max-connections: 1000
+          # See alternatives in https://github.com/spring-cloud/spring-cloud-gateway/issues/3818
+          trusted-proxies: '.*'
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start-only
+      file: src/main/docker/services.yml
+  profiles:
+    # The commented value for `active` can be replaced with valid Spring profiles to load.
+    # Otherwise, it will be filled in by maven when building the JAR file
+    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+    active: '@spring.profiles.active@'
+    group:
+      dev:
+        - secret-samples
+        - api-docs
+        # Uncomment to activate TLS for the dev profile
+        #- tls
+  jmx:
+    enabled: false
+  messages:
+    basename: i18n/messages
+  main:
+    allow-bean-definition-overriding: true
+  webflux:
+    problemdetails:
+      enabled: true
+  security:
+    oauth2:
+      client:
+        registration:
+          oidc:
+            scope: openid, profile
+  task:
+    execution:
+      thread-name-prefix: gateway-task-
+      pool:
+        core-size: 2
+        max-size: 50
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: gateway-scheduling-
+      pool:
+        size: 2
+  thymeleaf:
+    mode: HTML
+  output:
+    ansi:
+      console-available: true
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+springdoc:
+  show-actuator: true
+
+# Properties to be exposed on the /info management endpoint
+info:
+  # Comma separated list of profiles that will trigger the ribbon to show
+  display-ribbon-on-profiles: 'dev'
+
+# ===================================================================
+# JHipster specific properties
+#
+# Full reference is available at: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+jhipster:
+  clientApp:
+    name: 'gatewayApp'
+  # By default CORS is disabled. Uncomment to enable.
+  # cors:
+  #   allowed-origins: "http://localhost:8100,http://localhost:9000"
+  #   allowed-methods: "*"
+  #   allowed-headers: "*"
+  #   exposed-headers: "Authorization,Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params"
+  #   allow-credentials: true
+  #   max-age: 1800
+  mail:
+    from: gateway@localhost
+  api-docs:
+    default-include-pattern: /api/**
+    management-include-pattern: /management/**
+    title: Gateway API
+    description: Gateway API documentation
+    version: 0.0.1
+    terms-of-service-url:
+    contact-name:
+    contact-url:
+    contact-email:
+    license: unlicensed
+    license-url:
+  security:
+    content-security-policy: "default-src 'self'; frame-src 'self' data: http://localhost:9080 http://127.0.0.1:9080; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' http://localhost:9080 http://127.0.0.1:9080 http://localhost:8080 http://127.0.0.1:8080 http://localhost:8081 http://127.0.0.1:8081 http://localhost:9000 http://127.0.0.1:9000 http://localhost:8500 http://127.0.0.1:8500 https://storage.googleapis.com;"
+    oauth2:
+      audience:
+        - account
+        - api://default
+
+
+# jhipster-needle-add-application-yaml-document
+---
+# ===================================================================
+# Application specific properties
+# Add your own application properties here, see the ApplicationProperties class
+# to have type-safe configuration, like in the JHipsterProperties above
+#
+# More documentation is available at:
+# https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+# application:

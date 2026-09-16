@@ -1,0 +1,276 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { configureStore } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+import { IUserProfile, defaultValue } from 'app/shared/model/userservice/user-profile.model';
+import { EntityState } from 'app/shared/reducers/reducer.utils';
+
+import reducer, {
+  createEntity,
+  deleteEntity,
+  getEntities,
+  getEntity,
+  partialUpdateEntity,
+  reset,
+  updateEntity,
+} from './user-profile.reducer';
+
+describe('Entities reducer tests', () => {
+  const initialState: EntityState<IUserProfile> = {
+    loading: false,
+    errorMessage: null,
+    entities: [],
+    entity: defaultValue,
+    totalItems: 0,
+    updating: false,
+    updateSuccess: false,
+  };
+
+  function testInitialState(state) {
+    expect(state).toMatchObject({
+      loading: false,
+      errorMessage: null,
+      updating: false,
+      updateSuccess: false,
+    });
+    expect(state.entities).toEqual([]);
+    expect(state.entity).toEqual(defaultValue);
+  }
+
+  function testMultipleTypes(types, payload, testFunction, error?) {
+    types.forEach(e => {
+      testFunction(reducer(undefined, { type: e, payload, error }));
+    });
+  }
+
+  describe('Common', () => {
+    it('should return the initial state', () => {
+      testInitialState(reducer(undefined, { type: '' }));
+    });
+  });
+
+  describe('Requests', () => {
+    it('should set state to loading', () => {
+      testMultipleTypes([getEntities.pending.type, getEntity.pending.type], {}, state => {
+        expect(state).toMatchObject({
+          errorMessage: null,
+          updateSuccess: false,
+          loading: true,
+        });
+      });
+    });
+
+    it('should set state to updating', () => {
+      testMultipleTypes(
+        [createEntity.pending.type, updateEntity.pending.type, partialUpdateEntity.pending.type, deleteEntity.pending.type],
+        {},
+        state => {
+          expect(state).toMatchObject({
+            errorMessage: null,
+            updateSuccess: false,
+            updating: true,
+          });
+        },
+      );
+    });
+
+    it('should reset the state', () => {
+      expect(reducer({ ...initialState, loading: true }, reset())).toEqual({
+        ...initialState,
+      });
+    });
+  });
+
+  describe('Failures', () => {
+    it('should set a message in errorMessage', () => {
+      testMultipleTypes(
+        [
+          getEntities.rejected.type,
+          getEntity.rejected.type,
+          createEntity.rejected.type,
+          updateEntity.rejected.type,
+          partialUpdateEntity.rejected.type,
+          deleteEntity.rejected.type,
+        ],
+        'some message',
+        state => {
+          expect(state).toMatchObject({
+            errorMessage: null,
+            updateSuccess: false,
+            updating: false,
+          });
+        },
+        {
+          message: 'error message',
+        },
+      );
+    });
+  });
+
+  describe('Successes', () => {
+    it('should fetch all entities', () => {
+      const payload = { data: [{ 1: 'fake1' }, { 2: 'fake2' }], headers: { 'x-total-count': 123 } };
+      expect(
+        reducer(undefined, {
+          type: getEntities.fulfilled.type,
+          payload,
+        }),
+      ).toEqual({
+        ...initialState,
+        loading: false,
+        totalItems: payload.headers['x-total-count'],
+        entities: payload.data,
+      });
+    });
+
+    it('should fetch a single entity', () => {
+      const payload = { data: { 1: 'fake1' } };
+      expect(
+        reducer(undefined, {
+          type: getEntity.fulfilled.type,
+          payload,
+        }),
+      ).toEqual({
+        ...initialState,
+        loading: false,
+        entity: payload.data,
+      });
+    });
+
+    it('should create/update entity', () => {
+      const payload = { data: 'fake payload' };
+      expect(
+        reducer(undefined, {
+          type: createEntity.fulfilled.type,
+          payload,
+        }),
+      ).toEqual({
+        ...initialState,
+        updating: false,
+        updateSuccess: true,
+        entity: payload.data,
+      });
+    });
+
+    it('should delete entity', () => {
+      const payload = 'fake payload';
+      const toTest = reducer(undefined, {
+        type: deleteEntity.fulfilled.type,
+        payload,
+      });
+      expect(toTest).toMatchObject({
+        updating: false,
+        updateSuccess: true,
+      });
+    });
+  });
+
+  describe('Actions', () => {
+    let store;
+
+    const resolvedObject = { value: 'whatever' };
+    const getState = vi.fn();
+    const dispatch = vi.fn();
+    const extra = {};
+    beforeEach(() => {
+      store = configureStore({
+        reducer: (state = [], action) => [...state, action],
+      });
+      axios.get = vi.fn().mockResolvedValue(resolvedObject);
+      axios.post = vi.fn().mockResolvedValue(resolvedObject);
+      axios.put = vi.fn().mockResolvedValue(resolvedObject);
+      axios.patch = vi.fn().mockResolvedValue(resolvedObject);
+      axios.delete = vi.fn().mockResolvedValue(resolvedObject);
+    });
+
+    it('dispatches FETCH_USERPROFILE_LIST actions', async () => {
+      const arg = {};
+
+      const result = await getEntities(arg)(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: getEntities.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(getEntities.fulfilled.match(result)).toBe(true);
+    });
+
+    it('dispatches FETCH_USERPROFILE actions', async () => {
+      const arg = 42666;
+
+      const result = await getEntity(arg)(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: getEntity.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(getEntity.fulfilled.match(result)).toBe(true);
+    });
+
+    it('dispatches CREATE_USERPROFILE actions', async () => {
+      const arg = { id: 9009 };
+
+      const result = await createEntity(arg)(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: createEntity.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(createEntity.fulfilled.match(result)).toBe(true);
+    });
+
+    it('dispatches UPDATE_USERPROFILE actions', async () => {
+      const arg = { id: 9009 };
+
+      const result = await updateEntity(arg)(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: updateEntity.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(updateEntity.fulfilled.match(result)).toBe(true);
+    });
+
+    it('dispatches PARTIAL_UPDATE_USERPROFILE actions', async () => {
+      const arg = { id: 123 };
+
+      const result = await partialUpdateEntity(arg)(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: partialUpdateEntity.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(partialUpdateEntity.fulfilled.match(result)).toBe(true);
+    });
+
+    it('dispatches DELETE_USERPROFILE actions', async () => {
+      const arg = 42666;
+
+      const result = await deleteEntity(arg)(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: deleteEntity.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(deleteEntity.fulfilled.match(result)).toBe(true);
+    });
+
+    it('dispatches RESET actions', async () => {
+      await store.dispatch(reset());
+      expect(store.getState()).toEqual([expect.any(Object), expect.objectContaining(reset())]);
+    });
+  });
+});

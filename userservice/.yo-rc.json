@@ -1,0 +1,25 @@
+{
+  "generator-jhipster": {
+    "applicationIndex": 1,
+    "applicationType": "microservice",
+    "authenticationType": "oauth2",
+    "baseName": "userservice",
+    "cacheProvider": "redis",
+    "creationTimestamp": 1703764136087,
+    "databaseType": "sql",
+    "defaultCommand": "app",
+    "devDatabaseType": "h2Disk",
+    "enableHibernateCache": true,
+    "entities": ["UserProfile"],
+    "jhipsterVersion": "9.3.0",
+    "jwtSecretKey": "YmU0OWI4Y2FkYjNmNjVkNjZjNDc5ZjczMmU2NDA1NTkxMDU5ZjQxZmVlMzk5NjRlMmNmZWY4ZWVjNjA4YjBiMGFkOGRiOWYxMzBiYWYzNTIxZjEzNmNjMjdhOWZlNGJiNDBiNmYyZTk2ZDA2YjVmNjIwMzYzMTMyYWNmODNlOGI=",
+    "languages": ["en"],
+    "lastLiquibaseTimestamp": 1788854789000,
+    "nativeLanguage": "en",
+    "packageName": "com.toeic.user",
+    "prodDatabaseType": "mysql",
+    "serverPort": "8081",
+    "serviceDiscoveryType": "consul",
+    "skipClient": true
+  }
+}

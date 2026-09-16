@@ -1,0 +1,113 @@
+import eslint from '@eslint/js';
+import react from '@eslint-react/eslint-plugin';
+import { defineConfig } from 'eslint/config';
+import cypress from 'eslint-plugin-cypress';
+import prettier from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+// jhipster-needle-eslint-add-import - JHipster will add additional import here
+
+export default defineConfig(
+  {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+  { ignores: ['src/main/docker/'] },
+  { ignores: ['target/classes/static/', 'target/'] },
+  eslint.configs.recommended,
+  {
+    files: ['**/*.{js,cjs,mjs}'],
+    rules: {
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    files: ['src/main/webapp/**/*.{ts,tsx}'],
+    extends: [...tseslint.configs.recommendedTypeChecked, react.configs['recommended-type-checked']],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+      parserOptions: {
+        project: ['./tsconfig.json', './tsconfig.vitest.json'],
+      },
+    },
+    rules: {
+      '@eslint-react/exhaustive-deps': 'off',
+      '@eslint-react/use-state': 'off',
+      '@eslint-react/rules-of-hooks': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
+      '@eslint-react/no-array-index-key': 'off',
+      '@typescript-eslint/member-ordering': [
+        'error',
+        {
+          default: ['static-field', 'instance-field', 'constructor', 'static-method', 'instance-method'],
+        },
+      ],
+      '@typescript-eslint/explicit-member-accessibility': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/restrict-plus-operands': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/interface-name-prefix': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      '@typescript-eslint/array-type': 'error',
+      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-shadow': 'error',
+      'spaced-comment': ['warn', 'always'],
+      'guard-for-in': 'error',
+      'no-labels': 'error',
+      'no-caller': 'error',
+      'no-bitwise': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+      'no-new-wrappers': 'error',
+      'no-eval': 'error',
+      'no-new': 'error',
+      'no-var': 'error',
+      radix: 'error',
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'prefer-const': 'error',
+      'object-shorthand': ['error', 'always', { avoidExplicitReturnArrows: true }],
+      'default-case': 'error',
+      complexity: ['warn', 40],
+      'no-invalid-this': 'off',
+    },
+  },
+  {
+    files: ['src/main/webapp/**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-empty-function': 'off',
+    },
+  },
+  {
+    files: ['src/test/javascript/cypress/**/*.ts'],
+    extends: [...tseslint.configs.recommendedTypeChecked, cypress.configs.recommended],
+    languageOptions: {
+      parserOptions: {
+        project: ['./src/test/javascript/cypress/tsconfig.json'],
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/unbound-method': 'off',
+    },
+  },
+  // jhipster-needle-eslint-add-config - JHipster will add additional config here
+  prettier,
+);

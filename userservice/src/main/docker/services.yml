@@ -1,0 +1,26 @@
+# This configuration is intended for development purpose, it's **your** responsibility to harden it for production
+name: userservice
+services:
+  mysql:
+    extends:
+      file: ./mysql.yml
+      service: mysql
+    profiles:
+      - ''
+      - prod
+  keycloak:
+    extends:
+      file: ./keycloak.yml
+      service: keycloak
+  redis:
+    extends:
+      file: ./redis.yml
+      service: redis
+  consul:
+    extends:
+      file: ./consul.yml
+      service: consul
+  consul-config-loader:
+    extends:
+      file: ./consul.yml
+      service: consul-config-loader

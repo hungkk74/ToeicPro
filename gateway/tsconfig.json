@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "es2024",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false,
+    "rootDir": "./src/main/webapp/app",
+    "outDir": "target/classes/static/app",
+    "lib": ["dom", "es2024"],
+    "types": ["vite/client"],
+    "allowJs": true,
+    "checkJs": false,
+    "paths": {
+      "app/*": ["./src/main/webapp/app/*"]
+    },
+    "importHelpers": true
+  },
+  "include": ["src/main/webapp/app"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.spec.tsx", "vitest.config.ts"],
+  "references": [{ "path": "./tsconfig.vitest.json" }]
+}

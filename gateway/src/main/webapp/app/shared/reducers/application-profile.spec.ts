@@ -1,0 +1,71 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import axios from 'axios';
+
+import profile, { getProfile } from './application-profile';
+
+describe('Profile reducer tests', () => {
+  const initialState = {
+    ribbonEnv: '',
+    inProduction: true,
+    isOpenAPIEnabled: false,
+  };
+  describe('Common tests', () => {
+    it('should return the initial state', () => {
+      const toTest = profile(undefined, { type: '' });
+      expect(toTest).toEqual(initialState);
+    });
+
+    it('should return the right payload in prod', () => {
+      const payload = {
+        data: {
+          'display-ribbon-on-profiles': 'awesome ribbon stuff',
+          activeProfiles: ['prod'],
+        },
+      };
+
+      expect(profile(undefined, { type: getProfile.fulfilled.type, payload })).toEqual({
+        ribbonEnv: 'awesome ribbon stuff',
+        inProduction: true,
+        isOpenAPIEnabled: false,
+      });
+    });
+
+    it('should return the right payload in dev with OpenAPI enabled', () => {
+      const payload = {
+        data: {
+          'display-ribbon-on-profiles': 'awesome ribbon stuff',
+          activeProfiles: ['api-docs', 'dev'],
+        },
+      };
+
+      expect(profile(undefined, { type: getProfile.fulfilled.type, payload })).toEqual({
+        ribbonEnv: 'awesome ribbon stuff',
+        inProduction: false,
+        isOpenAPIEnabled: true,
+      });
+    });
+  });
+
+  describe('Actions', () => {
+    const resolvedObject = { value: 'whatever' };
+    const getState = vi.fn();
+    const dispatch = vi.fn();
+    const extra = {};
+    beforeEach(() => {
+      axios.get = vi.fn().mockResolvedValue(resolvedObject);
+    });
+
+    it('dispatches GET_PROFILE_PENDING and GET_PROFILE_FULFILLED actions', async () => {
+      const result = await getProfile()(dispatch, getState, extra);
+
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: getProfile.pending.type,
+          meta: expect.objectContaining({ requestStatus: 'pending' }),
+        }),
+      );
+      expect(getProfile.fulfilled.match(result)).toBe(true);
+    });
+  });
+});
