@@ -4,10 +4,12 @@ import com.toeic.exam.service.dto.ExamDTO;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 /**
  * Service Interface for managing {@link com.toeic.exam.domain.Exam}.
  */
+
 public interface ExamService {
     /**
      * Save a exam.
@@ -56,3 +58,4 @@ public interface ExamService {
      */
     void delete(Long id);
 }
+

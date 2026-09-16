@@ -71,4 +71,14 @@ public interface SubscriptionService {
      * @param gatewayTransId the transaction or user reference.
      */
     void activateSubscription(Long userSubscriptionId, String gatewayTransId);
+
+    /**
+ * Kiểm tra xem người dùng có gói subscription còn hiệu lực hay không.
+ *
+ * @param userId ID định danh của người dùng
+ * @return true nếu có gói ACTIVE và chưa hết hạn
+ */
+boolean hasActiveSubscription(String userId);
+
+
 }

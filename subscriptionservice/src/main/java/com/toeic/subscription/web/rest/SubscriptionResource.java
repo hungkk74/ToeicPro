@@ -186,4 +186,11 @@ public class SubscriptionResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+    @GetMapping("/user/{userId}/active")
+    public ResponseEntity<Boolean> isUserHasActiveSubscription(@PathVariable("userId") String userId) {
+        LOG.debug("REST request to check if user has active subscription: {}", userId);
+        return ResponseEntity.ok().body(subscriptionService.hasActiveSubscription(userId));
+    }
+
+
 }

@@ -117,4 +117,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 () -> LOG.warn("Subscription not found for id: {}", userSubscriptionId)
             );
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasActiveSubscription(String userId) {
+        if (userId == null || userId.isBlank()) {
+            return false;
+        }
+        return subscriptionRepository.hasActiveSubscription(userId, Instant.now());
+    }
+
 }

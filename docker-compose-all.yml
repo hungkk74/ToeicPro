@@ -271,6 +271,7 @@ services:
       SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/subscriptionservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
       JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
       JHIPSTER_CACHE_REDIS_CLUSTER: "false"
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     healthcheck:
       test:
         - CMD-SHELL
@@ -284,6 +285,8 @@ services:
       keycloak:
         condition: service_healthy
       consul:
+        condition: service_started
+      kafka:
         condition: service_started
 
   # --- Payment Service ---
@@ -343,8 +346,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: "123456"
       SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/examservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
       JHIPSTER_CACHE_REDIS_SERVER: redis://redis:6379
-      JHIPSTER_CACHE_REDIS_CLUSTER: "false"
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      CLOUDFLARE_R2_BUCKET_NAME: "toeic-sever"
+      CLOUDFLARE_R2_ENDPOINT: "https://64c053901170dae4a44916ada3c5847f.r2.cloudflarestorage.com"
+      CLOUDFLARE_R2_ACCESS_KEY: "08892b3781c8ccbddfb22200bd39332e"
+      CLOUDFLARE_R2_SECRET_KEY: "00171e511d22789b7d29efcf41b97ddd60e32df8a0a2b7ce1655d8b0fcbf0696"
+      CLOUDFLARE_R2_PUBLIC_URL: "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev"
     healthcheck:
       test:
         - CMD-SHELL

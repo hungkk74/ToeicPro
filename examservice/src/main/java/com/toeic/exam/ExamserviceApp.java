@@ -18,9 +18,11 @@ import org.springframework.boot.liquibase.autoconfigure.LiquibaseProperties;
 import org.springframework.core.env.Environment;
 import tech.jhipster.config.DefaultProfileUtil;
 import tech.jhipster.config.JHipsterConstants;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication()
 @EnableConfigurationProperties({ LiquibaseProperties.class, ApplicationProperties.class })
+@EnableFeignClients
 public class ExamserviceApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExamserviceApp.class);
@@ -119,3 +121,4 @@ public class ExamserviceApp {
         );
     }
 }
+

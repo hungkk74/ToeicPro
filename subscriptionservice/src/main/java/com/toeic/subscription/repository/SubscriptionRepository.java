@@ -1,6 +1,8 @@
 package com.toeic.subscription.repository;
 
 import com.toeic.subscription.domain.Subscription;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -37,4 +39,9 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     @Query("select subscription from Subscription subscription left join fetch subscription.plan where subscription.id =:id")
     Optional<Subscription> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("SELECT COUNT(s) > 0 FROM Subscription s WHERE s.userId = :userId AND s.status = com.toeic.subscription.domain.enumeration.SubscriptionStatus.ACTIVE AND s.expiresAt > :now")
+    boolean hasActiveSubscription(@Param("userId") String userId, @Param("now")Instant now);
 }
+
+
