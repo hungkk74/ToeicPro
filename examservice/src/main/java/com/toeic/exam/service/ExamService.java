@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.toeic.exam.service.dto.take.ExamTakeDTO;
+
 
 /**
  * Service Interface for managing {@link com.toeic.exam.domain.Exam}.
@@ -57,5 +59,13 @@ public interface ExamService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Lấy toàn bộ đề thi để làm bài (Đã ẩn đáp án đúng và lời giải).
+     *
+     * @param examId ID của đề thi.
+     * @return Cây dữ liệu ExamTakeDTO đã tinh gọn.
+     */
+    ExamTakeDTO getExamForTaking(Long examId);
 }
 

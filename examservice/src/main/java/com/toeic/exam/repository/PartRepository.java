@@ -34,4 +34,6 @@ public interface PartRepository extends JpaRepository<Part, Long> {
 
     @Query("select part from Part part left join fetch part.exam where part.id =:id")
     Optional<Part> findOneWithToOneRelationships(@Param("id") Long id);
+
+    List<Part> findByExamIdOrderByPartNumberAsc(Long examId);
 }

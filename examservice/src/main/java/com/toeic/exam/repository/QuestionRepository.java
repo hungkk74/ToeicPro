@@ -42,4 +42,8 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     @Query("SELECT q FROM Question q LEFT JOIN FETCH q.part WHERE q.id IN :ids")
     List<Question> findAllByIdInWithPart(@Param("ids") Collection<Long> ids);
+
+    @Query("SELECT q FROM Question q LEFT JOIN FETCH q.part LEFT JOIN FETCH q.questionGroup WHERE q.part.exam.id = :examId ORDER BY q.questionNumber ASC")
+List<Question> findByExamIdOrderByQuestionNumberAsc(@Param("examId") Long examId);
+
 }

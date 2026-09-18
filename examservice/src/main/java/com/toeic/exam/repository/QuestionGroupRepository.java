@@ -37,4 +37,7 @@ public interface QuestionGroupRepository extends JpaRepository<QuestionGroup, Lo
 
     @Query("select questionGroup from QuestionGroup questionGroup left join fetch questionGroup.part where questionGroup.id =:id")
     Optional<QuestionGroup> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("SELECT qg FROM QuestionGroup qg WHERE qg.part.exam.id = :examId")
+List<QuestionGroup> findByExamId(@Param("examId") Long examId);
 }
