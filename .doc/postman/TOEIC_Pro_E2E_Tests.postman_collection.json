@@ -1,1174 +1,1604 @@
 {
-	"info": {
-		"_postman_id": "toeic-pro-e2e-2026",
-		"name": "TOEIC Pro — E2E Service Communication Tests",
-		"description": "Bộ test khép kín kiểm tra giao tiếp giữa 7 microservices trong hệ thống TOEIC Pro.\n\nCác flow chính:\n1. OAuth2 Token (Keycloak)\n2. Subscription Service (Plan + Subscription CRUD)\n3. Payment Service (Payment Transaction → Kafka publish)\n4. Kafka Event → Subscription Service (auto-activate)\n5. Exam Service → Subscription Service (Feign check)\n6. Course Service (Course/Chapter/Lesson CRUD)\n7. User Service (UserProfile CRUD)\n8. Notification Service (Notification CRUD)",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"variable": [
-		{
-			"key": "gateway_url",
-			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "examservice_url",
-			"value": "http://localhost:8084",
-			"type": "string"
-		},
-		{
-			"key": "keycloak_url",
-			"value": "http://localhost:9080",
-			"type": "string"
-		},
-		{
-			"key": "realm",
-			"value": "jhipster",
-			"type": "string"
-		},
-		{
-			"key": "client_id",
-			"value": "web_app",
-			"type": "string"
-		},
-		{
-			"key": "admin_username",
-			"value": "admin",
-			"type": "string"
-		},
-		{
-			"key": "admin_password",
-			"value": "admin",
-			"type": "string"
-		},
-		{
-			"key": "user_username",
-			"value": "user",
-			"type": "string"
-		},
-		{
-			"key": "user_password",
-			"value": "user",
-			"type": "string"
-		},
-		{
-			"key": "access_token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "plan_id",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "subscription_id",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "payment_id",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "user_id",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "order_code",
-			"value": "",
-			"type": "string"
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"exec": [
-					"// Auto-attach CSRF token for all POST/PUT/PATCH/DELETE requests",
-					"const method = pm.request.method;",
-					"if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {",
-					"    const xsrfToken = pm.cookies.get('XSRF-TOKEN');",
-					"    if (xsrfToken) {",
-					"        pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: xsrfToken });",
-					"    }",
-					"}"
-				],
-				"type": "text/javascript"
-			}
-		}
-	],
-	"item": [
-		{
-			"name": "0. Auth — Lấy Access Token",
-			"item": [
-				{
-					"name": "0.1 Login as Admin (Password Grant)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"",
-									"const json = pm.response.json();",
-									"pm.test('access_token exists', () => pm.expect(json.access_token).to.be.a('string'));",
-									"",
-									"pm.collectionVariables.set('access_token', json.access_token);",
-									"",
-									"// Decode JWT to extract sub (user id)",
-									"const payload = JSON.parse(atob(json.access_token.split('.')[1]));",
-									"pm.collectionVariables.set('user_id', payload.sub);",
-									"pm.test('user_id extracted from JWT', () => pm.expect(payload.sub).to.be.a('string'));",
-									"",
-									"console.log('Admin user_id:', payload.sub);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{ "key": "grant_type", "value": "password", "type": "text" },
-								{ "key": "client_id", "value": "web_app", "type": "text" },
-								{ "key": "username", "value": "admin", "type": "text" },
-								{ "key": "password", "value": "admin", "type": "text" },
-								{ "key": "scope", "value": "openid profile email", "type": "text" }
-							]
-						},
-						"url": {
-							"raw": "http://localhost:9080/realms/jhipster/protocol/openid-connect/token",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "9080",
-							"path": ["realms", "jhipster", "protocol", "openid-connect", "token"]
-						}
-					}
-				},
-				{
-					"name": "0.2 Get CSRF Cookie (REQUIRED before any POST)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"",
-									"const xsrf = pm.cookies.get('XSRF-TOKEN');",
-									"pm.test('XSRF-TOKEN cookie received', () => pm.expect(xsrf).to.be.a('string'));",
-									"console.log('CSRF Token:', xsrf);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/account",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "account"]
-						},
-						"description": "GET request to gateway to obtain the XSRF-TOKEN cookie. This cookie is automatically sent with subsequent POST/PUT/DELETE requests via the collection pre-request script."
-					}
-				}
-			]
-		},
-		{
-			"name": "1. Subscription Service — Plan CRUD",
-			"item": [
-				{
-					"name": "1.1 Create Plan (PREMIUM_MONTHLY)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"",
-									"const json = pm.response.json();",
-									"pm.test('Plan ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.test('Plan code matches', () => pm.expect(json.code).to.eql('PREMIUM_MONTHLY'));",
-									"",
-									"pm.collectionVariables.set('plan_id', json.id);",
-									"console.log('Created Plan ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"code\": \"PREMIUM_MONTHLY\",\n  \"name\": \"Gói Premium Tháng\",\n  \"price\": 199000,\n  \"durationDays\": 30,\n  \"features\": \"Full exams, AI analysis, Unlimited courses\",\n  \"isActive\": true\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/plans",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "plans"]
-						}
-					}
-				},
-				{
-					"name": "1.2 Get Plan by ID",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"const json = pm.response.json();",
-									"pm.test('Plan code is PREMIUM_MONTHLY', () => pm.expect(json.code).to.eql('PREMIUM_MONTHLY'));",
-									"pm.test('Price is 199000', () => pm.expect(json.price).to.eql(199000));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/plans/{{plan_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "plans", "{{plan_id}}"]
-						}
-					}
-				},
-				{
-					"name": "1.3 List All Plans",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/plans",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "plans"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "2. Subscription Service — Subscription CRUD",
-			"item": [
-				{
-					"name": "2.1 Create Subscription (TRIAL)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const now = new Date().toISOString();",
-									"const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();",
-									"pm.collectionVariables.set('_now', now);",
-									"pm.collectionVariables.set('_expires', expires);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"",
-									"const json = pm.response.json();",
-									"pm.test('Subscription ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.test('Status is TRIAL', () => pm.expect(json.status).to.eql('TRIAL'));",
-									"pm.test('Plan is linked', () => pm.expect(json.plan.id).to.eql(Number(pm.collectionVariables.get('plan_id'))));",
-									"",
-									"pm.collectionVariables.set('subscription_id', json.id);",
-									"console.log('Created Subscription ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"status\": \"TRIAL\",\n  \"startsAt\": \"{{_now}}\",\n  \"expiresAt\": \"{{_expires}}\",\n  \"plan\": { \"id\": {{plan_id}} }\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions"]
-						}
-					}
-				},
-				{
-					"name": "2.2 Get Subscription by ID",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"const json = pm.response.json();",
-									"pm.test('Subscription userId matches', () => pm.expect(json.userId).to.eql(pm.collectionVariables.get('user_id')));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions/{{subscription_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions", "{{subscription_id}}"]
-						}
-					}
-				},
-				{
-					"name": "2.3 Check Active Subscription (before payment — expect false)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('No active subscription (TRIAL only)', () => {",
-									"    // Depending on business logic, TRIAL may or may not count as 'active'",
-									"    const body = pm.response.json();",
-									"    console.log('isActive before payment:', body);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions/user/{{user_id}}/active",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions", "user", "{{user_id}}", "active"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "3. Payment Service — Tạo Payment Transaction (triggers Kafka)",
-			"item": [
-				{
-					"name": "3.1 Create Payment Transaction (SUCCESS → Kafka publish)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const orderCode = 'ORD-' + Date.now();",
-									"pm.collectionVariables.set('order_code', orderCode);",
-									"console.log('Generated orderCode:', orderCode);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"",
-									"const json = pm.response.json();",
-									"pm.test('Payment ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.test('Status is SUCCESS', () => pm.expect(json.status).to.eql('SUCCESS'));",
-									"pm.test('subscriptionId matches', () => pm.expect(json.subscriptionId).to.eql(Number(pm.collectionVariables.get('subscription_id'))));",
-									"",
-									"pm.collectionVariables.set('payment_id', json.id);",
-									"console.log('Created Payment ID:', json.id);",
-									"console.log('>>> Kafka event should be published to payment-completed-topic <<<');"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"orderCode\": \"{{order_code}}\",\n  \"userId\": \"{{user_id}}\",\n  \"subscriptionId\": {{subscription_id}},\n  \"amount\": 199000,\n  \"currency\": \"VND\",\n  \"gateway\": \"VNPAY\",\n  \"status\": \"SUCCESS\",\n  \"ipAddress\": \"127.0.0.1\",\n  \"paymentTime\": \"{{_now}}\",\n  \"createdAt\": \"{{_now}}\"\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/payment-transactions",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "payment-transactions"]
-						}
-					}
-				},
-				{
-					"name": "3.2 Get Payment Transaction by ID",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"const json = pm.response.json();",
-									"pm.test('orderCode matches', () => pm.expect(json.orderCode).to.eql(pm.collectionVariables.get('order_code')));",
-									"pm.test('gateway is VNPAY', () => pm.expect(json.gateway).to.eql('VNPAY'));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/payment-transactions/{{payment_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "payment-transactions", "{{payment_id}}"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "4. Kafka Event Verification — Subscription Activated",
-			"item": [
-				{
-					"name": "4.1 Wait for Kafka consumer (3s delay)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"// Wait 3 seconds for Kafka consumer to process",
-									"const delay = 3000;",
-									"const start = Date.now();",
-									"while (Date.now() - start < delay) { /* busy wait */ }",
-									"console.log('Waited 3s for Kafka consumer to process PaymentCompletedEvent');"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"",
-									"const json = pm.response.json();",
-									"pm.test('Subscription status is ACTIVE (activated by Kafka event)', () => {",
-									"    pm.expect(json.status).to.eql('ACTIVE');",
-									"});",
-									"",
-									"console.log('Subscription status after Kafka event:', json.status);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions/{{subscription_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions", "{{subscription_id}}"]
-						},
-						"description": "Sau khi PaymentService publish event 'payment-completed-topic', SubscriptionService consume event và chuyển trạng thái subscription từ TRIAL → ACTIVE. Request này verify kết quả."
-					}
-				},
-				{
-					"name": "4.2 Verify isActive = true (after Kafka activation)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('User now has active subscription', () => {",
-									"    pm.expect(pm.response.json()).to.eql(true);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions/user/{{user_id}}/active",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions", "user", "{{user_id}}", "active"]
-						},
-						"description": "API endpoint mà ExamService gọi qua Feign Client. Verify rằng Subscription đã được kích hoạt thành công."
-					}
-				}
-			]
-		},
-		{
-			"name": "5. Exam Service — Feign → Subscription (Cross-Service REST)",
-			"item": [
-				{
-					"name": "5.1 Create Exam",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const now = new Date().toISOString();",
-									"pm.collectionVariables.set('_now', now);",
-									"pm.collectionVariables.set('exam_code', 'ETS_' + Date.now());"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"const json = pm.response.json();",
-									"pm.test('Exam ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.collectionVariables.set('exam_id', json.id);",
-									"console.log('Created Exam ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"code\": \"{{exam_code}}\",\n  \"title\": \"TOEIC Full Test #1 - E2E\",\n  \"category\": \"FULL_TEST\",\n  \"durationMinutes\": 120,\n  \"totalQuestions\": 200,\n  \"audioFullUrl\": \"https://pub-r2.toeicpro.com/audio/test1.mp3\",\n  \"isPublished\": true,\n  \"createdAt\": \"{{_now}}\"\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/exams",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "exams"]
-						}
-					}
-				},
-				{
-					"name": "5.2 List Exams",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/exams",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "exams"]
-						}
-					}
-				},
-				{
-					"name": "5.3 Feign Verification — Check user subscription via Gateway",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('User has active subscription (Feign path)', () => {",
-									"    pm.expect(pm.response.json()).to.eql(true);",
-									"});",
-									"console.log('ExamService FeignClient path verified: /api/subscriptions/user/{userId}/active → true');"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions/user/{{user_id}}/active",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions", "user", "{{user_id}}", "active"]
-						},
-						"description": "Simulates the same API call that ExamService's SubscriptionClient FeignClient makes internally. Verifies the cross-service REST communication path."
-					}
-				},
-				{
-					"name": "5.4 Upload Image to Cloudflare R2",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"const json = pm.response.json();",
-									"pm.test('Has fileUrl', () => pm.expect(json.fileUrl).to.include('r2.dev'));",
-									"pm.test('Has fileKey', () => pm.expect(json.fileKey).to.include('images/'));",
-									"pm.collectionVariables.set('uploaded_image_key', json.fileKey);",
-									"pm.collectionVariables.set('uploaded_image_url', json.fileUrl);",
-									"console.log('✅ Uploaded image URL:', json.fileUrl);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"description": "Chọn 1 file ảnh (PNG, JPG, WEBP) từ máy tính"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{examservice_url}}/api/storage/upload/image",
-							"host": ["{{examservice_url}}"],
-							"path": ["api", "storage", "upload", "image"]
-						},
-						"description": "Upload file hình ảnh lên Cloudflare R2 trực tiếp qua ExamService (port 8084). Trả về public URL truy cập trực tiếp."
-					}
-				},
-				{
-					"name": "5.5 Delete Uploaded File from Cloudflare R2",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));",
-									"console.log('✅ Deleted file from Cloudflare R2 successfully');"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{examservice_url}}/api/storage/file?fileKey={{uploaded_image_key}}",
-							"host": ["{{examservice_url}}"],
-							"path": ["api", "storage", "file"],
-							"query": [
-								{ "key": "fileKey", "value": "{{uploaded_image_key}}" }
-							]
-						},
-						"description": "Xóa file vừa upload lên Cloudflare R2 theo fileKey."
-					}
-				},
-				{
-					"name": "5.6 Create Exam Attempt (Start Exam)",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const now = new Date().toISOString();",
-									"pm.collectionVariables.set('_now', now);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"const json = pm.response.json();",
-									"pm.test('Attempt ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.test('Status is IN_PROGRESS', () => pm.expect(json.status).to.eql('IN_PROGRESS'));",
-									"pm.collectionVariables.set('attempt_id', json.id);",
-									"console.log('✅ Created Exam Attempt ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"status\": \"IN_PROGRESS\",\n  \"startedAt\": \"{{_now}}\",\n  \"exam\": { \"id\": {{exam_id}} }\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/exam-attempts",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "exam-attempts"]
-						},
-						"description": "Bắt đầu làm bài thi TOEIC. Tạo bản ghi ExamAttempt ở trạng thái IN_PROGRESS."
-					}
-				},
-				{
-					"name": "5.7 Submit Exam & Auto-Grade (Auto-calculate Scores)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"const json = pm.response.json();",
-									"pm.test('Status is COMPLETED', () => pm.expect(json.status).to.eql('COMPLETED'));",
-									"pm.test('Scores in valid range', () => {",
-									"    pm.expect(json.listeningScore).to.be.at.least(5);",
-									"    pm.expect(json.readingScore).to.be.at.least(5);",
-									"    pm.expect(json.totalScore).to.be.at.least(10);",
-									"});",
-									"console.log('✅ Graded Result - Listening:', json.listeningScore, 'Reading:', json.readingScore, 'Total:', json.totalScore);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"timeSpentSeconds\": 3600,\n  \"answers\": [\n    {\n      \"questionId\": 1,\n      \"selectedOption\": \"A\",\n      \"timeSpentSeconds\": 30\n    }\n  ]\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/exam-attempts/{{attempt_id}}/submit",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "exam-attempts", "{{attempt_id}}", "submit"]
-						},
-						"description": "Nộp bài thi TOEIC. Hệ thống tự động so khớp đáp án, quy đổi thang điểm ETS (10-990) và lưu kết quả chi tiết."
-					}
-				}
-			]
-		},
-		{
-			"name": "6. Course Service — Course/Chapter/Lesson",
-			"item": [
-				{
-					"name": "6.1 Create Course",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const now = new Date().toISOString();",
-									"const ts = Date.now();",
-									"pm.collectionVariables.set('_now', now);",
-									"pm.collectionVariables.set('course_code', 'COURSE_' + ts);",
-									"pm.collectionVariables.set('course_slug', 'toeic-listening-' + ts);"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"const json = pm.response.json();",
-									"pm.test('Course ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.collectionVariables.set('course_id', json.id);",
-									"console.log('Created Course ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"code\": \"{{course_code}}\",\n  \"title\": \"TOEIC Listening Mastery\",\n  \"slug\": \"{{course_slug}}\",\n  \"description\": \"Khóa luyện nghe TOEIC từ cơ bản đến nâng cao\",\n  \"price\": 299000,\n  \"level\": \"INTERMEDIATE\",\n  \"isPublished\": true,\n  \"createdAt\": \"{{_now}}\"\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/courses",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "courses"]
-						}
-					}
-				},
-				{
-					"name": "6.2 List Courses",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('Response is array with data', () => {",
-									"    const arr = pm.response.json();",
-									"    pm.expect(arr).to.be.an('array');",
-									"    pm.expect(arr.length).to.be.greaterThan(0);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/courses",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "courses"]
-						}
-					}
-				},
-				{
-					"name": "6.3 Create Chapter",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"const json = pm.response.json();",
-									"pm.test('Chapter ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.collectionVariables.set('chapter_id', json.id);",
-									"console.log('Created Chapter ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Chapter 1: Photographs\",\n  \"description\": \"Luyện tập mô tả tranh Part 1\",\n  \"sortOrder\": 1,\n  \"course\": { \"id\": {{course_id}} }\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/chapters",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "chapters"]
-						}
-					}
-				},
-				{
-					"name": "6.4 Create Lesson",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
-									"const json = pm.response.json();",
-									"pm.test('Lesson ID returned', () => pm.expect(json.id).to.be.a('number'));",
-									"pm.collectionVariables.set('lesson_id', json.id);",
-									"console.log('Created Lesson ID:', json.id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
-							{ "key": "Content-Type", "value": "application/json" }
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Lesson 1: Mô tả hình ảnh cơ bản\",\n  \"lessonType\": \"VIDEO\",\n  \"content\": \"Nội dung bài học về Part 1...\",\n  \"isFreePreview\": true,\n  \"sortOrder\": 1,\n  \"chapter\": { \"id\": {{chapter_id}} }\n}"
-						},
-						"url": {
-							"raw": "{{gateway_url}}/api/lessons",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "lessons"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "7. User Service — UserProfile",
-			"item": [
-				{
-					"name": "7.1 List User Profiles",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
-									"pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/user-profiles",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "user-profiles"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "8. Cleanup — Xóa dữ liệu test",
-			"item": [
-				{
-					"name": "8.1 Delete Payment Transaction",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const currentId = pm.collectionVariables.get('payment_id');",
-									"if (!currentId) {",
-									"    const gatewayUrl = pm.collectionVariables.get('gateway_url') || 'http://localhost:8080';",
-									"    const token = pm.collectionVariables.get('access_token');",
-									"    if (token) {",
-									"        pm.sendRequest({",
-									"            url: gatewayUrl + '/api/payment-transactions?size=1&sort=id,desc',",
-									"            method: 'GET',",
-									"            header: { 'Authorization': 'Bearer ' + token }",
-									"        }, (err, res) => {",
-									"            if (!err && res.code === 200) {",
-									"                const list = res.json();",
-									"                if (list && list.length > 0) {",
-									"                    pm.collectionVariables.set('payment_id', list[0].id);",
-									"                    pm.request.url.path = ['api', 'payment-transactions', String(list[0].id)];",
-									"                    console.log('✅ Auto-detected latest payment_id:', list[0].id);",
-									"                }",
-									"            }",
-									"        });",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/payment-transactions/{{payment_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "payment-transactions", "{{payment_id}}"]
-						}
-					}
-				},
-				{
-					"name": "8.2 Delete Subscription",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const currentId = pm.collectionVariables.get('subscription_id');",
-									"if (!currentId) {",
-									"    const gatewayUrl = pm.collectionVariables.get('gateway_url') || 'http://localhost:8080';",
-									"    const token = pm.collectionVariables.get('access_token');",
-									"    if (token) {",
-									"        pm.sendRequest({",
-									"            url: gatewayUrl + '/api/subscriptions?size=1&sort=id,desc',",
-									"            method: 'GET',",
-									"            header: { 'Authorization': 'Bearer ' + token }",
-									"        }, (err, res) => {",
-									"            if (!err && res.code === 200) {",
-									"                const list = res.json();",
-									"                if (list && list.length > 0) {",
-									"                    pm.collectionVariables.set('subscription_id', list[0].id);",
-									"                    pm.request.url.path = ['api', 'subscriptions', String(list[0].id)];",
-									"                    console.log('✅ Auto-detected latest subscription_id:', list[0].id);",
-									"                }",
-									"            }",
-									"        });",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/subscriptions/{{subscription_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "subscriptions", "{{subscription_id}}"]
-						}
-					}
-				},
-				{
-					"name": "8.3 Delete Plan",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const currentId = pm.collectionVariables.get('plan_id');",
-									"if (!currentId) {",
-									"    const gatewayUrl = pm.collectionVariables.get('gateway_url') || 'http://localhost:8080';",
-									"    const token = pm.collectionVariables.get('access_token');",
-									"    if (token) {",
-									"        pm.sendRequest({",
-									"            url: gatewayUrl + '/api/plans?size=1&sort=id,desc',",
-									"            method: 'GET',",
-									"            header: { 'Authorization': 'Bearer ' + token }",
-									"        }, (err, res) => {",
-									"            if (!err && res.code === 200) {",
-									"                const list = res.json();",
-									"                if (list && list.length > 0) {",
-									"                    pm.collectionVariables.set('plan_id', list[0].id);",
-									"                    pm.request.url.path = ['api', 'plans', String(list[0].id)];",
-									"                    console.log('✅ Auto-detected latest plan_id:', list[0].id);",
-									"                }",
-									"            }",
-									"        });",
-									"    }",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{ "key": "Authorization", "value": "Bearer {{access_token}}" }
-						],
-						"url": {
-							"raw": "{{gateway_url}}/api/plans/{{plan_id}}",
-							"host": ["{{gateway_url}}"],
-							"path": ["api", "plans", "{{plan_id}}"]
-						}
-					}
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "toeic-pro-e2e-2026",
+    "name": "TOEIC Pro — E2E Service Communication Tests",
+    "description": "Bộ test khép kín kiểm tra giao tiếp giữa 7 microservices trong hệ thống TOEIC Pro.\n\nCác flow chính:\n1. OAuth2 Token (Keycloak)\n2. Subscription Service (Plan + Subscription CRUD)\n3. Payment Service (Payment Transaction → Kafka publish)\n4. Kafka Event → Subscription Service (auto-activate)\n5. Exam Service → Subscription Service (Feign check)\n6. Course Service (Course/Chapter/Lesson CRUD)\n7. User Service (UserProfile CRUD)\n8. Notification Service (Notification CRUD)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "gateway_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "examservice_url",
+      "value": "http://localhost:8084",
+      "type": "string"
+    },
+    {
+      "key": "keycloak_url",
+      "value": "http://localhost:9080",
+      "type": "string"
+    },
+    {
+      "key": "realm",
+      "value": "jhipster",
+      "type": "string"
+    },
+    {
+      "key": "client_id",
+      "value": "web_app",
+      "type": "string"
+    },
+    {
+      "key": "admin_username",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "admin_password",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "user_username",
+      "value": "user",
+      "type": "string"
+    },
+    {
+      "key": "user_password",
+      "value": "user",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subscription_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payment_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "order_code",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Auto-attach CSRF token for all POST/PUT/PATCH/DELETE requests",
+          "const method = pm.request.method;",
+          "if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {",
+          "    const xsrfToken = pm.cookies.get('XSRF-TOKEN');",
+          "    if (xsrfToken) {",
+          "        pm.request.headers.upsert({ key: 'X-XSRF-TOKEN', value: xsrfToken });",
+          "    }",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Auth — Lấy Access Token",
+      "item": [
+        {
+          "name": "0.1 Login as Admin (Password Grant)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('access_token exists', () => pm.expect(json.access_token).to.be.a('string'));",
+                  "",
+                  "pm.collectionVariables.set('access_token', json.access_token);",
+                  "",
+                  "// Decode JWT to extract sub (user id)",
+                  "const payload = JSON.parse(atob(json.access_token.split('.')[1]));",
+                  "pm.collectionVariables.set('user_id', payload.sub);",
+                  "pm.test('user_id extracted from JWT', () => pm.expect(payload.sub).to.be.a('string'));",
+                  "",
+                  "console.log('Admin user_id:', payload.sub);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "web_app",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "admin",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "openid profile email",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:9080/realms/jhipster/protocol/openid-connect/token",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "9080",
+              "path": [
+                "realms",
+                "jhipster",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
+            }
+          }
+        },
+        {
+          "name": "0.2 Get CSRF Cookie (REQUIRED before any POST)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const xsrf = pm.cookies.get('XSRF-TOKEN');",
+                  "pm.test('XSRF-TOKEN cookie received', () => pm.expect(xsrf).to.be.a('string'));",
+                  "console.log('CSRF Token:', xsrf);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/account",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "account"
+              ]
+            },
+            "description": "GET request to gateway to obtain the XSRF-TOKEN cookie. This cookie is automatically sent with subsequent POST/PUT/DELETE requests via the collection pre-request script."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Subscription Service — Plan CRUD",
+      "item": [
+        {
+          "name": "1.1 Create Plan (PREMIUM_MONTHLY)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Plan ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.test('Plan code matches', () => pm.expect(json.code).to.eql('PREMIUM_MONTHLY'));",
+                  "",
+                  "pm.collectionVariables.set('plan_id', json.id);",
+                  "console.log('Created Plan ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"PREMIUM_MONTHLY\",\n  \"name\": \"Gói Premium Tháng\",\n  \"price\": 199000,\n  \"durationDays\": 30,\n  \"features\": \"Full exams, AI analysis, Unlimited courses\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/plans",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "plans"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.2 Get Plan by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Plan code is PREMIUM_MONTHLY', () => pm.expect(json.code).to.eql('PREMIUM_MONTHLY'));",
+                  "pm.test('Price is 199000', () => pm.expect(json.price).to.eql(199000));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/plans/{{plan_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{plan_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.3 List All Plans",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/plans",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "plans"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Subscription Service — Subscription CRUD",
+      "item": [
+        {
+          "name": "2.1 Create Subscription (TRIAL)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const now = new Date().toISOString();",
+                  "const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();",
+                  "pm.collectionVariables.set('_now', now);",
+                  "pm.collectionVariables.set('_expires', expires);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Subscription ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.test('Status is TRIAL', () => pm.expect(json.status).to.eql('TRIAL'));",
+                  "pm.test('Plan is linked', () => pm.expect(json.plan.id).to.eql(Number(pm.collectionVariables.get('plan_id'))));",
+                  "",
+                  "pm.collectionVariables.set('subscription_id', json.id);",
+                  "console.log('Created Subscription ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"status\": \"TRIAL\",\n  \"startsAt\": \"{{_now}}\",\n  \"expiresAt\": \"{{_expires}}\",\n  \"plan\": { \"id\": {{plan_id}} }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.2 Get Subscription by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Subscription userId matches', () => pm.expect(json.userId).to.eql(pm.collectionVariables.get('user_id')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions/{{subscription_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions",
+                "{{subscription_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 Check Active Subscription (before payment — expect false)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('No active subscription (TRIAL only)', () => {",
+                  "    // Depending on business logic, TRIAL may or may not count as 'active'",
+                  "    const body = pm.response.json();",
+                  "    console.log('isActive before payment:', body);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions/user/{{user_id}}/active",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions",
+                "user",
+                "{{user_id}}",
+                "active"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Payment Service — Tạo Payment Transaction (triggers Kafka)",
+      "item": [
+        {
+          "name": "3.1 Create Payment Transaction (SUCCESS → Kafka publish)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const orderCode = 'ORD-' + Date.now();",
+                  "pm.collectionVariables.set('order_code', orderCode);",
+                  "console.log('Generated orderCode:', orderCode);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Payment ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.test('Status is SUCCESS', () => pm.expect(json.status).to.eql('SUCCESS'));",
+                  "pm.test('subscriptionId matches', () => pm.expect(json.subscriptionId).to.eql(Number(pm.collectionVariables.get('subscription_id'))));",
+                  "",
+                  "pm.collectionVariables.set('payment_id', json.id);",
+                  "console.log('Created Payment ID:', json.id);",
+                  "console.log('>>> Kafka event should be published to payment-completed-topic <<<');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderCode\": \"{{order_code}}\",\n  \"userId\": \"{{user_id}}\",\n  \"subscriptionId\": {{subscription_id}},\n  \"amount\": 199000,\n  \"currency\": \"VND\",\n  \"gateway\": \"VNPAY\",\n  \"status\": \"SUCCESS\",\n  \"ipAddress\": \"127.0.0.1\",\n  \"paymentTime\": \"{{_now}}\",\n  \"createdAt\": \"{{_now}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/payment-transactions",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "payment-transactions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.2 Get Payment Transaction by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('orderCode matches', () => pm.expect(json.orderCode).to.eql(pm.collectionVariables.get('order_code')));",
+                  "pm.test('gateway is VNPAY', () => pm.expect(json.gateway).to.eql('VNPAY'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/payment-transactions/{{payment_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "payment-transactions",
+                "{{payment_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Kafka Event Verification — Subscription Activated",
+      "item": [
+        {
+          "name": "4.1 Wait for Kafka consumer (3s delay)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Wait 3 seconds for Kafka consumer to process",
+                  "const delay = 3000;",
+                  "const start = Date.now();",
+                  "while (Date.now() - start < delay) { /* busy wait */ }",
+                  "console.log('Waited 3s for Kafka consumer to process PaymentCompletedEvent');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test('Subscription status is ACTIVE (activated by Kafka event)', () => {",
+                  "    pm.expect(json.status).to.eql('ACTIVE');",
+                  "});",
+                  "",
+                  "console.log('Subscription status after Kafka event:', json.status);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions/{{subscription_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions",
+                "{{subscription_id}}"
+              ]
+            },
+            "description": "Sau khi PaymentService publish event 'payment-completed-topic', SubscriptionService consume event và chuyển trạng thái subscription từ TRIAL → ACTIVE. Request này verify kết quả."
+          }
+        },
+        {
+          "name": "4.2 Verify isActive = true (after Kafka activation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('User now has active subscription', () => {",
+                  "    pm.expect(pm.response.json()).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions/user/{{user_id}}/active",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions",
+                "user",
+                "{{user_id}}",
+                "active"
+              ]
+            },
+            "description": "API endpoint mà ExamService gọi qua Feign Client. Verify rằng Subscription đã được kích hoạt thành công."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Exam Service — Feign → Subscription (Cross-Service REST)",
+      "item": [
+        {
+          "name": "5.1 Create Exam",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const now = new Date().toISOString();",
+                  "pm.collectionVariables.set('_now', now);",
+                  "pm.collectionVariables.set('exam_code', 'ETS_' + Date.now());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Exam ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('exam_id', json.id);",
+                  "console.log('Created Exam ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{exam_code}}\",\n  \"title\": \"TOEIC Full Test #1 - E2E\",\n  \"category\": \"FULL_TEST\",\n  \"durationMinutes\": 120,\n  \"totalQuestions\": 200,\n  \"audioFullUrl\": \"https://pub-r2.toeicpro.com/audio/test1.mp3\",\n  \"isPublished\": true,\n  \"createdAt\": \"{{_now}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/exams",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.2 List Exams",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exams",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.3 Feign Verification — Check user subscription via Gateway",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('User has active subscription (Feign path)', () => {",
+                  "    pm.expect(pm.response.json()).to.eql(true);",
+                  "});",
+                  "console.log('ExamService FeignClient path verified: /api/subscriptions/user/{userId}/active → true');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions/user/{{user_id}}/active",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions",
+                "user",
+                "{{user_id}}",
+                "active"
+              ]
+            },
+            "description": "Simulates the same API call that ExamService's SubscriptionClient FeignClient makes internally. Verifies the cross-service REST communication path."
+          }
+        },
+        {
+          "name": "5.4 Upload Image to Cloudflare R2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has fileUrl', () => pm.expect(json.fileUrl).to.include('r2.dev'));",
+                  "pm.test('Has fileKey', () => pm.expect(json.fileKey).to.include('images/'));",
+                  "pm.collectionVariables.set('uploaded_image_key', json.fileKey);",
+                  "pm.collectionVariables.set('uploaded_image_url', json.fileUrl);",
+                  "console.log('✅ Uploaded image URL:', json.fileUrl);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Chọn 1 file ảnh (PNG, JPG, WEBP) từ máy tính"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{examservice_url}}/api/storage/upload/image",
+              "host": [
+                "{{examservice_url}}"
+              ],
+              "path": [
+                "api",
+                "storage",
+                "upload",
+                "image"
+              ]
+            },
+            "description": "Upload file hình ảnh lên Cloudflare R2 trực tiếp qua ExamService (port 8084). Trả về public URL truy cập trực tiếp."
+          }
+        },
+        {
+          "name": "5.5 Delete Uploaded File from Cloudflare R2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));",
+                  "console.log('✅ Deleted file from Cloudflare R2 successfully');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{examservice_url}}/api/storage/file?fileKey={{uploaded_image_key}}",
+              "host": [
+                "{{examservice_url}}"
+              ],
+              "path": [
+                "api",
+                "storage",
+                "file"
+              ],
+              "query": [
+                {
+                  "key": "fileKey",
+                  "value": "{{uploaded_image_key}}"
+                }
+              ]
+            },
+            "description": "Xóa file vừa upload lên Cloudflare R2 theo fileKey."
+          }
+        },
+        {
+          "name": "5.6 Create Exam Attempt (Start Exam)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const now = new Date().toISOString();",
+                  "pm.collectionVariables.set('_now', now);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Attempt ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.test('Status is IN_PROGRESS', () => pm.expect(json.status).to.eql('IN_PROGRESS'));",
+                  "pm.collectionVariables.set('attempt_id', json.id);",
+                  "console.log('✅ Created Exam Attempt ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"status\": \"IN_PROGRESS\",\n  \"startedAt\": \"{{_now}}\",\n  \"exam\": { \"id\": {{exam_id}} }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/exam-attempts",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts"
+              ]
+            },
+            "description": "Bắt đầu làm bài thi TOEIC. Tạo bản ghi ExamAttempt ở trạng thái IN_PROGRESS."
+          }
+        },
+        {
+          "name": "5.7 Submit Exam & Auto-Grade (Auto-calculate Scores)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Status is COMPLETED', () => pm.expect(json.status).to.eql('COMPLETED'));",
+                  "pm.test('Scores in valid range', () => {",
+                  "    pm.expect(json.listeningScore).to.be.at.least(5);",
+                  "    pm.expect(json.readingScore).to.be.at.least(5);",
+                  "    pm.expect(json.totalScore).to.be.at.least(10);",
+                  "});",
+                  "console.log('✅ Graded Result - Listening:', json.listeningScore, 'Reading:', json.readingScore, 'Total:', json.totalScore);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"timeSpentSeconds\": 3600,\n  \"answers\": [\n    {\n      \"questionId\": 1,\n      \"selectedOption\": \"A\",\n      \"timeSpentSeconds\": 30\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/exam-attempts/{{attempt_id}}/submit",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{attempt_id}}",
+                "submit"
+              ]
+            },
+            "description": "Nộp bài thi TOEIC. Hệ thống tự động so khớp đáp án, quy đổi thang điểm ETS (10-990) và lưu kết quả chi tiết."
+          }
+        },
+        {
+          "name": "5.8 Take Exam (Secure & Slim)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Exam basic info returned', () => {",
+                  "    pm.expect(json).to.have.property('id');",
+                  "    pm.expect(json).to.have.property('title');",
+                  "    pm.expect(json).to.have.property('parts');",
+                  "    pm.expect(json.parts).to.be.an('array');",
+                  "});",
+                  "pm.test('Zero Cheating: correctOption and explanation are HIDDEN', () => {",
+                  "    const responseText = pm.response.text();",
+                  "    pm.expect(responseText).to.not.include('correctOption');",
+                  "    pm.expect(responseText).to.not.include('explanation');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exams/{{exam_id}}/take",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{exam_id}}",
+                "take"
+              ]
+            },
+            "description": "Retrieve full exam tree with answers hidden"
+          },
+          "response": []
+        },
+        {
+          "name": "5.9 Review Exam Attempt (Explanations & Stats)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Review Summary contains scores & status', () => {",
+                  "    pm.expect(json).to.have.property('attemptId');",
+                  "    pm.expect(json).to.have.property('totalScore');",
+                  "    pm.expect(json).to.have.property('status');",
+                  "    pm.expect(json.status).to.eql('COMPLETED');",
+                  "});",
+                  "pm.test('Contains Part Summaries and Questions list', () => {",
+                  "    pm.expect(json.partSummaries).to.be.an('array');",
+                  "    pm.expect(json.questions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exam-attempts/{{attempt_id}}/review",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{attempt_id}}",
+                "review"
+              ]
+            },
+            "description": "View detailed review of a completed exam attempt including correct options, selected options, explanations, and transcripts for wrong answers."
+          },
+          "response": []
+        },
+        {
+          "name": "5.10 My Exam History (Personal & Secure)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('History is an array', () => pm.expect(json).to.be.an('array'));",
+                  "if (json.length > 0) {",
+                  "    pm.test('First item has attemptId and score fields', () => {",
+                  "        pm.expect(json[0]).to.have.property('attemptId');",
+                  "        pm.expect(json[0]).to.have.property('totalScore');",
+                  "        pm.expect(json[0]).to.have.property('completedAt');",
+                  "    });",
+                  "    console.log('✅ Found', json.length, 'completed exam attempt(s). Latest score:', json[0].totalScore);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exam-attempts/my-history",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "my-history"
+              ]
+            },
+            "description": "Lấy danh sách các lần thi đã hoàn thành của chính học viên đang đăng nhập (chống IDOR, không truyền userId trên URL)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Course Service — Course/Chapter/Lesson",
+      "item": [
+        {
+          "name": "6.1 Create Course",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const now = new Date().toISOString();",
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('_now', now);",
+                  "pm.collectionVariables.set('course_code', 'COURSE_' + ts);",
+                  "pm.collectionVariables.set('course_slug', 'toeic-listening-' + ts);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Course ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('course_id', json.id);",
+                  "console.log('Created Course ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{course_code}}\",\n  \"title\": \"TOEIC Listening Mastery\",\n  \"slug\": \"{{course_slug}}\",\n  \"description\": \"Khóa luyện nghe TOEIC từ cơ bản đến nâng cao\",\n  \"price\": 299000,\n  \"level\": \"INTERMEDIATE\",\n  \"isPublished\": true,\n  \"createdAt\": \"{{_now}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/courses",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6.2 List Courses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array with data', () => {",
+                  "    const arr = pm.response.json();",
+                  "    pm.expect(arr).to.be.an('array');",
+                  "    pm.expect(arr.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/courses",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "courses"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6.3 Create Chapter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Chapter ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('chapter_id', json.id);",
+                  "console.log('Created Chapter ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chapter 1: Photographs\",\n  \"description\": \"Luyện tập mô tả tranh Part 1\",\n  \"sortOrder\": 1,\n  \"course\": { \"id\": {{course_id}} }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/chapters",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "chapters"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6.4 Create Lesson",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Lesson ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('lesson_id', json.id);",
+                  "console.log('Created Lesson ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Lesson 1: Mô tả hình ảnh cơ bản\",\n  \"lessonType\": \"VIDEO\",\n  \"content\": \"Nội dung bài học về Part 1...\",\n  \"isFreePreview\": true,\n  \"sortOrder\": 1,\n  \"chapter\": { \"id\": {{chapter_id}} }\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/lessons",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. User Service — UserProfile",
+      "item": [
+        {
+          "name": "7.1 List User Profiles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/user-profiles",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "user-profiles"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Cleanup — Xóa dữ liệu test",
+      "item": [
+        {
+          "name": "8.1 Delete Payment Transaction",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const currentId = pm.collectionVariables.get('payment_id');",
+                  "if (!currentId) {",
+                  "    const gatewayUrl = pm.collectionVariables.get('gateway_url') || 'http://localhost:8080';",
+                  "    const token = pm.collectionVariables.get('access_token');",
+                  "    if (token) {",
+                  "        pm.sendRequest({",
+                  "            url: gatewayUrl + '/api/payment-transactions?size=1&sort=id,desc',",
+                  "            method: 'GET',",
+                  "            header: { 'Authorization': 'Bearer ' + token }",
+                  "        }, (err, res) => {",
+                  "            if (!err && res.code === 200) {",
+                  "                const list = res.json();",
+                  "                if (list && list.length > 0) {",
+                  "                    pm.collectionVariables.set('payment_id', list[0].id);",
+                  "                    pm.request.url.path = ['api', 'payment-transactions', String(list[0].id)];",
+                  "                    console.log('✅ Auto-detected latest payment_id:', list[0].id);",
+                  "                }",
+                  "            }",
+                  "        });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/payment-transactions/{{payment_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "payment-transactions",
+                "{{payment_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "8.2 Delete Subscription",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const currentId = pm.collectionVariables.get('subscription_id');",
+                  "if (!currentId) {",
+                  "    const gatewayUrl = pm.collectionVariables.get('gateway_url') || 'http://localhost:8080';",
+                  "    const token = pm.collectionVariables.get('access_token');",
+                  "    if (token) {",
+                  "        pm.sendRequest({",
+                  "            url: gatewayUrl + '/api/subscriptions?size=1&sort=id,desc',",
+                  "            method: 'GET',",
+                  "            header: { 'Authorization': 'Bearer ' + token }",
+                  "        }, (err, res) => {",
+                  "            if (!err && res.code === 200) {",
+                  "                const list = res.json();",
+                  "                if (list && list.length > 0) {",
+                  "                    pm.collectionVariables.set('subscription_id', list[0].id);",
+                  "                    pm.request.url.path = ['api', 'subscriptions', String(list[0].id)];",
+                  "                    console.log('✅ Auto-detected latest subscription_id:', list[0].id);",
+                  "                }",
+                  "            }",
+                  "        });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/subscriptions/{{subscription_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "subscriptions",
+                "{{subscription_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "8.3 Delete Plan",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const currentId = pm.collectionVariables.get('plan_id');",
+                  "if (!currentId) {",
+                  "    const gatewayUrl = pm.collectionVariables.get('gateway_url') || 'http://localhost:8080';",
+                  "    const token = pm.collectionVariables.get('access_token');",
+                  "    if (token) {",
+                  "        pm.sendRequest({",
+                  "            url: gatewayUrl + '/api/plans?size=1&sort=id,desc',",
+                  "            method: 'GET',",
+                  "            header: { 'Authorization': 'Bearer ' + token }",
+                  "        }, (err, res) => {",
+                  "            if (!err && res.code === 200) {",
+                  "                const list = res.json();",
+                  "                if (list && list.length > 0) {",
+                  "                    pm.collectionVariables.set('plan_id', list[0].id);",
+                  "                    pm.request.url.path = ['api', 'plans', String(list[0].id)];",
+                  "                    console.log('✅ Auto-detected latest plan_id:', list[0].id);",
+                  "                }",
+                  "            }",
+                  "        });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/plans/{{plan_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "plans",
+                "{{plan_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

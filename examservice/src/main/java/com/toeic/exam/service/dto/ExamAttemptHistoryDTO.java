@@ -1,19 +1,17 @@
 package com.toeic.exam.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.toeic.exam.domain.enumeration.AttemptStatus;
 import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * A DTO representing the result of an exam attempt after submission.
+ * A DTO record representing a summary of a completed exam attempt in the user's personal history.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ExamResultDTO(
+public record ExamAttemptHistoryDTO(
     Long attemptId,
     Long examId,
     String examTitle,
-    AttemptStatus status,
     Integer listeningScore,
     Integer readingScore,
     Integer totalScore,
@@ -21,5 +19,6 @@ public record ExamResultDTO(
     Integer wrongAnswers,
     Integer skippedAnswers,
     Integer timeSpentSeconds,
+    Instant startedAt,
     Instant completedAt
 ) implements Serializable {}

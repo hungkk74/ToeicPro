@@ -3,8 +3,12 @@ package com.toeic.exam.web.rest;
 import com.toeic.exam.repository.ExamAttemptRepository;
 import com.toeic.exam.service.ExamAttemptService;
 import com.toeic.exam.service.dto.ExamAttemptDTO;
+import com.toeic.exam.service.dto.ExamAttemptHistoryDTO;
 import com.toeic.exam.service.dto.ExamResultDTO;
 import com.toeic.exam.service.dto.ExamSubmissionDTO;
+import com.toeic.exam.security.AuthoritiesConstants;
+import com.toeic.exam.service.dto.review.ExamReviewDTO;
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.toeic.exam.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -79,6 +83,7 @@ public class ExamAttemptResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ExamAttemptDTO> updateExamAttempt(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody ExamAttemptDTO examAttemptDTO
@@ -113,6 +118,7 @@ public class ExamAttemptResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ExamAttemptDTO> partialUpdateExamAttempt(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody ExamAttemptDTO examAttemptDTO
@@ -145,6 +151,7 @@ public class ExamAttemptResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Exam Attempts in body.
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<ExamAttemptDTO>> getAllExamAttempts(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
@@ -167,6 +174,7 @@ public class ExamAttemptResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the examAttemptDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ExamAttemptDTO> getExamAttempt(@PathVariable("id") Long id) {
         LOG.debug("REST request to get ExamAttempt : {}", id);
         Optional<ExamAttemptDTO> examAttemptDTO = examAttemptService.findOne(id);
@@ -180,6 +188,7 @@ public class ExamAttemptResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteExamAttempt(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete ExamAttempt : {}", id);
         examAttemptService.delete(id);
@@ -196,7 +205,31 @@ public class ExamAttemptResource {
        submissionDTO.getAnswers().size());
        ExamResultDTO result = examAttemptService.submitExam(id, submissionDTO);
        return ResponseEntity.ok(result);
-
     }
 
+    /**
+     * {@code GET  /exam-attempts/:id/review} : get the review of a completed exam attempt.
+     *
+     * @param id the id of the examAttempt to review.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the examReviewDTO.
+     */
+    @GetMapping("/{id}/review")
+    public ResponseEntity<ExamReviewDTO> getExamReview(@PathVariable Long id) {
+        LOG.debug("REST request to get review for ExamAttempt : {}", id);
+        ExamReviewDTO result = examAttemptService.getExamReview(id);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * {@code GET  /exam-attempts/my-history} : get completed exam attempts history for the current user.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of attempt history.
+     */
+    @GetMapping("/my-history")
+    public ResponseEntity<List<ExamAttemptHistoryDTO>> getMyExamHistory() {
+        LOG.debug("REST request to get exam attempt history for current user");
+        List<ExamAttemptHistoryDTO> result = examAttemptService.getMyExamHistory();
+        return ResponseEntity.ok(result);
+    }
 }
+

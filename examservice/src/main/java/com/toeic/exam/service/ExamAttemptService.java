@@ -1,10 +1,12 @@
 package com.toeic.exam.service;
 
 import com.toeic.exam.service.dto.ExamAttemptDTO;
-import java.util.Optional;
-
+import com.toeic.exam.service.dto.ExamAttemptHistoryDTO;
 import com.toeic.exam.service.dto.ExamResultDTO;
 import com.toeic.exam.service.dto.ExamSubmissionDTO;
+import com.toeic.exam.service.dto.review.ExamReviewDTO;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -28,6 +30,8 @@ public interface ExamAttemptService {
      */
     ExamAttemptDTO update(ExamAttemptDTO examAttemptDTO);
     ExamResultDTO submitExam(Long attemptId, ExamSubmissionDTO submissionDTO);
+    ExamReviewDTO getExamReview(Long attemptId);
+    List<ExamAttemptHistoryDTO> getMyExamHistory();
 
     /**
      * Partially updates a examAttempt.

@@ -23,7 +23,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.dto.take.ExamTakeDTO;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.exam.domain.Exam}.
@@ -56,6 +58,7 @@ public class ExamResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ExamDTO> createExam(@Valid @RequestBody ExamDTO examDTO) throws URISyntaxException {
         LOG.debug("REST request to save Exam : {}", examDTO);
         if (examDTO.getId() != null) {
@@ -78,6 +81,7 @@ public class ExamResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ExamDTO> updateExam(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody ExamDTO examDTO
@@ -112,6 +116,7 @@ public class ExamResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ExamDTO> partialUpdateExam(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody ExamDTO examDTO
@@ -170,6 +175,7 @@ public class ExamResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteExam(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Exam : {}", id);
         examService.delete(id);

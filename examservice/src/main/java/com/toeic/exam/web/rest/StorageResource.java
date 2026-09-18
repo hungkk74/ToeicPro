@@ -1,11 +1,13 @@
 package com.toeic.exam.web.rest;
 
+import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.FileStorageService;
 import com.toeic.exam.service.dto.FileUploadResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/api/storage")
+@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class StorageResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(StorageResource.class);

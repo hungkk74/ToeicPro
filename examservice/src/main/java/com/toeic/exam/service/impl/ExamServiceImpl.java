@@ -22,6 +22,7 @@ import com.toeic.exam.service.dto.take.ExamTakeDTO;
 import com.toeic.exam.service.dto.take.PartTakeDTO;
 import com.toeic.exam.service.dto.take.QuestionGroupTakeDTO;
 import com.toeic.exam.service.dto.take.QuestionTakeDTO;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -112,77 +113,66 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
-@Transactional(readOnly = true)
-public ExamTakeDTO getExamForTaking(Long examId) {
-    LOG.debug("Request to get exam for taking: {}", examId);
+    @Transactional(readOnly = true)
+    public ExamTakeDTO getExamForTaking(Long examId) {
+        LOG.debug("Request to get exam for taking: {}", examId);
 
-    Exam exam = examRepository.findById(examId)
-        .orElseThrow(() -> new IllegalArgumentException("Exam not found with id: " + examId));
+        Exam exam = examRepository.findById(examId)
+            .orElseThrow(() -> new IllegalArgumentException("Exam not found with id: " + examId));
 
-    if (Boolean.FALSE.equals(exam.getIsPublished())) {
-        throw new IllegalStateException("Exam is not published yet");
-    }
-
-    // 1. Dựng DTO gốc Exam
-    ExamTakeDTO examTakeDTO = new ExamTakeDTO();
-    examTakeDTO.setId(exam.getId());
-    examTakeDTO.setCode(exam.getCode());
-    examTakeDTO.setTitle(exam.getTitle());
-    examTakeDTO.setDurationMinutes(exam.getDurationMinutes());
-    examTakeDTO.setTotalQuestions(exam.getTotalQuestions());
-    examTakeDTO.setAudioFullUrl(exam.getAudioFullUrl());
-
-    // 2. Lấy danh sách Part và đưa vào map tra cứu O(1)
-    List<Part> parts = partRepository.findByExamIdOrderByPartNumberAsc(examId);
-    Map<Long, PartTakeDTO> partMap = new LinkedHashMap<>();
-    for (Part part : parts) {
-        PartTakeDTO pDTO = new PartTakeDTO();
-        pDTO.setId(part.getId());
-        pDTO.setPartNumber(part.getPartNumber());
-        pDTO.setName(part.getName());
-        pDTO.setTotalQuestions(part.getTotalQuestions());
-        partMap.put(part.getId(), pDTO);
-        examTakeDTO.getParts().add(pDTO);
-    }
-
-    // 3. Lấy danh sách QuestionGroup và ghép vào Part cha
-    List<QuestionGroup> groups = questionGroupRepository.findByExamId(examId);
-    Map<Long, QuestionGroupTakeDTO> groupMap = new HashMap<>();
-    for (QuestionGroup g : groups) {
-        QuestionGroupTakeDTO gDTO = new QuestionGroupTakeDTO();
-        gDTO.setId(g.getId());
-        gDTO.setPassageText(g.getPassageText());
-        gDTO.setAudioUrl(g.getAudioUrl());
-        gDTO.setImageUrl(g.getImageUrl());
-        groupMap.put(g.getId(), gDTO);
-
-        if (g.getPart() != null && partMap.containsKey(g.getPart().getId())) {
-            partMap.get(g.getPart().getId()).getGroups().add(gDTO);
+        if (Boolean.FALSE.equals(exam.getIsPublished())) {
+            throw new IllegalStateException("Exam is not published yet");
         }
-    }
 
-    // 4. Lấy toàn bộ Question và phân bổ vào Group hoặc Standalone
-    List<Question> questions = questionRepository.findByExamIdOrderByQuestionNumberAsc(examId);
-    for (Question q : questions) {
-        QuestionTakeDTO qDTO = new QuestionTakeDTO();
-        qDTO.setId(q.getId());
-        qDTO.setQuestionNumber(q.getQuestionNumber());
-        qDTO.setContent(q.getContent());
-        qDTO.setImageUrl(q.getImageUrl());
-        qDTO.setAudioUrl(q.getAudioUrl());
-        qDTO.setOptionA(q.getOptionA());
-        qDTO.setOptionB(q.getOptionB());
-        qDTO.setOptionC(q.getOptionC());
-        qDTO.setOptionD(q.getOptionD());
+        // 1. Lấy câu hỏi và gom nhóm trước vào Map theo GroupId và PartId
+        List<Question> questions = questionRepository.findByExamIdOrderByQuestionNumberAsc(examId);
+        Map<Long, List<QuestionTakeDTO>> groupQuestionsMap = new HashMap<>();
+        Map<Long, List<QuestionTakeDTO>> standaloneMap = new HashMap<>();
 
-        if (q.getQuestionGroup() != null && groupMap.containsKey(q.getQuestionGroup().getId())) {
-            groupMap.get(q.getQuestionGroup().getId()).getQuestions().add(qDTO);
-        } else if (q.getPart() != null && partMap.containsKey(q.getPart().getId())) {
-            partMap.get(q.getPart().getId()).getStandaloneQuestions().add(qDTO);
+        for (Question q : questions) {
+            QuestionTakeDTO qDTO = new QuestionTakeDTO(
+                q.getId(), q.getQuestionNumber(), q.getContent(), q.getImageUrl(),
+                q.getAudioUrl(), q.getOptionA(), q.getOptionB(), q.getOptionC(), q.getOptionD()
+            );
+            if (q.getQuestionGroup() != null) {
+                groupQuestionsMap.computeIfAbsent(q.getQuestionGroup().getId(), k -> new ArrayList<>()).add(qDTO);
+            } else if (q.getPart() != null) {
+                standaloneMap.computeIfAbsent(q.getPart().getId(), k -> new ArrayList<>()).add(qDTO);
+            }
         }
-    }
 
-    return examTakeDTO;
+        // 2. Lấy QuestionGroups và gom vào Map theo PartId
+        List<QuestionGroup> groups = questionGroupRepository.findByExamId(examId);
+        Map<Long, List<QuestionGroupTakeDTO>> partGroupsMap = new HashMap<>();
+
+        for (QuestionGroup g : groups) {
+            List<QuestionTakeDTO> qList = groupQuestionsMap.getOrDefault(g.getId(), List.of());
+            QuestionGroupTakeDTO gDTO = new QuestionGroupTakeDTO(
+                g.getId(), g.getPassageText(), g.getAudioUrl(), g.getImageUrl(), qList
+            );
+            if (g.getPart() != null) {
+                partGroupsMap.computeIfAbsent(g.getPart().getId(), k -> new ArrayList<>()).add(gDTO);
+            }
+        }
+
+        // 3. Lấy Parts và ghép các QuestionGroups + StandaloneQuestions
+        List<Part> parts = partRepository.findByExamIdOrderByPartNumberAsc(examId);
+        List<PartTakeDTO> partDTOs = new ArrayList<>();
+
+        for (Part p : parts) {
+            List<QuestionGroupTakeDTO> gList = partGroupsMap.getOrDefault(p.getId(), List.of());
+            List<QuestionTakeDTO> sList = standaloneMap.getOrDefault(p.getId(), List.of());
+            partDTOs.add(new PartTakeDTO(
+                p.getId(), p.getPartNumber(), p.getName(), p.getTotalQuestions(), gList, sList
+            ));
+        }
+
+        // 4. Khởi tạo ExamTakeDTO bất biến
+        return new ExamTakeDTO(
+            exam.getId(), exam.getCode(), exam.getTitle(),
+            exam.getDurationMinutes(), exam.getTotalQuestions(),
+            exam.getAudioFullUrl(), partDTOs
+        );
+    }
 }
 
-}
