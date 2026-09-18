@@ -3,6 +3,8 @@ package com.toeic.exam.web.rest;
 import com.toeic.exam.repository.ExamAttemptRepository;
 import com.toeic.exam.service.ExamAttemptService;
 import com.toeic.exam.service.dto.ExamAttemptDTO;
+import com.toeic.exam.service.dto.ExamResultDTO;
+import com.toeic.exam.service.dto.ExamSubmissionDTO;
 import com.toeic.exam.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -185,4 +187,16 @@ public class ExamAttemptResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<ExamResultDTO> submitExam(
+        @PathVariable Long id,
+        @Valid @RequestBody ExamSubmissionDTO submissionDTO
+    ) {
+       LOG.debug("REST request to submit ExamAttempt : {}, {}", id, 
+       submissionDTO.getAnswers().size());
+       ExamResultDTO result = examAttemptService.submitExam(id, submissionDTO);
+       return ResponseEntity.ok(result);
+
+    }
+
 }

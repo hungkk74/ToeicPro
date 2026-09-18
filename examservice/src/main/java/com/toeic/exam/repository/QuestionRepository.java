@@ -1,6 +1,8 @@
 package com.toeic.exam.repository;
 
 import com.toeic.exam.domain.Question;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -37,4 +39,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
 
     @Query("select question from Question question left join fetch question.part where question.id =:id")
     Optional<Question> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query("SELECT q FROM Question q LEFT JOIN FETCH q.part WHERE q.id IN :ids")
+    List<Question> findAllByIdInWithPart(@Param("ids") Collection<Long> ids);
 }

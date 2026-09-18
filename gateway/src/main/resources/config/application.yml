@@ -170,7 +170,7 @@ spring:
             - id: examservice-route
               uri: lb://examservice
               predicates:
-                - Path=/api/exams/**, /api/parts/**, /api/question-groups/**, /api/questions/**, /api/exam-attempts/**, /api/user-answers/**, /api/score-conversions/**
+                - Path=/api/exams/**, /api/parts/**, /api/question-groups/**, /api/questions/**, /api/exam-attempts/**, /api/user-answers/**, /api/score-conversions/**, /api/storage/**
               filters:
                 - name: CircuitBreaker
                   args:

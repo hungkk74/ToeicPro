@@ -2,6 +2,9 @@ package com.toeic.exam.service;
 
 import com.toeic.exam.service.dto.ExamAttemptDTO;
 import java.util.Optional;
+
+import com.toeic.exam.service.dto.ExamResultDTO;
+import com.toeic.exam.service.dto.ExamSubmissionDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,6 +27,7 @@ public interface ExamAttemptService {
      * @return the persisted entity.
      */
     ExamAttemptDTO update(ExamAttemptDTO examAttemptDTO);
+    ExamResultDTO submitExam(Long attemptId, ExamSubmissionDTO submissionDTO);
 
     /**
      * Partially updates a examAttempt.
