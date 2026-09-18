@@ -23,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.exam.service.dto.take.ExamTakeDTO;
 
 /**
  * REST controller for managing {@link com.toeic.exam.domain.Exam}.
@@ -176,4 +177,18 @@ public class ExamResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+
+        /**
+     * {@code GET  /exams/:id/take} : get the "id" exam for taking (secure & slim).
+     *
+     * @param id the id of the exam to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the examTakeDTO.
+     */
+    @GetMapping("/{id}/take")
+    public ResponseEntity<ExamTakeDTO> getExamForTaking(@PathVariable("id") Long id) {
+        LOG.debug("REST request to get Exam for taking : {}", id);
+        ExamTakeDTO examTakeDTO = examService.getExamForTaking(id);
+        return ResponseEntity.ok(examTakeDTO);
+    }
+
 }
