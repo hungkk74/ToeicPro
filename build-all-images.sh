@@ -63,6 +63,20 @@ for SERVICE in "${SERVICES[@]}"; do
     fi
 done
 
+# --- Build Docker image: frontend (Next.js) ---
+FRONTEND_PATH="${SCRIPT_DIR}/frontend"
+if [ -f "${FRONTEND_PATH}/Dockerfile" ]; then
+    echo ""
+    echo ">>> Building Docker image: frontend (Next.js) ..."
+    cd "${FRONTEND_PATH}"
+    if docker build -t toeic-frontend:latest .; then
+        echo "<<< frontend - BUILD SUCCESS"
+    else
+        echo "<<< frontend - BUILD FAILED"
+        FAILED+=("frontend")
+    fi
+fi
+
 # --- Kết quả ---
 echo ""
 echo "============================================="

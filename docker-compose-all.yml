@@ -177,7 +177,7 @@ services:
   #  MICROSERVICES (7 Services)
   # ===========================================================================
 
-  # --- API Gateway (React Frontend + Spring Cloud Gateway) ---
+  # --- API Gateway (Pure Spring Cloud Gateway) ---
   gateway:
     image: gateway:latest
     container_name: toeic-gateway
@@ -199,6 +199,7 @@ services:
       SPRING_LIQUIBASE_URL: jdbc:mysql://mysql:3306/gateway?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
       SPRING_LIQUIBASE_USER: root
       SPRING_LIQUIBASE_PASSWORD: "123456"
+      JHIPSTER_CORS_ALLOWED_ORIGINS: "http://localhost:3000,http://127.0.0.1:3000"
     healthcheck:
       test:
         - CMD-SHELL
@@ -213,6 +214,26 @@ services:
         condition: service_healthy
       consul:
         condition: service_started
+
+  # --- Frontend Web Application (Next.js App Router) ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: toeic-frontend:latest
+    container_name: toeic-frontend
+    networks:
+      - toeic-network
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - INTERNAL_API_URL=http://gateway:8080
+    depends_on:
+      gateway:
+        condition: service_healthy
+
 
   # --- User Service ---
   userservice:

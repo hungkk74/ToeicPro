@@ -84,6 +84,28 @@ foreach ($service in $services) {
     }
 }
 
+# --- Build Docker image: frontend (Next.js) ---
+$frontendPath = Join-Path $rootDir "frontend"
+if (Test-Path (Join-Path $frontendPath "Dockerfile")) {
+    Write-Host ""
+    Write-Host ">>> Building Docker image: frontend (Next.js) ..." -ForegroundColor Green
+    Push-Location $frontendPath
+    try {
+        & docker build -t toeic-frontend:latest .
+        if ($LASTEXITCODE -ne 0) {
+            throw "Build failed for frontend"
+        }
+        Write-Host "<<< frontend - BUILD SUCCESS" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "<<< frontend - BUILD FAILED" -ForegroundColor Red
+        $failedServices += "frontend"
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 # --- Kết quả ---
 Write-Host ""
 Write-Host "=============================================" -ForegroundColor Cyan
