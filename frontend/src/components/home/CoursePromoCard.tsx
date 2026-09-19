@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Video, Clock, CheckCircle2, Sparkles, MessageSquare } from 'lucide-react';
 import { CoursePromoItem } from '@/types/coursePromo';
 
@@ -5,9 +6,9 @@ interface CoursePromoCardProps {
   promo: CoursePromoItem;
 }
 
-export default function CoursePromoCard({ promo }: CoursePromoCardProps) {
+function CoursePromoCard({ promo }: CoursePromoCardProps) {
   return (
-    <article className="flex flex-col justify-between h-full bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 p-5 group">
+    <article className="flex flex-col justify-between h-full bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-[border-color,box-shadow] duration-200 p-5 group">
       <div className="space-y-3.5">
         {/* Badges / Promo Tag Row */}
         <div className="flex items-center justify-between gap-2">
@@ -95,3 +96,5 @@ export default function CoursePromoCard({ promo }: CoursePromoCardProps) {
     </article>
   );
 }
+
+export default memo(CoursePromoCard);

@@ -102,17 +102,11 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
     <div className="space-y-6">
       {/* Header Banner Phân Cấp Thị Giác Rõ Ràng */}
       <div className="pb-4 border-b border-slate-200">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="bg-slate-100 text-slate-600 text-xs font-semibold px-2.5 py-1 rounded-md border border-slate-200 tracking-wide uppercase">
-            Khảo Thí Chuẩn Hóa
-          </span>
-        </div>
+
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Danh Sách Đề Thi Thử TOEIC
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Bộ đề thi mô phỏng định dạng ETS 2024–2026 với hệ thống bấm giờ và chấm điểm tự động.
-        </p>
+
       </div>
 
       {/* Dải Banner Khuyến Mãi Ngay Trên Khu Vực Bộ Lọc */}

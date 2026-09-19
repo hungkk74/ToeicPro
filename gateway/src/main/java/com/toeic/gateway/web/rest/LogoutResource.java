@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Mono;
 
-/**
- * REST controller for managing global OIDC logout.
- */
+
 @RestController
 public class LogoutResource {
 

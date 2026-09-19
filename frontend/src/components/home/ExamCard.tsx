@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Link from 'next/link';
 import { Clock, FileText, Users, TrendingUp, ArrowRight } from 'lucide-react';
 import { ExamItem } from '@/types/examList';
@@ -6,7 +7,7 @@ interface ExamCardProps {
   card: ExamItem;
 }
 
-export default function ExamCard({ card }: ExamCardProps) {
+function ExamCard({ card }: ExamCardProps) {
   // Quy chuẩn màu đơn sắc đồng bộ cho Badge/Tag danh mục & format
   const getTag1Class = () => {
     return 'bg-slate-100 text-slate-700 border-slate-200';
@@ -17,7 +18,7 @@ export default function ExamCard({ card }: ExamCardProps) {
   };
 
   return (
-    <article className="flex flex-col justify-between h-full bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 p-5 group">
+    <article className="flex flex-col justify-between h-full bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-[border-color,box-shadow] duration-200 p-5 group">
       <div className="space-y-4">
         {/* Badges/Tags Bar */}
         <div className="flex items-center justify-between gap-2">
@@ -107,3 +108,5 @@ export default function ExamCard({ card }: ExamCardProps) {
     </article>
   );
 }
+
+export default memo(ExamCard);

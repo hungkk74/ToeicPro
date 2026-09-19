@@ -1,6 +1,7 @@
 'use client';
 
-import { RotateCcw, Filter } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { RotateCcw, ChevronDown, Check } from 'lucide-react';
 import { ExamCategory, FilterState } from '@/types/examList';
 
 interface FilterSectionProps {
@@ -11,6 +12,11 @@ interface FilterSectionProps {
   totalAll: number;
 }
 
+interface DropdownOption {
+  value: string;
+  label: string;
+}
+
 const CATEGORY_TABS: { key: ExamCategory; label: string }[] = [
   { key: 'all', label: 'Tất cả đề' },
   { key: 'full', label: 'Đề đầy đủ (200 câu)' },
@@ -19,6 +25,102 @@ const CATEGORY_TABS: { key: ExamCategory; label: string }[] = [
   { key: 'reading', label: 'Đọc (Part 5–7)' },
 ];
 
+const SORT_OPTIONS: { value: FilterState['sortBy']; label: string }[] = [
+  { value: 'recent', label: 'Mới nhất' },
+  { value: 'popular', label: 'Lượt thi nhiều nhất' },
+  { value: 'hardest', label: 'Độ khó cao nhất' },
+];
+
+const SOURCE_OPTIONS: DropdownOption[] = [
+  { value: 'all', label: 'Tất cả nguồn' },
+  { value: 'ETS Authentic', label: 'ETS Authentic 2026' },
+  { value: 'Economy', label: 'Economy Toeic' },
+  { value: 'Hackers', label: 'Hackers Practice' },
+];
+
+const SCORE_OPTIONS: DropdownOption[] = [
+  { value: 'all', label: 'Tất cả mức điểm' },
+  { value: '550+', label: 'Mục tiêu 550+ (Cơ bản)' },
+  { value: '750+', label: 'Mục tiêu 750+ (Khá giỏi)' },
+  { value: '850+', label: 'Mục tiêu 850+ (Chuyên sâu)' },
+  { value: '900+', label: 'Mục tiêu 900+ (Mastery)' },
+];
+
+const STATUS_OPTIONS: DropdownOption[] = [
+  { value: 'all', label: 'Tất cả trạng thái' },
+  { value: 'untaken', label: 'Đề chưa làm' },
+  { value: 'completed', label: 'Đã hoàn thành / Xem lại' },
+];
+
+interface CustomSelectProps {
+  label?: string;
+  value: string;
+  options: DropdownOption[];
+  isOpen: boolean;
+  onToggle: () => void;
+  onSelect: (val: string) => void;
+}
+
+function CustomSelect({
+  label,
+  value,
+  options,
+  isOpen,
+  onToggle,
+  onSelect,
+}: CustomSelectProps) {
+  const selected = options.find((o) => o.value === value) || options[0];
+
+  return (
+    <div className="relative">
+      {label && (
+        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+          {label}
+        </label>
+      )}
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`w-full bg-white border text-left text-sm rounded-lg px-3 py-2 flex items-center justify-between transition-colors cursor-pointer ${
+          isOpen
+            ? 'border-blue-500 ring-2 ring-blue-500/15 text-slate-900'
+            : 'border-slate-200 hover:border-slate-300 text-slate-700'
+        }`}
+      >
+        <span className="truncate pr-2 font-medium">{selected.label}</span>
+        <ChevronDown
+          className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150 ${
+            isOpen ? 'rotate-180 text-blue-600' : ''
+          }`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-40">
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onSelect(opt.value)}
+                className={`w-full text-left px-3.5 py-2 text-sm flex items-center justify-between transition-colors cursor-pointer ${
+                  isSelected
+                    ? 'bg-blue-50 text-blue-700 font-semibold'
+                    : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+              >
+                <span className="truncate">{opt.label}</span>
+                {isSelected && <Check className="w-4 h-4 text-blue-600 shrink-0 ml-2" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FilterSection({
   filterState,
   onFilterChange,
@@ -26,7 +128,9 @@ export default function FilterSection({
   totalFiltered,
   totalAll: _totalAll,
 }: FilterSectionProps) {
-  // Kiểm tra xem người dùng có đang áp dụng bộ lọc tùy chỉnh nào không
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const isFilterActive =
     filterState.category !== 'all' ||
     filterState.source !== 'all' ||
@@ -35,9 +139,40 @@ export default function FilterSection({
     filterState.sortBy !== 'recent' ||
     Boolean(filterState.searchQuery);
 
+  // Đóng dropdown khi click ra ngoài hoặc bấm phím Escape
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const toggleDropdown = (name: string) => {
+    setOpenDropdown((prev) => (prev === name ? null : name));
+  };
+
+  const selectedSort =
+    SORT_OPTIONS.find((s) => s.value === filterState.sortBy) || SORT_OPTIONS[0];
+
   return (
-    <div className="bg-white rounded-xl p-4 sm:p-5 border border-slate-200 space-y-4">
-      {/* Top Row: Segmented Control Tabs & Filter Stats / Reset */}
+    <div
+      ref={containerRef}
+      className="relative z-20 bg-white rounded-xl p-4 sm:p-5 border border-slate-200 space-y-4"
+    >
+      {/* Top Row: Segmented Control Tabs + Counter + Sort */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-1 border-b border-slate-100">
         {/* Segmented Control Tabs */}
         <div className="inline-flex p-1 bg-slate-100 rounded-lg flex-wrap gap-1 border border-slate-200">
@@ -48,7 +183,7 @@ export default function FilterSection({
                 key={tab.key}
                 type="button"
                 onClick={() => onFilterChange({ category: tab.key })}
-                className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-none'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -60,11 +195,66 @@ export default function FilterSection({
           })}
         </div>
 
-        {/* Right Status: Counter & Reset Button */}
-        <div className="flex items-center gap-3 text-xs text-slate-500 self-end lg:self-auto">
+        {/* Right: Counter + Sort + Reset */}
+        <div className="flex items-center gap-3 text-xs text-slate-500 self-end lg:self-auto flex-wrap">
           <span>
             Hiển thị: <strong className="font-semibold text-slate-900">{totalFiltered}</strong> bộ đề
           </span>
+          <span className="text-slate-300">|</span>
+
+          {/* Sắp xếp Dropdown Tuỳ Biến */}
+          <div className="relative inline-flex items-center gap-1.5">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+              Sắp xếp:
+            </span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => toggleDropdown('sort')}
+                className={`bg-white border text-sm font-medium rounded-lg pl-3 pr-2.5 py-1 inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  openDropdown === 'sort'
+                    ? 'border-blue-500 ring-2 ring-blue-500/15 text-slate-900'
+                    : 'border-slate-200 hover:border-slate-300 text-slate-800'
+                }`}
+              >
+                <span>{selectedSort.label}</span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-150 ${
+                    openDropdown === 'sort' ? 'rotate-180 text-blue-600' : ''
+                  }`}
+                />
+              </button>
+
+              {openDropdown === 'sort' && (
+                <div className="absolute top-full right-0 mt-1.5 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-40">
+                  {SORT_OPTIONS.map((opt) => {
+                    const isSelected = opt.value === filterState.sortBy;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          onFilterChange({ sortBy: opt.value });
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full text-left px-3.5 py-2 text-sm flex items-center justify-between transition-colors cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-50 text-blue-700 font-semibold'
+                            : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {isSelected && (
+                          <Check className="w-4 h-4 text-blue-600 shrink-0 ml-2" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
           <span className="text-slate-300">|</span>
           <button
             type="button"
@@ -77,91 +267,51 @@ export default function FilterSection({
             }`}
           >
             <RotateCcw className={`w-3.5 h-3.5 ${isFilterActive ? 'text-blue-600' : 'text-slate-400'}`} />
-            <span>Đặt lại bộ lọc</span>
+            <span>Đặt lại</span>
           </button>
         </div>
       </div>
 
-      {/* Bottom Row: Dropdown Selectors */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+      {/* Bottom Row: 3 Custom Dropdown Selectors */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
         {/* Nguồn đề thi */}
-        <div className="relative min-w-[180px]">
-          <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            Nguồn đề thi
-          </label>
-          <div className="relative">
-            <select
-              value={filterState.source}
-              onChange={(e) => onFilterChange({ source: e.target.value })}
-              className="w-full truncate bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors cursor-pointer appearance-none"
-            >
-              <option value="all">Tất cả nguồn (ETS, Economy...)</option>
-              <option value="ETS Authentic">ETS Authentic 2026</option>
-              <option value="Economy">Economy Toeic</option>
-              <option value="Hackers">Hackers Practice</option>
-            </select>
-            <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
+        <CustomSelect
+          label="Nguồn đề thi"
+          value={filterState.source}
+          options={SOURCE_OPTIONS}
+          isOpen={openDropdown === 'source'}
+          onToggle={() => toggleDropdown('source')}
+          onSelect={(val) => {
+            onFilterChange({ source: val });
+            setOpenDropdown(null);
+          }}
+        />
 
         {/* Mục tiêu điểm */}
-        <div className="relative min-w-[180px]">
-          <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            Mục tiêu điểm
-          </label>
-          <div className="relative">
-            <select
-              value={filterState.targetScore}
-              onChange={(e) => onFilterChange({ targetScore: e.target.value })}
-              className="w-full truncate bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors cursor-pointer appearance-none"
-            >
-              <option value="all">Tất cả mục tiêu điểm</option>
-              <option value="550+">Mục tiêu 550+ (Cơ bản)</option>
-              <option value="750+">Mục tiêu 750+ (Khá giỏi)</option>
-              <option value="850+">Mục tiêu 850+ (Chuyên sâu)</option>
-              <option value="900+">Mục tiêu 900+ (Mastery)</option>
-            </select>
-            <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
+        <CustomSelect
+          label="Mục tiêu điểm"
+          value={filterState.targetScore}
+          options={SCORE_OPTIONS}
+          isOpen={openDropdown === 'targetScore'}
+          onToggle={() => toggleDropdown('targetScore')}
+          onSelect={(val) => {
+            onFilterChange({ targetScore: val });
+            setOpenDropdown(null);
+          }}
+        />
 
         {/* Trạng thái làm bài */}
-        <div className="relative min-w-[180px]">
-          <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            Trạng thái làm bài
-          </label>
-          <div className="relative">
-            <select
-              value={filterState.status}
-              onChange={(e) => onFilterChange({ status: e.target.value })}
-              className="w-full truncate bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors cursor-pointer appearance-none"
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="untaken">Đề chưa làm</option>
-              <option value="completed">Đã hoàn thành / Xem lại</option>
-            </select>
-            <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Sắp xếp */}
-        <div className="relative min-w-[180px]">
-          <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            Sắp xếp theo
-          </label>
-          <div className="relative">
-            <select
-              value={filterState.sortBy}
-              onChange={(e) => onFilterChange({ sortBy: e.target.value as FilterState['sortBy'] })}
-              className="w-full truncate bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors cursor-pointer appearance-none"
-            >
-              <option value="recent">Mới nhất</option>
-              <option value="popular">Lượt thi nhiều nhất</option>
-              <option value="hardest">Độ khó cao nhất</option>
-            </select>
-            <Filter className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        </div>
+        <CustomSelect
+          label="Trạng thái làm bài"
+          value={filterState.status}
+          options={STATUS_OPTIONS}
+          isOpen={openDropdown === 'status'}
+          onToggle={() => toggleDropdown('status')}
+          onSelect={(val) => {
+            onFilterChange({ status: val });
+            setOpenDropdown(null);
+          }}
+        />
       </div>
     </div>
   );

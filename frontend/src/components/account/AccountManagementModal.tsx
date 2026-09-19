@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Mail, Shield, Target, Key, LogOut, LogIn, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { X, User, Mail, Shield, Target, Key, LogOut, LogIn, ExternalLink, CircleUserRound } from 'lucide-react';
 import { UserAccountDTO } from '@/types/backend';
 
 interface AccountManagementModalProps {
@@ -45,20 +45,17 @@ export default function AccountManagementModal({
 
   const displayName = user
     ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.login
-    : 'Alex Morgan';
+    : 'Chưa đăng nhập';
 
-  const userInitials = user
-    ? (user.firstName?.[0] || user.login?.[0] || 'U').toUpperCase()
-    : 'AM';
 
-  const email = user?.email || 'alex.morgan@toeicpro.internal';
-  const username = user?.login || 'alex.morgan';
-  const authorities = user?.authorities && user.authorities.length > 0
-    ? user.authorities
-    : ['ROLE_USER', 'ROLE_PRO_MEMBER'];
+
+  const email = user?.email || 'Chưa cập nhật email';
+  const username = user?.login || '—';
+  const authorities = user?.authorities || [];
+  const displayRoles = authorities.filter((role) => role !== 'ROLE_USER');
 
   const isAdmin = Boolean(
-    authorities.some((r) => r === 'ROLE_ADMIN' || r.toUpperCase().includes('ADMIN'))
+    authorities.some((r) => ['ROLE_ADMIN', 'ROLE_STAFF'].includes(r) || r.toUpperCase().includes('ADMIN'))
   );
 
   return createPortal(
@@ -91,30 +88,28 @@ export default function AccountManagementModal({
         <div className="p-6 space-y-5">
           {/* User Profile Summary Card */}
           <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="w-14 h-14 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-lg ring-2 ring-slate-200 shrink-0">
-              {userInitials}
+            <div className="w-14 h-14 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0">
+              <CircleUserRound className="w-8 h-8 text-slate-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
+              <div>
                 <h3 className="text-base font-bold text-slate-900 truncate">
                   {displayName}
                 </h3>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  Đang hoạt động
-                </span>
+                <p className="text-xs text-slate-500 truncate mt-0.5">{email}</p>
               </div>
-              <p className="text-xs text-slate-500 truncate mt-0.5">{email}</p>
-              <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                {authorities.map((role) => (
-                  <span
-                    key={role}
-                    className="text-[10px] font-semibold bg-slate-200/80 text-slate-700 px-2 py-0.5 rounded border border-slate-300"
-                  >
-                    {role}
-                  </span>
-                ))}
-              </div>
+              {displayRoles.length > 0 && (
+                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                  {displayRoles.map((role) => (
+                    <span
+                      key={role}
+                      className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200"
+                    >
+                      {role === 'ROLE_ADMIN' ? 'Quản trị viên (Admin)' : role}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

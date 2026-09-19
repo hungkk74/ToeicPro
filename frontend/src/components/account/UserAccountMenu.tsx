@@ -1,29 +1,45 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, LogOut, LogIn, User, Shield, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronDown, LogOut, LogIn, User, Shield, ExternalLink, UserPlus, LayoutDashboard, CircleUserRound } from 'lucide-react';
 import { getCurrentUser, performLogout } from '@/services/authService';
 import { UserAccountDTO } from '@/types/backend';
 import AccountManagementModal from './AccountManagementModal';
 import LoginModal from './LoginModal';
+import RegisterModal from './RegisterModal';
+
+const PRIVILEGED_ROLES = ['ROLE_ADMIN', 'ROLE_STAFF'];
+
+function hasPrivilegedRole(authorities?: string[]): boolean {
+  return Boolean(
+    authorities?.some((r) => PRIVILEGED_ROLES.includes(r) || r.toUpperCase().includes('ADMIN'))
+  );
+}
 
 interface UserAccountMenuProps {
   compact?: boolean;
+  onRoleResolved?: (isPrivileged: boolean) => void;
 }
 
-export default function UserAccountMenu({ compact = false }: UserAccountMenuProps) {
+export default function UserAccountMenu({ compact = false, onRoleResolved }: UserAccountMenuProps) {
   const [user, setUser] = useState<UserAccountDTO | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getCurrentUser().then((userData) => {
       if (userData) {
         setUser(userData);
+        onRoleResolved?.(hasPrivilegedRole(userData.authorities));
+      } else {
+        onRoleResolved?.(false);
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Đóng dropdown khi click ra ngoài
@@ -51,7 +67,16 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
   const handleSwitchAccount = () => {
     setIsDropdownOpen(false);
     setIsModalOpen(false);
+    setIsRegisterModalOpen(false);
     setIsLoginModalOpen(true);
+  };
+
+  // Mở modal đăng ký trực tiếp
+  const handleOpenRegister = () => {
+    setIsDropdownOpen(false);
+    setIsModalOpen(false);
+    setIsLoginModalOpen(false);
+    setIsRegisterModalOpen(true);
   };
 
   const handleOpenAccountManagement = () => {
@@ -64,21 +89,45 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
     setIsLoginModalOpen(false);
   };
 
+  const handleRegisterSuccess = (newUser: UserAccountDTO) => {
+    setUser(newUser);
+    setIsRegisterModalOpen(false);
+  };
+
+  const handleSwitchToLogin = () => {
+    setIsRegisterModalOpen(false);
+    setIsLoginModalOpen(true);
+  };
+
+  const handleSwitchToRegister = () => {
+    setIsLoginModalOpen(false);
+    setIsRegisterModalOpen(true);
+  };
+
   const displayName = user
     ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.login
     : 'Chưa đăng nhập';
 
-  const userInitials = user
-    ? (user.firstName?.[0] || user.login?.[0] || 'U').toUpperCase()
-    : 'TP';
 
-  const isAdmin = Boolean(
-    user?.authorities?.some((r) => r === 'ROLE_ADMIN' || r.toUpperCase().includes('ADMIN'))
-  );
+
+  const isAdmin = hasPrivilegedRole(user?.authorities);
 
   return (
     <>
-      <div className="relative flex items-center" ref={dropdownRef}>
+      <div className="relative flex items-center gap-2" ref={dropdownRef}>
+        {/* Nút Đăng ký nhanh khi chưa đăng nhập (desktop view) */}
+        {!user && !compact && (
+          <button
+            type="button"
+            onClick={handleOpenRegister}
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-lg transition-colors shadow-xs cursor-pointer"
+            title="Đăng ký tài khoản học viên mới"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Đăng ký</span>
+          </button>
+        )}
+
         {/* Nút người dùng mở menu thao tác */}
         <button
           type="button"
@@ -88,8 +137,8 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
           aria-expanded={isDropdownOpen}
           aria-haspopup="true"
         >
-          <div className="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs ring-1 ring-slate-200 shrink-0 group-hover:ring-blue-500 transition-all">
-            {userInitials}
+          <div className="w-8 h-8 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0 group-hover:border-blue-500 transition-all">
+              <CircleUserRound className="w-5 h-5 text-slate-600" />
           </div>
           {!compact && (
             <div className="hidden lg:flex flex-col text-left">
@@ -116,8 +165,8 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
               title={user ? 'Bấm để xem chi tiết hồ sơ' : 'Bấm để đăng nhập'}
             >
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                  {userInitials}
+                <div className="w-9 h-9 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0">
+                  <CircleUserRound className="w-5.5 h-5.5 text-slate-600" />
                 </div>
                 <div className="flex flex-col overflow-hidden">
                   <span className="text-xs font-bold text-slate-900 truncate">
@@ -141,6 +190,23 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
                   <User className="w-4 h-4 text-blue-600" />
                   <span className="font-semibold">Quản lý tài khoản</span>
                 </button>
+              )}
+
+              {/* Trang Quản Trị Hệ Thống - Chỉ hiển thị cho Admin */}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="flex items-center justify-between px-3 py-2 text-xs font-bold text-blue-700 bg-blue-50/80 hover:bg-blue-100 rounded-lg w-full text-left transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <LayoutDashboard className="w-4 h-4 text-blue-600" />
+                    <span>Trang Quản Trị Admin</span>
+                  </div>
+                  <span className="text-[10px] bg-blue-600 text-white font-bold px-1.5 py-0.5 rounded uppercase">
+                    Admin
+                  </span>
+                </Link>
               )}
 
               {/* Cổng bảo mật Keycloak - Chỉ hiển thị cho Admin */}
@@ -168,6 +234,16 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
               >
                 <LogIn className="w-4 h-4 text-slate-500" />
                 <span>{user ? 'Đăng nhập tài khoản khác' : 'Đăng nhập'}</span>
+              </button>
+
+              {/* Nút Đăng ký tài khoản mới */}
+              <button
+                type="button"
+                onClick={handleOpenRegister}
+                className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50 rounded-lg w-full text-left transition-colors cursor-pointer"
+              >
+                <UserPlus className="w-4 h-4 text-blue-600" />
+                <span>Đăng ký tài khoản mới</span>
               </button>
 
               {user && (
@@ -199,6 +275,15 @@ export default function UserAccountMenu({ compact = false }: UserAccountMenuProp
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+
+      {/* Modal Đăng Ký Trực Tiếp Tại Trang (Zero Keycloak Redirect) */}
+      <RegisterModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        onRegisterSuccess={handleRegisterSuccess}
+        onSwitchToLogin={handleSwitchToLogin}
       />
     </>
   );

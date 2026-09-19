@@ -38,38 +38,29 @@ export interface LoginResult {
   error?: string;
 }
 
-/**
- * Đăng nhập trực tiếp (Direct Access Grant) ngay trong ứng dụng:
- * Không chuyển trang sang giao diện web của Keycloak!
- */
+
 export async function loginWithCredentials(
   username: string,
   password: string
 ): Promise<LoginResult> {
   try {
-    const keycloakBase = getKeycloakUrl();
-    const body = new URLSearchParams({
-      client_id: 'web_app',
-      grant_type: 'password',
-      username: username.trim(),
-      password: password,
-    });
-
-    const res = await fetch(`${keycloakBase}/realms/jhipster/protocol/openid-connect/token`, {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
-      body: body.toString(),
+      body: JSON.stringify({
+        username: username.trim(),
+        password: password,
+      }),
     });
 
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      const desc = errData.error_description || 'Tên đăng nhập hoặc mật khẩu không chính xác.';
-      return { success: false, error: desc };
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || !data.success) {
+      return { success: false, error: data.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.' };
     }
 
-    const data = await res.json();
     if (data.access_token) {
       setStoredToken(data.access_token);
       // Lấy thông tin người dùng từ backend Gateway bằng token mới
@@ -79,9 +70,59 @@ export async function loginWithCredentials(
 
     return { success: false, error: 'Không nhận được mã xác thực hợp lệ từ hệ thống.' };
   } catch {
-    return { success: false, error: 'Không thể kết nối đến máy chủ xác thực Keycloak (:9080).' };
+    return { success: false, error: 'Không thể kết nối đến máy chủ xác thực (:3000).' };
   }
 }
+
+export interface RegisterPayload {
+  username: string;
+  email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface RegisterResult {
+  success: boolean;
+  user?: UserAccountDTO;
+  error?: string;
+}
+
+
+export async function registerNewUser(payload: RegisterPayload): Promise<RegisterResult> {
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) {
+      return {
+        success: false,
+        error: data.error || 'Đăng ký tài khoản thất bại. Vui lòng thử lại.',
+      };
+    }
+
+
+    const loginRes = await loginWithCredentials(payload.username, payload.password);
+    if (loginRes.success) {
+      return { success: true, user: loginRes.user };
+    }
+
+    return {
+      success: true,
+      error: 'Tạo tài khoản thành công! Vui lòng đăng nhập với thông tin vừa tạo.',
+    };
+  } catch {
+    return {
+      success: false,
+      error: 'Không thể kết nối đến máy chủ đăng ký. Vui lòng kiểm tra lại kết nối.',
+    };
+  }
+}
+
 
 /**
  * Đăng xuất trực tiếp ngay trong ứng dụng:

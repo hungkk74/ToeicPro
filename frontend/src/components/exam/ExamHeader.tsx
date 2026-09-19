@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import UserAccountMenu from '@/components/account/UserAccountMenu';
 
 interface ExamHeaderProps {
@@ -38,8 +39,15 @@ export default function ExamHeader({
         {/* Logo & Subtitle */}
         <div className="flex items-center gap-space-md">
           <Link className="flex items-center gap-2 group" href="/">
-            <div className="w-7 h-7 rounded bg-primary text-on-primary flex items-center justify-center font-bold text-sm shadow-sm">
-              T
+            <div className="w-7 h-7 flex items-center justify-center shrink-0">
+              <Image
+                src="/logo.png"
+                alt="ToeicPro Logo"
+                width={28}
+                height={28}
+                className="w-full h-full object-contain drop-shadow-xs"
+                priority
+              />
             </div>
             <span className="font-headline-sm text-headline-sm text-text-primary tracking-tight font-bold">
               ToeicPro

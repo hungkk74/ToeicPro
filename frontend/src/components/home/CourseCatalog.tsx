@@ -27,7 +27,7 @@ export default function CourseCatalog({ courses }: CourseCatalogProps) {
         {courses.map((course) => (
           <article
             key={course.id}
-            className="bg-white rounded-xl p-5 border border-slate-200 flex flex-col justify-between hover:border-blue-300 hover:shadow-md transition-all"
+            className="bg-white rounded-xl p-5 border border-slate-200 flex flex-col justify-between hover:border-blue-300 hover:shadow-md transition-[border-color,box-shadow] duration-200"
           >
             <div className="space-y-3.5">
               <div className="flex items-center justify-between">

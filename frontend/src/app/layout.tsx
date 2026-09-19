@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description: 'Nền tảng luyện thi TOEIC chuẩn format ETS mới nhất với ngân hàng đề thi phong phú, chấm điểm tự động và phân tích AI chi tiết.',
   keywords: ['TOEIC Pro', 'Luyện thi TOEIC', 'Thi thử TOEIC online', 'TOEIC ETS', 'Học TOEIC online'],
   authors: [{ name: 'TOEIC Pro Team' }],
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({

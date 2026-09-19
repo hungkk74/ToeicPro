@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Lock, User, Eye, EyeOff, Sparkles, AlertCircle, Loader2, ShieldCheck, GraduationCap } from 'lucide-react';
+import { X, Lock, User, Eye, EyeOff, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { loginWithCredentials } from '@/services/authService';
 import { UserAccountDTO } from '@/types/backend';
 
@@ -10,12 +10,14 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (user: UserAccountDTO) => void;
+  onSwitchToRegister?: () => void;
 }
 
 export default function LoginModal({
   isOpen,
   onClose,
   onLoginSuccess,
+  onSwitchToRegister,
 }: LoginModalProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -74,12 +76,6 @@ export default function LoginModal({
     }
   };
 
-  const handleQuickFill = (u: string, p: string) => {
-    setUsername(u);
-    setPassword(p);
-    setErrorMessage(null);
-  };
-
   return createPortal(
     <div
       className="fixed inset-0 z-[99999] bg-slate-900/60 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-150"
@@ -123,42 +119,6 @@ export default function LoginModal({
               <div className="flex-1">{errorMessage}</div>
             </div>
           )}
-
-          {/* Quick Switch Buttons */}
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-              Tài khoản mẫu (Đăng nhập nhanh):
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin', 'admin')}
-                className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition-colors text-left text-xs text-slate-700 group cursor-pointer"
-              >
-                <div className="w-6 h-6 rounded bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="font-bold block truncate group-hover:text-blue-700">Admin</span>
-                  <span className="text-[10px] text-slate-400 block font-mono">admin / admin</span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickFill('user', 'user')}
-                className="flex items-center gap-2 p-2 rounded-lg border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 transition-colors text-left text-xs text-slate-700 group cursor-pointer"
-              >
-                <div className="w-6 h-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                  <GraduationCap className="w-3.5 h-3.5" />
-                </div>
-                <div className="min-w-0">
-                  <span className="font-bold block truncate group-hover:text-blue-700">Học viên</span>
-                  <span className="text-[10px] text-slate-400 block font-mono">user / user</span>
-                </div>
-              </button>
-            </div>
-          </div>
 
           {/* Username Input */}
           <div className="space-y-1">
@@ -229,6 +189,21 @@ export default function LoginModal({
               <span>{isLoading ? 'Đang xác thực...' : 'Đăng nhập ngay'}</span>
             </button>
           </div>
+
+          {/* Switch to Register Footer */}
+          {onSwitchToRegister && (
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-center text-xs text-slate-500">
+              <span>Chưa có tài khoản TOEIC Pro?</span>
+              <button
+                type="button"
+                onClick={onSwitchToRegister}
+                disabled={isLoading}
+                className="ml-1.5 font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer focus:outline-none"
+              >
+                Đăng ký tài khoản mới
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>,

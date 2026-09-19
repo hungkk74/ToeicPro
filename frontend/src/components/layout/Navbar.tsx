@@ -1,29 +1,34 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Bell, Sparkles } from 'lucide-react';
-import BackendStatus from '@/components/BackendStatus';
+import Image from 'next/image';
+import { Search, Bell, ShieldCheck } from 'lucide-react';
 import UserAccountMenu from '@/components/account/UserAccountMenu';
 
 export default function Navbar() {
+  const [showAdminNav, setShowAdminNav] = useState(false);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-xs">
       <div className="h-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
         {/* Brand Logo & Navigation */}
         <div className="flex items-center gap-6 lg:gap-8">
           <Link className="flex items-center gap-2.5 group focus:outline-none" href="/">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs group-hover:bg-blue-700 transition-colors shrink-0">
-              <Sparkles className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 flex items-center justify-center shrink-0">
+              <Image
+                src="/logo.png"
+                alt="ToeicPro Logo"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain drop-shadow-xs"
+                priority
+              />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base text-slate-900 tracking-tight leading-none">
-                  Toeic<span className="text-blue-600">Pro</span>
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                  v2026
-                </span>
-              </div>
+              <span className="font-bold text-base text-slate-900 tracking-tight leading-none">
+                Toeic<span className="text-blue-600">Pro</span>
+              </span>
               <span className="text-[11px] text-slate-500 tracking-normal mt-0.5 whitespace-nowrap hidden sm:block">
                 Hệ thống Đào tạo &amp; Thi thử TOEIC Trực tuyến
               </span>
@@ -43,26 +48,30 @@ export default function Navbar() {
             >
               Phòng Thi Thử
             </Link>
+            {showAdminNav && (
+              <Link
+                href="/admin"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors inline-flex items-center gap-1.5"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                <span>Quản Trị</span>
+              </Link>
+            )}
           </nav>
         </div>
 
         {/* Right Tools: Search, Status, Notification, User Profile */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Search Bar with ⌘K Badge */}
-          <div className="relative hidden sm:flex items-center">
-            <div className="absolute left-3 pointer-events-none text-slate-400 flex items-center">
+          {/* Search Bar */}
+          <div className="relative hidden sm:flex items-center group">
+            <div className="absolute left-3.5 pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
               <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
-              placeholder="Tìm kiếm đề thi..."
-              className="w-48 lg:w-60 pl-9 pr-12 py-1.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-colors"
+              placeholder="Tìm đề thi, bài học..."
+              className="w-52 lg:w-64 pl-10 pr-4 py-2 bg-slate-100 hover:bg-slate-200/70 border-none rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/30 focus:shadow-sm transition-all"
             />
-            <div className="absolute right-2.5 flex items-center pointer-events-none">
-              <kbd className="px-1.5 py-0.5 text-[11px] font-medium text-slate-500 bg-slate-100 border border-slate-200 rounded font-mono">
-                ⌘K
-              </kbd>
-            </div>
           </div>
 
           <button
@@ -76,10 +85,9 @@ export default function Navbar() {
 
           <div className="h-5 w-px bg-slate-200 hidden sm:block"></div>
 
-          {/* User Profile & System Status Indicator */}
+          {/* User Profile */}
           <div className="flex items-center gap-2.5">
-            <BackendStatus />
-            <UserAccountMenu />
+            <UserAccountMenu onRoleResolved={setShowAdminNav} />
           </div>
         </div>
       </div>
