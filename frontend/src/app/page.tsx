@@ -44,10 +44,8 @@ export default async function HomePage() {
             category: cat,
             source: 'ETS Authentic',
             targetScore: '750+',
-            status: idx % 3 === 0 ? 'completed' : idx % 3 === 1 ? 'in_progress' : 'untaken',
-            userScore: idx % 3 === 0 ? 760 : undefined,
-            userProgress: idx % 3 === 1 ? '60/200' : undefined,
-            audioAccents: isReading ? 'Bài thi Đọc' : 'Live Backend DB',
+            status: 'untaken' as const,
+            audioAccents: isReading ? 'Bài thi Đọc' : 'Audio: 4 Giọng đọc',
             listeningQuestions: isReading ? 0 : 100,
             readingQuestions: isListening ? 0 : (e.totalQuestions || 100),
           };

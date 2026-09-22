@@ -47,7 +47,7 @@ export default function QuestionCard({
   onPrevQuestion,
   onNextQuestion,
   canGoPrev,
-  canGoNext: _canGoNext,
+  canGoNext,
 }: QuestionCardProps) {
   const displayOptions = options && options.length > 0 ? options : SAMPLE_OPTIONS;
   const isReadingPart = partNumber >= 5;
@@ -74,16 +74,16 @@ export default function QuestionCard({
             1 Điểm
           </span>
           <button
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors font-label-sm text-label-sm border ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors font-label-sm text-label-sm border cursor-pointer ${
               isFlagged
-                ? 'text-status-flag bg-status-flag-bg border-amber-300 font-semibold'
-                : 'bg-surface-subtle text-text-secondary border-border-subtle hover:bg-surface'
+                ? 'text-orange-700 bg-orange-50 border-orange-300 font-semibold shadow-2xs hover:bg-orange-100'
+                : 'bg-surface-subtle text-text-secondary border-border-subtle hover:bg-surface hover:text-orange-600'
             }`}
             type="button"
             onClick={onToggleFlag}
           >
             <span
-              className="material-symbols-outlined text-[18px]"
+              className={`material-symbols-outlined text-[18px] ${isFlagged ? 'text-orange-500' : ''}`}
               style={{ fontVariationSettings: isFlagged ? "'FILL' 1" : "'FILL' 0" }}
             >
               flag
@@ -135,13 +135,6 @@ export default function QuestionCard({
         </div>
       ) : null}
 
-      {/* Dedicated Audio Player if present */}
-      {audioUrl && (
-        <div className="my-space-md p-space-sm bg-surface-subtle rounded-md border border-border-subtle flex items-center gap-3">
-          <span className="material-symbols-outlined text-primary text-[20px]">volume_up</span>
-          <audio controls src={audioUrl} className="w-full h-8" />
-        </div>
-      )}
 
       {/* Question Content / Stem */}
       {content && (
@@ -224,12 +217,12 @@ export default function QuestionCard({
             <span>Câu trước</span>
           </button>
           <button
-            className="inline-flex items-center gap-2 px-5 py-2 rounded bg-primary text-on-primary font-label-md text-label-md shadow-sm hover:bg-primary-container transition-colors font-semibold"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded bg-primary text-on-primary font-label-md text-label-md shadow-sm hover:bg-primary-container transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            disabled={!canGoNext}
             type="button"
             onClick={onNextQuestion}
           >
             <span>Câu tiếp theo</span>
-            <span className="bg-white/20 px-1.5 py-0.5 rounded text-[11px] font-mono tracking-tight">⌘+Enter</span>
             <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
           </button>
         </div>

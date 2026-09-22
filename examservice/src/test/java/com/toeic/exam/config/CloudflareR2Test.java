@@ -33,11 +33,22 @@ class CloudflareR2Test {
             .build();
 
         ListObjectsV2Response response = s3Client.listObjectsV2(
-            ListObjectsV2Request.builder().bucket(bucket).maxKeys(5).build()
+            ListObjectsV2Request.builder().bucket(bucket).maxKeys(50).build()
         );
 
         System.out.println(">>> Cloudflare R2 Connection SUCCESS! Bucket: " + bucket);
         System.out.println(">>> Key count: " + response.keyCount());
+        // Copy to clean name without spaces
+        s3Client.copyObject(
+            software.amazon.awssdk.services.s3.model.CopyObjectRequest.builder()
+                .sourceBucket(bucket)
+                .sourceKey("audio/AUDIO Test 01.mp3")
+                .destinationBucket(bucket)
+                .destinationKey("audio/ets2023_test01.mp3")
+                .build()
+        );
+        System.out.println(">>> Copied to clean name: audio/ets2023_test01.mp3");
+
         s3Client.close();
     }
 }

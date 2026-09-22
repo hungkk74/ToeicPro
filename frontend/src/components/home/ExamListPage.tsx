@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { ExamItem, FilterState } from '@/types/examList';
 import { CoursePromoItem } from '@/types/coursePromo';
@@ -27,7 +27,38 @@ const DEFAULT_FILTER_STATE: FilterState = {
 };
 
 export default function ExamListPage({ initialExams, courses }: ExamListPageProps) {
+  const [exams, setExams] = useState<ExamItem[]>(initialExams);
   const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
+
+  // Hydrate exam status from localStorage (saved progress)
+  useEffect(() => {
+    setExams(
+      initialExams.map((exam) => {
+        try {
+          const saved = localStorage.getItem(`exam_progress_${exam.id}`);
+          if (saved) {
+            const progress = JSON.parse(saved);
+            // Only consider valid, non-expired progress (< 24h)
+            if (progress.savedAt && Date.now() - progress.savedAt < 24 * 60 * 60 * 1000) {
+              const answeredCount = progress.selectedAnswers
+                ? Object.keys(progress.selectedAnswers).length
+                : 0;
+              return {
+                ...exam,
+                status: 'in_progress' as const,
+                userProgress: `${answeredCount}/${exam.totalQuestions}`,
+              };
+            }
+            // Expired — clean up
+            localStorage.removeItem(`exam_progress_${exam.id}`);
+          }
+        } catch {
+          // localStorage unavailable
+        }
+        return exam;
+      })
+    );
+  }, [initialExams]);
 
   const handleFilterChange = (updates: Partial<FilterState>) => {
     setFilterState((prev) => ({ ...prev, ...updates }));
@@ -39,7 +70,7 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
 
   // Logic lọc và sắp xếp trực quan theo thời gian thực
   const filteredExams = useMemo(() => {
-    return initialExams
+    return exams
       .filter((exam) => {
         // Lọc theo Category
         if (filterState.category !== 'all' && exam.category !== filterState.category) {
@@ -76,7 +107,7 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
         // 'recent' mặc định theo ID
         return Number(b.id) - Number(a.id);
       });
-  }, [initialExams, filterState]);
+  }, [exams, filterState]);
 
   // Cứ sau mỗi 3 thẻ đề thi thì đan xen 1 thẻ khóa học khuyến mại CoursePromoCard
   const combinedItems = useMemo(() => {
@@ -118,7 +149,7 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
         onFilterChange={handleFilterChange}
         onResetFilters={handleResetFilters}
         totalFiltered={filteredExams.length}
-        totalAll={initialExams.length}
+        totalAll={exams.length}
       />
 
       {/* Lưới Hiển Thị Đề Thi Đan Xen Card Khóa Học (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}

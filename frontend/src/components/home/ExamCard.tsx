@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import Link from 'next/link';
-import { Clock, FileText, Users, TrendingUp, ArrowRight, CheckCircle2, CircleDot } from 'lucide-react';
+import { Clock, FileText, TrendingUp, ArrowRight, CheckCircle2, CircleDot } from 'lucide-react';
 import { ExamItem } from '@/types/examList';
 
 interface ExamCardProps {
@@ -81,85 +81,75 @@ function ExamCard({ card }: ExamCardProps) {
         <div className="space-y-1.5">
           <h3
             title={card.title}
-            className="font-bold text-slate-900 text-base sm:text-lg group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug min-h-[2.75rem] sm:min-h-[3.25rem] cursor-pointer"
+            className="font-bold text-slate-900 text-base sm:text-lg group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
           >
             {card.title}
           </h3>
           <p
             title={card.description}
-            className="text-slate-500 text-sm line-clamp-2 leading-relaxed min-h-[2.5rem]"
+            className="text-slate-500 text-sm line-clamp-2 leading-relaxed"
           >
             {card.description}
           </p>
         </div>
 
-        {/* Metrics Grid 2x2 with Lucide Icons (Số liệu font-semibold rõ nét hơn) */}
-        <div className="grid grid-cols-2 gap-2.5 p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs">
-          <div className="flex items-center gap-2 text-slate-600">
-            <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="tabular-nums font-semibold text-slate-800">
-              {card.durationMinutes} phút
+        {/* Metrics Grid 3 items with Lucide Icons (Tương thích thu phóng hoàn hảo) */}
+        <div className="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-lg bg-slate-50 border border-slate-100 text-xs">
+          <div className="flex items-center gap-1.5 text-slate-600 min-w-0">
+            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className="tabular-nums font-semibold text-slate-800 truncate">
+              {card.durationMinutes}p
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-slate-600">
-            <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="tabular-nums font-semibold text-slate-800">
-              {card.totalQuestions} câu hỏi
+          <div className="flex items-center gap-1.5 text-slate-600 min-w-0">
+            <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className="tabular-nums font-semibold text-slate-800 truncate">
+              {card.totalQuestions} câu
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-slate-600">
-            <Users className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="tabular-nums font-semibold text-slate-800">
-              {card.takenCount.toLocaleString('vi-VN')} lượt thi
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-slate-600">
-            <TrendingUp className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="tabular-nums font-semibold text-slate-800">
-              TB: {card.averageScore}/990
+          <div className="flex items-center gap-1.5 text-slate-600 min-w-0">
+            <TrendingUp className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className="tabular-nums font-semibold text-slate-800 truncate">
+              TB {card.averageScore}
             </span>
           </div>
         </div>
 
         {/* Question Breakdown Chips */}
-        <div className="flex items-center gap-2 pt-0.5">
+        <div className="flex items-center gap-2 pt-0.5 flex-wrap">
           <span className="text-[11px] font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200/80">
             Nghe {card.listeningQuestions} câu
           </span>
           <span className="text-[11px] font-medium bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200/80">
             Đọc {card.readingQuestions} câu
           </span>
-          <span className="text-[11px] font-medium text-slate-500 ml-auto">
-            {card.audioAccents || `Mục tiêu ${card.targetScore}`}
-          </span>
         </div>
       </div>
 
-      {/* Action Footer (72% - 28% split) */}
-      <div className="flex items-center gap-2.5 pt-4 mt-4 border-t border-slate-100">
+      {/* Action Footer (Flex-1 + shrink-0: chống tràn và vỡ layout tuyệt đối khi zoom) */}
+      <div className="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100">
         <Link
           href={`/exam/${card.id}`}
-          className={`w-[72%] text-white font-medium py-2.5 px-4 rounded-lg shadow-none text-center text-sm transition-colors flex items-center justify-center gap-1.5 group/btn ${
+          className={`flex-1 min-w-0 text-white font-medium py-2.5 px-3 sm:px-4 rounded-lg shadow-none text-center text-sm transition-colors flex items-center justify-center gap-1.5 group/btn ${
             card.status === 'in_progress'
               ? 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800'
               : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
           }`}
         >
-          <span>
+          <span className="truncate">
             {card.status === 'completed'
               ? 'Làm lại đề'
               : card.status === 'in_progress'
               ? 'Tiếp tục thi'
               : 'Vào thi ngay'}
           </span>
-          <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-4 h-4 shrink-0 group-hover/btn:translate-x-0.5 transition-transform" />
         </Link>
         <button
           type="button"
-          className="w-[28%] border border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-medium py-2.5 px-2 rounded-lg text-center text-sm transition-colors"
+          className="shrink-0 px-3 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-medium rounded-lg text-center text-sm transition-colors cursor-pointer"
         >
           {card.status === 'completed' ? 'Xem lại' : 'Chi tiết'}
         </button>

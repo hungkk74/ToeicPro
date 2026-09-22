@@ -197,11 +197,11 @@ export default function FilterSection({
         </div>
 
         {/* Right: Counter + Sort + Reset */}
-        <div className="flex items-center gap-3 text-xs text-slate-500 self-end lg:self-auto flex-wrap">
-          <span>
+        <div className="flex items-center gap-2.5 sm:gap-3 text-xs text-slate-500 self-start sm:self-auto flex-wrap">
+          <span className="whitespace-nowrap">
             Hiển thị: <strong className="font-semibold text-slate-900">{totalFiltered}</strong> bộ đề
           </span>
-          <span className="text-slate-300">|</span>
+          <span className="text-slate-300 hidden sm:inline">|</span>
 
           {/* Sắp xếp Dropdown Tuỳ Biến */}
           <div className="relative inline-flex items-center gap-1.5">
@@ -256,7 +256,7 @@ export default function FilterSection({
             </div>
           </div>
 
-          <span className="text-slate-200">|</span>
+          <span className="text-slate-200 hidden sm:inline">|</span>
           <button
             type="button"
             onClick={onResetFilters}
@@ -278,10 +278,10 @@ export default function FilterSection({
         </div>
       </div>
 
-      {/* Bottom Row: 3 Custom Dropdown Selectors - Responsive flex/grid căn chỉnh gọn gàng */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 md:flex md:flex-wrap md:items-end gap-3 pt-1">
+      {/* Bottom Row: 3 Custom Dropdown Selectors - Fluid grid 1 col (mobile), 2 cols (tablet/zoomed), 3 cols (desktop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1 w-full">
         {/* Nguồn đề thi */}
-        <div className="w-full md:w-[220px] lg:w-[250px]">
+        <div className="w-full">
           <CustomSelect
             label="Nguồn đề thi"
             value={filterState.source}
@@ -296,7 +296,7 @@ export default function FilterSection({
         </div>
 
         {/* Mục tiêu điểm */}
-        <div className="w-full md:w-[220px] lg:w-[250px]">
+        <div className="w-full">
           <CustomSelect
             label="Mục tiêu điểm"
             value={filterState.targetScore}
@@ -311,7 +311,7 @@ export default function FilterSection({
         </div>
 
         {/* Trạng thái làm bài */}
-        <div className="w-full md:w-[220px] lg:w-[250px]">
+        <div className="w-full sm:col-span-2 lg:col-span-1">
           <CustomSelect
             label="Trạng thái làm bài"
             value={filterState.status}

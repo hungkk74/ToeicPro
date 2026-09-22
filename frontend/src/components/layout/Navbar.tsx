@@ -25,17 +25,17 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <span className="font-bold text-base text-slate-900 tracking-tight leading-none">
                 Toeic<span className="text-blue-600">Pro</span>
               </span>
-              <span className="text-[11px] text-slate-500 tracking-normal mt-0.5 whitespace-nowrap hidden sm:block">
+              <span className="text-[11px] text-slate-500 tracking-normal mt-0.5 whitespace-nowrap hidden lg:block">
                 Hệ thống Đào tạo &amp; Thi thử TOEIC Trực tuyến
               </span>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 shrink-0">
             <Link
               href="/"
               className="px-3 py-1.5 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 border border-blue-100 transition-colors"
@@ -61,16 +61,16 @@ export default function Navbar() {
         </div>
 
         {/* Right Tools: Search, Status, Notification, User Profile */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           {/* Search Bar */}
-          <div className="relative hidden sm:flex items-center group">
+          <div className="relative hidden md:flex items-center group">
             <div className="absolute left-3.5 pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
               <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
               placeholder="Tìm đề thi, bài học..."
-              className="w-52 lg:w-64 pl-10 pr-4 py-2 bg-slate-100 hover:bg-slate-200/70 border-none rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/30 focus:shadow-sm transition-all"
+              className="w-40 lg:w-56 xl:w-64 pl-10 pr-4 py-2 bg-slate-100 hover:bg-slate-200/70 border-none rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/30 focus:shadow-sm transition-all"
             />
           </div>
 

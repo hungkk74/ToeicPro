@@ -56,11 +56,22 @@ export async function fetchApi<T = unknown>(
     headers['Authorization'] = `Bearer ${effectiveToken}`;
   }
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     cache: 'no-store',
     ...options,
     headers,
   });
+
+  // Nếu bị 401 do token lưu trong localStorage bị hết hạn / lỗi issuer, tự động dọn token và thử lại request
+  if (response.status === 401 && effectiveToken && (!options.method || options.method === 'GET')) {
+    setStoredToken(null);
+    delete headers['Authorization'];
+    response = await fetch(url, {
+      cache: 'no-store',
+      ...options,
+      headers,
+    });
+  }
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => '');

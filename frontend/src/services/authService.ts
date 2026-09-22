@@ -19,17 +19,52 @@ export async function checkIsAuthenticated(): Promise<boolean> {
   }
 }
 
+export function parseUserFromToken(token: string): UserAccountDTO | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    const authorities: string[] =
+      payload.roles || payload.realm_access?.roles || ['ROLE_USER'];
+
+    return {
+      id: payload.sub,
+      login: payload.preferred_username || payload.sub,
+      firstName: payload.given_name || payload.name || '',
+      lastName: payload.family_name || '',
+      email: payload.email || '',
+      authorities: authorities,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Lấy thông tin tài khoản người dùng hiện tại (/api/account)
  */
 export async function getCurrentUser(): Promise<UserAccountDTO | null> {
+  const token = getStoredToken();
+  if (!token) return null;
+
   try {
-    return await fetchApi<UserAccountDTO>('/api/account', {
+    const user = await fetchApi<UserAccountDTO>('/api/account', {
       credentials: 'include',
     });
+    if (user && user.login) return user;
   } catch {
-    return null;
+    // Sử dụng thông tin từ JWT đã giải mã nếu endpoint backend bận
   }
+
+  return parseUserFromToken(token);
 }
 
 export interface LoginResult {
@@ -63,8 +98,10 @@ export async function loginWithCredentials(
 
     if (data.access_token) {
       setStoredToken(data.access_token);
-      // Lấy thông tin người dùng từ backend Gateway bằng token mới
-      const user = await getCurrentUser();
+      let user = await getCurrentUser();
+      if (!user) {
+        user = parseUserFromToken(data.access_token);
+      }
       return { success: true, user: user || undefined };
     }
 

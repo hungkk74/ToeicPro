@@ -7,8 +7,6 @@ export default function Footer() {
           <span className="hover:text-primary cursor-pointer">Quy chế Khảo thí</span>
           <span>•</span>
           <span className="hover:text-primary cursor-pointer">Phương pháp Quy đổi Điểm ETS</span>
-          <span>•</span>
-          <span className="hover:text-primary cursor-pointer">Hạ tầng Âm thanh Cloudflare R2</span>
         </div>
       </div>
     </footer>
