@@ -2,6 +2,7 @@ export interface ExamDTO {
   id: number;
   code: string;
   title: string;
+  category?: string;
   durationMinutes: number;
   totalQuestions: number;
   audioFullUrl?: string;

@@ -1,5 +1,18 @@
+export interface QuestionOptionItem {
+  key: string;
+  text: string;
+}
+
 interface QuestionCardProps {
   currentQuestion: number;
+  totalQuestions?: number;
+  partNumber?: number;
+  partName?: string;
+  content?: string;
+  passageText?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  options?: QuestionOptionItem[];
   isFlagged: boolean;
   onToggleFlag: () => void;
   selectedAnswer?: string;
@@ -10,7 +23,7 @@ interface QuestionCardProps {
   canGoNext: boolean;
 }
 
-const SAMPLE_OPTIONS = [
+const SAMPLE_OPTIONS: QuestionOptionItem[] = [
   { key: 'A', text: 'One of the workers is adjusting a safety helmet.' },
   { key: 'B', text: 'Boxes are being stacked with a forklift machine.' },
   { key: 'C', text: 'The supervisors are examining documents on a clipboard.' },
@@ -19,6 +32,14 @@ const SAMPLE_OPTIONS = [
 
 export default function QuestionCard({
   currentQuestion,
+  totalQuestions = 200,
+  partNumber = 1,
+  partName,
+  content,
+  passageText,
+  imageUrl,
+  audioUrl,
+  options = SAMPLE_OPTIONS,
   isFlagged,
   onToggleFlag,
   selectedAnswer,
@@ -28,20 +49,23 @@ export default function QuestionCard({
   canGoPrev,
   canGoNext: _canGoNext,
 }: QuestionCardProps) {
+  const displayOptions = options && options.length > 0 ? options : SAMPLE_OPTIONS;
+  const isReadingPart = partNumber >= 5;
+
   return (
     <div className="bg-surface rounded-lg p-space-lg shadow-sm border border-border-subtle">
       {/* Question Header Meta */}
-      <div className="flex items-center justify-between pb-space-md">
+      <div className="flex items-center justify-between pb-space-md border-b border-border-subtle">
         <div className="flex items-center gap-space-md">
           <span className="inline-flex items-center justify-center w-8 h-8 rounded bg-primary text-on-primary font-headline-sm text-headline-sm font-bold shadow-sm">
             {currentQuestion}
           </span>
           <div>
             <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight font-bold">
-              Câu hỏi {currentQuestion} / 200
+              Câu hỏi {currentQuestion} / {totalQuestions}
             </h2>
             <span className="font-caption text-caption text-text-secondary">
-              Phần thi: Nghe • Part 1 • Mã câu hỏi: L01-00{currentQuestion}
+              {partName ? partName : `Phần thi: ${isReadingPart ? 'Đọc' : 'Nghe'} • Part ${partNumber}`} • Mã câu hỏi: Q-{currentQuestion}
             </span>
           </div>
         </div>
@@ -69,28 +93,66 @@ export default function QuestionCard({
         </div>
       </div>
 
-      {/* Stimulus Photograph */}
-      <div className="my-space-md">
-        <div className="relative bg-surface-subtle rounded-md overflow-hidden shadow-sm border border-border-subtle">
-          <div className="w-full h-80 bg-slate-200 flex flex-col items-center justify-center text-slate-500 relative">
-            <span className="material-symbols-outlined text-[56px] text-slate-400 mb-2">image</span>
-            <p className="font-semibold text-sm">ETS Logistics Fulfillment Center Inspection</p>
-            <p className="text-xs text-slate-400 mt-1">
-              Hai giám sát viên đang kiểm tra các kiện hàng cùng bảng kẹp hồ sơ và máy quét
-            </p>
-            <div className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded font-caption text-caption text-text-primary shadow-sm border border-border-subtle">
-              Ảnh mô tả Câu hỏi {currentQuestion} / 6
+      {/* Reading Passage Stimulus (Part 6 & Part 7) */}
+      {passageText && (
+        <div className="my-space-md p-space-md bg-slate-50/80 border border-border-subtle rounded-lg shadow-2xs">
+          <div className="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold mb-2">
+            <span className="material-symbols-outlined text-[18px]">menu_book</span>
+            <span>Đoạn văn Đọc hiểu (Reading Passage)</span>
+          </div>
+          <div className="font-serif text-[15px] leading-relaxed text-text-primary whitespace-pre-line p-3 bg-white rounded border border-border-subtle/80">
+            {passageText}
+          </div>
+        </div>
+      )}
+
+      {/* Dedicated Image Stimulus */}
+      {imageUrl ? (
+        <div className="my-space-md">
+          <div className="relative bg-surface-subtle rounded-md overflow-hidden shadow-sm border border-border-subtle">
+            <img
+              src={imageUrl}
+              alt={`Hình ảnh câu hỏi ${currentQuestion}`}
+              className="w-full max-h-96 object-contain bg-white"
+            />
+          </div>
+        </div>
+      ) : !passageText && partNumber === 1 ? (
+        /* Stimulus Photograph Fallback for Part 1 Mockup */
+        <div className="my-space-md">
+          <div className="relative bg-surface-subtle rounded-md overflow-hidden shadow-sm border border-border-subtle">
+            <div className="w-full h-80 bg-slate-200 flex flex-col items-center justify-center text-slate-500 relative">
+              <span className="material-symbols-outlined text-[56px] text-slate-400 mb-2">image</span>
+              <p className="font-semibold text-sm">ETS Logistics Fulfillment Center Inspection</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Hai giám sát viên đang kiểm tra các kiện hàng cùng bảng kẹp hồ sơ và máy quét
+              </p>
+              <div className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded font-caption text-caption text-text-primary shadow-sm border border-border-subtle">
+                Ảnh mô tả Câu hỏi {currentQuestion} / 6
+              </div>
             </div>
           </div>
         </div>
-        <p className="font-caption text-caption text-text-muted mt-2 text-right">
-          Nhấn vào ảnh để phóng to (Có hỗ trợ thu phóng 1.5x)
-        </p>
-      </div>
+      ) : null}
+
+      {/* Dedicated Audio Player if present */}
+      {audioUrl && (
+        <div className="my-space-md p-space-sm bg-surface-subtle rounded-md border border-border-subtle flex items-center gap-3">
+          <span className="material-symbols-outlined text-primary text-[20px]">volume_up</span>
+          <audio controls src={audioUrl} className="w-full h-8" />
+        </div>
+      )}
+
+      {/* Question Content / Stem */}
+      {content && (
+        <div className="my-space-md p-space-md bg-blue-50/40 rounded-lg border border-blue-100 text-text-primary font-body-reading text-[16px] font-medium leading-relaxed">
+          {content}
+        </div>
+      )}
 
       {/* Multiple Choice Options (A, B, C, D) */}
-      <div className="flex flex-col gap-space-sm mt-space-lg">
-        {SAMPLE_OPTIONS.map((opt) => {
+      <div className="flex flex-col gap-space-sm mt-space-md">
+        {displayOptions.map((opt) => {
           const isSelected = selectedAnswer === opt.key;
           return (
             <label

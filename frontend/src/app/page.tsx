@@ -7,6 +7,16 @@ import { FALLBACK_EXAM_CARDS } from '@/constants/mockExams';
 import { FALLBACK_COURSES, CourseItem } from '@/constants/mockCourses';
 import { ExamItem } from '@/types/examList';
 
+export const dynamic = 'force-dynamic';
+
+const CATEGORY_MAP: Record<string, ExamItem['category']> = {
+  FULL_TEST: 'full',
+  MINI_TEST: 'mini',
+  PRACTICE_PART: 'reading',
+  READING: 'reading',
+  LISTENING: 'listening',
+};
+
 export default async function HomePage() {
   const [backendExams, backendCourses] = await Promise.all([
     fetchExamsFromBackend(),
@@ -15,26 +25,33 @@ export default async function HomePage() {
 
   const examCards: ExamItem[] =
     backendExams && backendExams.length > 0
-      ? backendExams.map((e, idx) => ({
-          id: String(e.id),
-          title: e.title || `ToeicPro Practice Exam ${e.id}`,
-          description: `Đề thi chính thức đồng bộ từ ExamService. Gồm ${e.totalQuestions || 200} câu hỏi trắc nghiệm chuẩn format ETS.`,
-          tag1: 'ETS 2026',
-          tag1Type: 'standard',
-          tag2: e.code || `Đề #${e.id}`,
-          tag2Type: 'normal',
-          durationMinutes: e.durationMinutes || 120,
-          totalQuestions: e.totalQuestions || 200,
-          takenCount: (idx + 1) * 1240,
-          averageScore: 680,
-          category: 'full',
-          source: 'ETS Authentic',
-          targetScore: '750+',
-          status: 'untaken',
-          audioAccents: 'Live Backend DB',
-          listeningQuestions: 100,
-          readingQuestions: 100,
-        }))
+      ? backendExams.map((e, idx) => {
+          const cat = (e.category && CATEGORY_MAP[e.category]) || (e.title?.toLowerCase().includes('reading') ? 'reading' : 'full');
+          const isReading = cat === 'reading';
+          const isListening = cat === 'listening';
+          return {
+            id: String(e.id),
+            title: e.title || `ToeicPro Practice Exam ${e.id}`,
+            description: `Đề thi chính thức đồng bộ từ ExamService. Gồm ${e.totalQuestions || (isReading ? 100 : 200)} câu hỏi trắc nghiệm chuẩn format ETS.`,
+            tag1: e.title?.includes('2023') ? 'ETS 2023' : e.title?.includes('2024') ? 'ETS 2024' : 'ETS 2026',
+            tag1Type: 'standard' as const,
+            tag2: e.code || `Đề #${e.id}`,
+            tag2Type: 'normal' as const,
+            durationMinutes: e.durationMinutes || (isReading ? 75 : 120),
+            totalQuestions: e.totalQuestions || (isReading ? 100 : 200),
+            takenCount: (idx + 1) * 1240,
+            averageScore: 680,
+            category: cat,
+            source: 'ETS Authentic',
+            targetScore: '750+',
+            status: idx % 3 === 0 ? 'completed' : idx % 3 === 1 ? 'in_progress' : 'untaken',
+            userScore: idx % 3 === 0 ? 760 : undefined,
+            userProgress: idx % 3 === 1 ? '60/200' : undefined,
+            audioAccents: isReading ? 'Bài thi Đọc' : 'Live Backend DB',
+            listeningQuestions: isReading ? 0 : 100,
+            readingQuestions: isListening ? 0 : (e.totalQuestions || 100),
+          };
+        })
       : FALLBACK_EXAM_CARDS;
 
   const courses: CourseItem[] =

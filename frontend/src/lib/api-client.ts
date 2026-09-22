@@ -57,6 +57,7 @@ export async function fetchApi<T = unknown>(
   }
 
   const response = await fetch(url, {
+    cache: 'no-store',
     ...options,
     headers,
   });

@@ -48,8 +48,9 @@ const SCORE_OPTIONS: DropdownOption[] = [
 
 const STATUS_OPTIONS: DropdownOption[] = [
   { value: 'all', label: 'Tất cả trạng thái' },
-  { value: 'untaken', label: 'Đề chưa làm' },
-  { value: 'completed', label: 'Đã hoàn thành / Xem lại' },
+  { value: 'untaken', label: 'Chưa làm' },
+  { value: 'in_progress', label: 'Đang làm dở' },
+  { value: 'completed', label: 'Đã làm' },
 ];
 
 interface CustomSelectProps {
@@ -255,63 +256,74 @@ export default function FilterSection({
             </div>
           </div>
 
-          <span className="text-slate-300">|</span>
+          <span className="text-slate-200">|</span>
           <button
             type="button"
             onClick={onResetFilters}
             disabled={!isFilterActive}
-            className={`inline-flex items-center gap-1.5 font-medium transition-colors ${
+            title={isFilterActive ? 'Đặt lại tất cả bộ lọc về mặc định' : 'Bộ lọc đang ở mặc định'}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all duration-150 ${
               isFilterActive
-                ? 'text-blue-600 hover:text-blue-700 cursor-pointer'
-                : 'text-slate-400 cursor-not-allowed opacity-60'
+                ? 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-700 shadow-sm cursor-pointer active:scale-95 group'
+                : 'bg-slate-50 border-slate-200/80 text-slate-400 cursor-not-allowed opacity-50'
             }`}
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${isFilterActive ? 'text-blue-600' : 'text-slate-400'}`} />
-            <span>Đặt lại</span>
+            <RotateCcw
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${
+                isFilterActive ? 'text-blue-600 group-hover:-rotate-90' : 'text-slate-400'
+              }`}
+            />
+            <span className={isFilterActive ? 'font-semibold' : ''}>Đặt lại</span>
           </button>
         </div>
       </div>
 
-      {/* Bottom Row: 3 Custom Dropdown Selectors */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+      {/* Bottom Row: 3 Custom Dropdown Selectors - Responsive flex/grid căn chỉnh gọn gàng */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:flex md:flex-wrap md:items-end gap-3 pt-1">
         {/* Nguồn đề thi */}
-        <CustomSelect
-          label="Nguồn đề thi"
-          value={filterState.source}
-          options={SOURCE_OPTIONS}
-          isOpen={openDropdown === 'source'}
-          onToggle={() => toggleDropdown('source')}
-          onSelect={(val) => {
-            onFilterChange({ source: val });
-            setOpenDropdown(null);
-          }}
-        />
+        <div className="w-full md:w-[220px] lg:w-[250px]">
+          <CustomSelect
+            label="Nguồn đề thi"
+            value={filterState.source}
+            options={SOURCE_OPTIONS}
+            isOpen={openDropdown === 'source'}
+            onToggle={() => toggleDropdown('source')}
+            onSelect={(val) => {
+              onFilterChange({ source: val });
+              setOpenDropdown(null);
+            }}
+          />
+        </div>
 
         {/* Mục tiêu điểm */}
-        <CustomSelect
-          label="Mục tiêu điểm"
-          value={filterState.targetScore}
-          options={SCORE_OPTIONS}
-          isOpen={openDropdown === 'targetScore'}
-          onToggle={() => toggleDropdown('targetScore')}
-          onSelect={(val) => {
-            onFilterChange({ targetScore: val });
-            setOpenDropdown(null);
-          }}
-        />
+        <div className="w-full md:w-[220px] lg:w-[250px]">
+          <CustomSelect
+            label="Mục tiêu điểm"
+            value={filterState.targetScore}
+            options={SCORE_OPTIONS}
+            isOpen={openDropdown === 'targetScore'}
+            onToggle={() => toggleDropdown('targetScore')}
+            onSelect={(val) => {
+              onFilterChange({ targetScore: val });
+              setOpenDropdown(null);
+            }}
+          />
+        </div>
 
         {/* Trạng thái làm bài */}
-        <CustomSelect
-          label="Trạng thái làm bài"
-          value={filterState.status}
-          options={STATUS_OPTIONS}
-          isOpen={openDropdown === 'status'}
-          onToggle={() => toggleDropdown('status')}
-          onSelect={(val) => {
-            onFilterChange({ status: val });
-            setOpenDropdown(null);
-          }}
-        />
+        <div className="w-full md:w-[220px] lg:w-[250px]">
+          <CustomSelect
+            label="Trạng thái làm bài"
+            value={filterState.status}
+            options={STATUS_OPTIONS}
+            isOpen={openDropdown === 'status'}
+            onToggle={() => toggleDropdown('status')}
+            onSelect={(val) => {
+              onFilterChange({ status: val });
+              setOpenDropdown(null);
+            }}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 export type ExamCategory = 'all' | 'full' | 'mini' | 'listening' | 'reading';
+export type ExamStatus = 'untaken' | 'in_progress' | 'completed';
 
 export interface ExamItem {
   id: string;
@@ -15,7 +16,9 @@ export interface ExamItem {
   category: ExamCategory;
   source: string; // "ETS Authentic", "Economy", "Hackers"
   targetScore: string; // "550+", "750+", "850+", "900+"
-  status: 'untaken' | 'completed';
+  status: ExamStatus;
+  userScore?: number; // e.g. 750 (nếu đã làm) -> "Đã làm: 750/990"
+  userProgress?: string; // e.g. "85/200" (nếu đang làm dở) -> "Đang làm: 85/200"
   audioAccents?: string; // "4 Giọng đọc (US, UK, AU, CA)"
   listeningQuestions: number;
   readingQuestions: number;
