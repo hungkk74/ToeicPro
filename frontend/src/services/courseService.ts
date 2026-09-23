@@ -3,7 +3,7 @@ import { CourseDTO } from '@/types/backend';
 
 export async function fetchCoursesFromBackend(): Promise<CourseDTO[]> {
   try {
-    const data = await fetchApi<CourseDTO[]>('/api/courses?page=0&size=10');
+    const data = await fetchApi<CourseDTO[]>('/api/courses?page=0&size=10', { skipAuth: true });
     if (Array.isArray(data) && data.length > 0) {
       return data;
     }

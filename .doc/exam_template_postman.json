@@ -1,0 +1,103 @@
+{
+  "code": "EXAM_01",
+  "title": "Tên Đề Thi (VD: ETS 2023 Test 1)",
+  "category": "FULL_TEST",
+  "durationMinutes": 120,
+  "totalQuestions": 200,
+  "audioFullUrl": "https://pub-your-cloudflare-r2-url.r2.dev/audio/full_exam_audio.mp3",
+  "isPublished": true,
+  "parts": [
+    {
+      "partNumber": 1,
+      "name": "Photographs",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "imageUrl": "https://pub-your-cloudflare-r2-url.r2.dev/images/part1_q1.jpg",
+          "audioUrl": null,
+          "questions": [
+            {
+              "questionNumber": 1,
+              "content": "Look at the picture marked No. 1 in your test book.",
+              "optionA": "He is talking on a phone.",
+              "optionB": "He is typing on a keyboard.",
+              "optionC": "He is holding a pen.",
+              "optionD": "He is drinking from a cup.",
+              "correctOption": "C",
+              "explanation": "Chi tiết giải thích lý do chọn C..."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 2,
+      "name": "Question-Response",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "imageUrl": null,
+          "audioUrl": null,
+          "questions": [
+            {
+              "questionNumber": 7,
+              "content": "Where is the new fax machine?",
+              "optionA": "Next to the water cooler.",
+              "optionB": "I'll send a fax tomorrow.",
+              "optionC": "By Wednesday.",
+              "optionD": null,
+              "correctOption": "A",
+              "explanation": "Hỏi Where -> Trả lời nơi chốn"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 3,
+      "name": "Conversations",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "imageUrl": null,
+          "audioUrl": "https://pub-your-cloudflare-r2-url.r2.dev/audio/part3_q32_34.mp3",
+          "questions": [
+            {
+              "questionNumber": 32,
+              "content": "Why is the man calling?",
+              "optionA": "To cancel a flight",
+              "optionB": "To book a hotel",
+              "optionC": "To rent a car",
+              "optionD": "To ask for directions",
+              "correctOption": "B",
+              "explanation": "Người đàn ông đề cập đến việc muốn đặt phòng..."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 7,
+      "name": "Reading Comprehension",
+      "questionGroups": [
+        {
+          "passageText": "Dear Mr. Smith,\n\nWe are writing to inform you about the upcoming conference...\n\nBest,\nJohn Doe",
+          "imageUrl": null,
+          "audioUrl": null,
+          "questions": [
+            {
+              "questionNumber": 147,
+              "content": "Why was the letter written?",
+              "optionA": "To apologize for a mistake",
+              "optionB": "To invite someone to an event",
+              "optionC": "To request payment",
+              "optionD": "To offer a job",
+              "correctOption": "B",
+              "explanation": "Đoạn 1 nói rõ mục đích mời tham gia hội nghị."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

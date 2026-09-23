@@ -97,6 +97,10 @@ management:
       application: ${spring.application.name}
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -238,6 +242,7 @@ jhipster:
       audience:
         - account
         - api://default
+        - web_app
 
 
 # jhipster-needle-add-application-yaml-document
@@ -261,3 +266,9 @@ cloudflare:
     secret-key: ${CLOUDFLARE_R2_SECRET_KEY:00171e511d22789b7d29efcf41b97ddd60e32df8a0a2b7ce1655d8b0fcbf0696}
     public-url: ${CLOUDFLARE_R2_PUBLIC_URL:https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev}
 
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security.web.server: DEBUG

@@ -16,11 +16,9 @@ public class ExamAttemptDTO implements Serializable {
 
     private Long id;
 
-    @NotNull
     @Size(max = 36)
     private String userId;
 
-    @NotNull
     private AttemptStatus status;
 
     @Min(value = 5)
@@ -43,7 +41,6 @@ public class ExamAttemptDTO implements Serializable {
 
     private Integer timeSpentSeconds;
 
-    @NotNull
     private Instant startedAt;
 
     private Instant completedAt;

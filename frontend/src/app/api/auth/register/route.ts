@@ -4,7 +4,7 @@ function getKeycloakAdminUrl(): string {
   return (
     process.env.INTERNAL_KEYCLOAK_URL ||
     process.env.NEXT_PUBLIC_KEYCLOAK_URL ||
-    'http://127.0.0.1:9080'
+    'http://localhost:9080'
   );
 }
 

@@ -1,6 +1,7 @@
 package com.toeic.exam.service;
 
 import com.toeic.exam.service.dto.ExamDTO;
+import com.toeic.exam.service.dto.create.FullExamCreateDTO;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,14 @@ public interface ExamService {
      * @return the persisted entity.
      */
     ExamDTO save(ExamDTO examDTO);
+
+    /**
+     * Create a full exam including parts, question groups, and questions.
+     *
+     * @param request the full exam create DTO.
+     * @return the persisted entity.
+     */
+    ExamDTO createFullExam(FullExamCreateDTO request);
 
     /**
      * Updates a exam.

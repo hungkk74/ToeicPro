@@ -12,7 +12,7 @@ import {
  */
 export async function fetchExamsFromBackend(): Promise<ExamDTO[]> {
   try {
-    const data = await fetchApi<ExamDTO[]>('/api/exams?page=0&size=20');
+    const data = await fetchApi<ExamDTO[]>('/api/exams?page=0&size=20', { skipAuth: true });
     if (Array.isArray(data) && data.length > 0) {
       return data;
     }
@@ -27,7 +27,7 @@ export async function fetchExamsFromBackend(): Promise<ExamDTO[]> {
  */
 export async function fetchExamForTakingFromBackend(id: string | number): Promise<ExamTakeDTO | null> {
   try {
-    const data = await fetchApi<ExamTakeDTO>(`/api/exams/${id}/take`);
+    const data = await fetchApi<ExamTakeDTO>(`/api/exams/${id}/take`, { skipAuth: true });
     if (data && data.parts && data.parts.length > 0) {
       return data;
     }
@@ -116,3 +116,9 @@ export async function fetchMyExamHistory(): Promise<MyExamHistoryItem[]> {
   return [];
 }
 
+/**
+ * Xoá đề thi khỏi hệ thống backend (/api/exams/:id)
+ */
+export async function deleteExamInBackend(id: number, token?: string): Promise<void> {
+  await fetchApi(`/api/exams/${id}`, { method: 'DELETE' }, token);
+}

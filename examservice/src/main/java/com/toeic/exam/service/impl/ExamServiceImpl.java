@@ -5,6 +5,12 @@ import com.toeic.exam.repository.ExamRepository;
 import com.toeic.exam.service.ExamService;
 import com.toeic.exam.service.dto.ExamDTO;
 import com.toeic.exam.service.mapper.ExamMapper;
+import com.toeic.exam.service.dto.create.FullExamCreateDTO;
+import com.toeic.exam.service.dto.create.PartCreateDTO;
+import com.toeic.exam.service.dto.create.QuestionGroupCreateDTO;
+import com.toeic.exam.service.dto.create.QuestionCreateDTO;
+import com.toeic.exam.domain.enumeration.AnswerOption;
+import java.time.Instant;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +76,91 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
+    public ExamDTO createFullExam(FullExamCreateDTO request) {
+        LOG.debug("Request to bulk import Exam: {}", request.getTitle());
+        
+        // 1. Create Exam
+        Exam exam = new Exam();
+        exam.setCode(request.getCode());
+        exam.setTitle(request.getTitle());
+        exam.setCategory(request.getCategory());
+        exam.setDurationMinutes(request.getDurationMinutes());
+        exam.setTotalQuestions(request.getTotalQuestions());
+        exam.setAudioFullUrl(request.getAudioFullUrl());
+        exam.setIsPublished(request.getIsPublished());
+        exam.setCreatedAt(Instant.now());
+        exam = examRepository.save(exam);
+
+        if (request.getParts() == null || request.getParts().isEmpty()) {
+            return examMapper.toDto(exam);
+        }
+
+        // 2. Iterate Parts
+        for (PartCreateDTO partDto : request.getParts()) {
+            Part part = new Part();
+            part.setPartNumber(partDto.getPartNumber());
+            part.setName(partDto.getName());
+            part.setExam(exam);
+
+            int partTotalQuestions = 0;
+            if (partDto.getQuestionGroups() != null) {
+                for (QuestionGroupCreateDTO groupDto : partDto.getQuestionGroups()) {
+                    if (groupDto.getQuestions() != null) {
+                        partTotalQuestions += groupDto.getQuestions().size();
+                    }
+                }
+            }
+            part.setTotalQuestions(partTotalQuestions);
+
+            part = partRepository.save(part);
+
+            if (partDto.getQuestionGroups() == null || partDto.getQuestionGroups().isEmpty()) {
+                continue;
+            }
+
+            // 3. Iterate Question Groups
+            for (QuestionGroupCreateDTO groupDto : partDto.getQuestionGroups()) {
+                QuestionGroup group = new QuestionGroup();
+                group.setPassageText(groupDto.getPassageText());
+                group.setImageUrl(groupDto.getImageUrl());
+                group.setAudioUrl(groupDto.getAudioUrl());
+                group.setPart(part);
+                group = questionGroupRepository.save(group);
+
+                if (groupDto.getQuestions() == null || groupDto.getQuestions().isEmpty()) {
+                    continue;
+                }
+
+                // 4. Iterate Questions (Save in Batch for performance)
+                List<Question> questions = new ArrayList<>();
+                for (QuestionCreateDTO qDto : groupDto.getQuestions()) {
+                    Question question = new Question();
+                    question.setQuestionNumber(qDto.getQuestionNumber());
+                    question.setContent(qDto.getContent());
+                    question.setOptionA(qDto.getOptionA() == null ? "" : qDto.getOptionA());
+                    question.setOptionB(qDto.getOptionB() == null ? "" : qDto.getOptionB());
+                    question.setOptionC(qDto.getOptionC() == null ? "" : qDto.getOptionC());
+                    question.setOptionD(qDto.getOptionD());
+                    if (qDto.getCorrectOption() != null) {
+                        try {
+                            question.setCorrectOption(AnswerOption.valueOf(qDto.getCorrectOption().toUpperCase()));
+                        } catch (IllegalArgumentException e) {
+                            LOG.warn("Invalid AnswerOption: {}", qDto.getCorrectOption());
+                        }
+                    }
+                    question.setExplanation(qDto.getExplanation());
+                    question.setQuestionGroup(group);
+                    question.setPart(part); // Added part relation
+                    questions.add(question);
+                }
+                questionRepository.saveAll(questions);
+            }
+        }
+        
+        return examMapper.toDto(exam);
+    }
+
+    @Override
     public ExamDTO update(ExamDTO examDTO) {
         LOG.debug("Request to update Exam : {}", examDTO);
         Exam exam = examMapper.toEntity(examDTO);
@@ -106,9 +197,37 @@ public class ExamServiceImpl implements ExamService {
         return examRepository.findById(id).map(examMapper::toDto);
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.toeic.exam.repository.ExamAttemptRepository examAttemptRepository;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.toeic.exam.repository.UserAnswerRepository userAnswerRepository;
+
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
+
     @Override
     public void delete(Long id) {
         LOG.debug("Request to delete Exam : {}", id);
+        
+        // 1. Find all attempts for this exam
+        // (Using findAll since ExamAttemptRepository might not have findByExamId)
+        // Better: use EntityManager to avoid loading all objects
+        entityManager.createQuery("DELETE FROM UserAnswer u WHERE u.examAttempt.id IN (SELECT a.id FROM ExamAttempt a WHERE a.exam.id = :examId)")
+            .setParameter("examId", id).executeUpdate();
+            
+        entityManager.createQuery("DELETE FROM ExamAttempt a WHERE a.exam.id = :examId")
+            .setParameter("examId", id).executeUpdate();
+
+        entityManager.createQuery("DELETE FROM Question q WHERE q.part.id IN (SELECT p.id FROM Part p WHERE p.exam.id = :examId)")
+            .setParameter("examId", id).executeUpdate();
+
+        entityManager.createQuery("DELETE FROM QuestionGroup g WHERE g.part.id IN (SELECT p.id FROM Part p WHERE p.exam.id = :examId)")
+            .setParameter("examId", id).executeUpdate();
+
+        entityManager.createQuery("DELETE FROM Part p WHERE p.exam.id = :examId")
+            .setParameter("examId", id).executeUpdate();
+
         examRepository.deleteById(id);
     }
 

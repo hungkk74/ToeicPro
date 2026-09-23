@@ -40,4 +40,6 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
 
     @Query("select a from ExamAttempt a left join fetch a.exam where a.userId = :userId and a.status = com.toeic.exam.domain.enumeration.AttemptStatus.COMPLETED order by a.completedAt desc")
     List<ExamAttempt> findCompletedByUserId(@Param("userId") String userId);
+
+    List<ExamAttempt> findByStatusAndStartedAtBefore(com.toeic.exam.domain.enumeration.AttemptStatus status, java.time.Instant startedAt);
 }

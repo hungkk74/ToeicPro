@@ -4,7 +4,7 @@ function getKeycloakUrl(): string {
   return (
     process.env.INTERNAL_KEYCLOAK_URL ||
     process.env.NEXT_PUBLIC_KEYCLOAK_URL ||
-    'http://127.0.0.1:9080'
+    'http://localhost:9080'
   );
 }
 
@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       grant_type: 'password',
       username: username.trim(),
       password: password,
+      scope: 'openid profile email',
     });
 
     console.log(`[API /api/auth/login] Nhận yêu cầu đăng nhập: ${username}`);

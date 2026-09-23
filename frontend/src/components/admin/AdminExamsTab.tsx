@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   FileText,
@@ -12,7 +12,9 @@ import {
   HelpCircle,
   X,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
+import { deleteExamInBackend, fetchExamsFromBackend } from '@/services/examService';
 
 interface ExamAdminItem {
   id: number;
@@ -123,9 +125,50 @@ const MOCK_ADMIN_EXAMS: ExamAdminItem[] = [
 ];
 
 export default function AdminExamsTab() {
-  const [exams, setExams] = useState<ExamAdminItem[]>(MOCK_ADMIN_EXAMS);
+  const [exams, setExams] = useState<ExamAdminItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExamForModal, setSelectedExamForModal] = useState<ExamAdminItem | null>(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await fetchExamsFromBackend();
+        const mapped: ExamAdminItem[] = data.map((d) => ({
+          id: d.id,
+          title: d.title,
+          category: d.category || 'Chưa phân loại',
+          year: d.createdAt ? new Date(d.createdAt).getFullYear().toString() : '2026',
+          totalQuestions: d.totalQuestions,
+          durationMinutes: d.durationMinutes,
+          attemptsCount: 0, // Chưa có API trả về số lượt thi
+          status: d.isPublished !== false ? 'published' : 'draft',
+          partsDetail: d.parts
+            ? d.parts.map((p) => ({ part: p.partNumber, name: p.name, questions: p.totalQuestions }))
+            : [],
+        }));
+        setExams(mapped);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const handleDeleteExam = async (id: number, title: string) => {
+    if (window.confirm(`Bạn có chắc chắn muốn xoá đề thi "${title}" không? Hành động này không thể hoàn tác.`)) {
+      try {
+        await deleteExamInBackend(id);
+        setExams((prev) => prev.filter((exam) => exam.id !== id));
+        alert('Đã xoá đề thi thành công trên hệ thống!');
+      } catch (error: any) {
+        console.error('Lỗi khi xoá đề thi:', error);
+        alert(`Lỗi Backend khi xoá đề thi: ${error.message}\n(Có thể do rào cản khoá ngoại - đề thi đã có câu hỏi hoặc đã có người thi nên không thể xoá, hoặc bạn chưa đăng nhập tài khoản Admin).`);
+      }
+    }
+  };
 
   const filteredExams = exams.filter((e) =>
     e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -222,6 +265,14 @@ export default function AdminExamsTab() {
                         title="Xem cấu trúc Parts"
                       >
                         <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteExam(exam.id, exam.title)}
+                        className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        title="Xoá đề thi"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                       <Link
                         href={`/exam/${exam.id}`}

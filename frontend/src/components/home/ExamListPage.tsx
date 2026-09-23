@@ -3,13 +3,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { ExamItem, FilterState } from '@/types/examList';
-import { CoursePromoItem } from '@/types/coursePromo';
-import { PROMO_COURSES } from '@/constants/mockPromos';
+
 import { CourseItem } from '@/constants/mockCourses';
 import { getCurrentUser } from '@/services/authService';
 import { fetchMyExamHistory } from '@/services/examService';
 import ExamCard from './ExamCard';
-import CoursePromoCard from './CoursePromoCard';
+
 import TopPromotionBanner from './TopPromotionBanner';
 import FilterSection from './FilterSection';
 import CourseCatalog from './CourseCatalog';
@@ -196,25 +195,7 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
       });
   }, [exams, filterState]);
 
-  // Cứ sau mỗi 3 thẻ đề thi thì đan xen 1 thẻ khóa học khuyến mại CoursePromoCard
-  const combinedItems = useMemo(() => {
-    const result: Array<
-      | { type: 'exam'; data: ExamItem }
-      | { type: 'promo'; data: CoursePromoItem }
-    > = [];
-    let promoIdx = 0;
 
-    filteredExams.forEach((exam, index) => {
-      result.push({ type: 'exam', data: exam });
-      if ((index + 1) % 3 === 0 && PROMO_COURSES.length > 0) {
-        const promo = PROMO_COURSES[promoIdx % PROMO_COURSES.length];
-        result.push({ type: 'promo', data: promo });
-        promoIdx++;
-      }
-    });
-
-    return result;
-  }, [filteredExams]);
 
   return (
     <div className="space-y-6">
@@ -239,16 +220,12 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
         totalAll={exams.length}
       />
 
-      {/* Lưới Hiển Thị Đề Thi Đan Xen Card Khóa Học (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}
+      {/* Lưới Hiển Thị Đề Thi (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}
       {filteredExams.length > 0 ? (
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {combinedItems.map((item, idx) =>
-            item.type === 'exam' ? (
-              <ExamCard key={`exam-${item.data.id}`} card={item.data} />
-            ) : (
-              <CoursePromoCard key={`promo-${item.data.id}-${idx}`} promo={item.data} />
-            )
-          )}
+          {filteredExams.map((exam) => (
+            <ExamCard key={`exam-${exam.id}`} card={exam} />
+          ))}
         </section>
       ) : (
         /* Empty State */

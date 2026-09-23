@@ -40,5 +40,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, Long> {
 
     @Query("SELECT ua FROM UserAnswer ua LEFT JOIN FETCH ua.question q LEFT JOIN FETCH q.part LEFT JOIN FETCH q.questionGroup WHERE ua.examAttempt.id = :attemptId ORDER BY q.questionNumber ASC")
     List<UserAnswer> findByExamAttemptIdWithQuestion(@Param("attemptId") Long attemptId);
+
+    void deleteByExamAttemptId(Long examAttemptId);
 }
 

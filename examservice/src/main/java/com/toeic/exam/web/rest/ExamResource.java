@@ -24,6 +24,7 @@ import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import com.toeic.exam.security.AuthoritiesConstants;
+import com.toeic.exam.service.dto.create.FullExamCreateDTO;
 import com.toeic.exam.service.dto.take.ExamTakeDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -68,6 +69,39 @@ public class ExamResource {
         return ResponseEntity.created(new URI("/api/exams/" + examDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, examDTO.getId().toString()))
             .body(examDTO);
+    }
+
+    /**
+     * {@code POST  /exams/bulk} : Create a full new exam in bulk.
+     *
+     * @param request the full exam structure to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new examDTO.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     */
+    @PostMapping("/bulk")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<ExamDTO> createFullExam(@Valid @RequestBody FullExamCreateDTO request) throws URISyntaxException {
+        LOG.debug("REST request to bulk import full Exam: {}", request.getTitle());
+        
+        ExamDTO examDTO = examService.createFullExam(request);
+        
+        return ResponseEntity.created(new URI("/api/exams/" + examDTO.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, examDTO.getId().toString()))
+            .body(examDTO);
+    }
+
+    @GetMapping("/debug-parse-file")
+    public ResponseEntity<String> debugParseFile() {
+        try {
+            String json = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("d:/Projects/Toeic_Pro/ets2023_test3_formatted.json")));
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            FullExamCreateDTO dto = mapper.readValue(json, FullExamCreateDTO.class);
+            return ResponseEntity.ok("Parse successful! " + dto.getTitle());
+        } catch (Exception e) {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            e.printStackTrace(new java.io.PrintWriter(sw));
+            return ResponseEntity.badRequest().body(sw.toString());
+        }
     }
 
     /**

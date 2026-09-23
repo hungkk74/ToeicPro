@@ -4,6 +4,15 @@ import com.toeic.exam.config.CloudflareR2Properties;
 import com.toeic.exam.service.dto.FileUploadResponse;
 import java.io.IOException;
 import java.util.UUID;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import ws.schild.jave.Encoder;
+import ws.schild.jave.MultimediaObject;
+import ws.schild.jave.encode.AudioAttributes;
+import ws.schild.jave.encode.EncodingAttributes;
+import com.sksamuel.scrimage.ImmutableImage;
+import com.sksamuel.scrimage.webp.WebpWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -37,7 +46,65 @@ public class FileStorageService {
      */
     public FileUploadResponse uploadAudio(MultipartFile file) {
         validateFile(file, "audio");
-        return uploadFile(file, "audio");
+
+        File tempInput = null;
+        File tempOutput = null;
+
+        try {
+            // 1. Tạo file tạm để chứa âm thanh gốc
+            tempInput = File.createTempFile("audio_input_", ".tmp");
+            Files.copy(file.getInputStream(), tempInput.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            // 2. Tạo cấu hình mã hoá Audio (MP3, 64kbps, Mono)
+            AudioAttributes audio = new AudioAttributes();
+            audio.setCodec("libmp3lame");
+            audio.setBitRate(64000);
+            audio.setChannels(1); // Mono
+            audio.setSamplingRate(44100);
+
+            EncodingAttributes attrs = new EncodingAttributes();
+            attrs.setOutputFormat("mp3");
+            attrs.setAudioAttributes(audio);
+
+            // 3. Tiến hành encode bằng JAVE2
+            tempOutput = File.createTempFile("audio_output_", ".mp3");
+            Encoder encoder = new Encoder();
+            encoder.encode(new MultimediaObject(tempInput), tempOutput, attrs);
+
+            // 4. Upload file đã nén lên R2
+            String fileKey = generateFileKey(file.getOriginalFilename(), "audio", ".mp3");
+            String contentType = "audio/mpeg";
+            long optimizedSize = tempOutput.length();
+
+            LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
+                properties.getBucketName(), fileKey, file.getSize(), optimizedSize);
+
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(properties.getBucketName())
+                .key(fileKey)
+                .contentType(contentType)
+                .build();
+
+            s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
+
+            String fileUrl = buildPublicUrl(fileKey);
+            LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
+
+            String originalFilename = file.getOriginalFilename();
+            return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
+
+        } catch (Exception e) {
+            LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
+            throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
+        } finally {
+            // 5. Dọn dẹp file tạm
+            if (tempInput != null && tempInput.exists()) {
+                tempInput.delete();
+            }
+            if (tempOutput != null && tempOutput.exists()) {
+                tempOutput.delete();
+            }
+        }
     }
 
     /**
@@ -48,7 +115,45 @@ public class FileStorageService {
      */
     public FileUploadResponse uploadImage(MultipartFile file) {
         validateFile(file, "image");
-        return uploadFile(file, "images");
+        
+        try {
+            // 1. Đọc ảnh vào bộ nhớ
+            ImmutableImage image = ImmutableImage.loader().fromStream(file.getInputStream());
+            
+            // 2. Resize nếu ảnh quá lớn (width > 1200)
+            if (image.awt().getWidth() > 1200) {
+                image = image.scaleToWidth(1200);
+            }
+            
+            // 3. Convert to WebP với chất lượng 75%
+            byte[] webpBytes = image.bytes(WebpWriter.DEFAULT.withQ(75));
+            
+            // 4. Khởi tạo metadata cho R2
+            String fileKey = generateFileKey(file.getOriginalFilename(), "images", ".webp");
+            String contentType = "image/webp";
+            
+            LOG.info("Uploading optimized WebP to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
+                properties.getBucketName(), fileKey, file.getSize(), webpBytes.length);
+
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(properties.getBucketName())
+                .key(fileKey)
+                .contentType(contentType)
+                .build();
+
+            // 5. Upload mảng byte WebP
+            s3Client.putObject(putRequest, RequestBody.fromBytes(webpBytes));
+
+            String fileUrl = buildPublicUrl(fileKey);
+            LOG.info("Optimized Image uploaded successfully to R2: {}", fileUrl);
+            
+            String originalFilename = file.getOriginalFilename();
+            return new FileUploadResponse(fileKey, fileUrl, originalFilename, webpBytes.length, contentType);
+
+        } catch (Exception e) {
+            LOG.error("Failed to optimize and upload image to Cloudflare R2", e);
+            throw new RuntimeException("Lỗi khi tối ưu và upload ảnh: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -65,7 +170,7 @@ public class FileStorageService {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
 
-        String fileKey = "%s/%s%s".formatted(folder, UUID.randomUUID(), extension);
+        String fileKey = generateFileKey(originalFilename, folder, extension);
         String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
 
         LOG.info("Uploading file to Cloudflare R2 - Bucket: {}, Key: {}, Size: {} bytes",
@@ -136,5 +241,18 @@ public class FileStorageService {
         }
         // Fallback về URL endpoint trực tiếp
         return "%s/%s/%s".formatted(properties.getEndpoint().replaceAll("/$", ""), properties.getBucketName(), fileKey);
+    }
+
+    private String generateFileKey(String originalFilename, String folder, String targetExtension) {
+        if (originalFilename != null && !originalFilename.isBlank()) {
+            int lastDot = originalFilename.lastIndexOf('.');
+            String nameWithoutExt = lastDot > 0 ? originalFilename.substring(0, lastDot) : originalFilename;
+            
+            // Chỉ đổi dấu cách thành dấu gạch dưới để link không bị lỗi khoảng trắng, còn lại giữ nguyên tên gốc
+            String sanitized = nameWithoutExt.replaceAll("\\s+", "_");
+            
+            return "%s/%s%s".formatted(folder, sanitized, targetExtension);
+        }
+        return "%s/%s%s".formatted(folder, UUID.randomUUID().toString(), targetExtension);
     }
 }

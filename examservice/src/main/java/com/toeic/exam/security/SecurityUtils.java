@@ -118,7 +118,7 @@ public final class SecurityUtils {
     private static List<GrantedAuthority> mapRolesToGrantedAuthorities(Collection<String> roles) {
         return roles
             .stream()
-            .filter(role -> role.startsWith("ROLE_"))
+            .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role.toUpperCase())
             .<GrantedAuthority>map(SimpleGrantedAuthority::new)
             .toList();
     }

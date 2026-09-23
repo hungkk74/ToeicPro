@@ -6,6 +6,8 @@ export interface ExamDTO {
   durationMinutes: number;
   totalQuestions: number;
   audioFullUrl?: string;
+  isPublished?: boolean;
+  createdAt?: string;
   parts?: PartTakeDTO[];
 }
 

@@ -40,37 +40,34 @@ export function setStoredToken(token: string | null): void {
 
 export async function fetchApi<T = unknown>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit & { skipAuth?: boolean } = {},
   token?: string
 ): Promise<T> {
   const baseUrl = getBaseApiUrl();
   const url = `${baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 
+  const { skipAuth, ...fetchOptions } = options;
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
+    ...(fetchOptions.headers as Record<string, string>),
   };
 
-  const effectiveToken = token || getStoredToken();
+  const effectiveToken = skipAuth ? null : (token || getStoredToken());
   if (effectiveToken) {
     headers['Authorization'] = `Bearer ${effectiveToken}`;
   }
 
   let response = await fetch(url, {
     cache: 'no-store',
-    ...options,
+    credentials: 'include',
+    ...fetchOptions,
     headers,
   });
 
-  // Nếu bị 401 do token lưu trong localStorage bị hết hạn / lỗi issuer, tự động dọn token và thử lại request
-  if (response.status === 401 && effectiveToken && (!options.method || options.method === 'GET')) {
+  // Nếu bị 401 do token hết hạn / lỗi issuer, xóa token cũ để UI re-prompt đăng nhập
+  if (response.status === 401 && effectiveToken) {
     setStoredToken(null);
-    delete headers['Authorization'];
-    response = await fetch(url, {
-      cache: 'no-store',
-      ...options,
-      headers,
-    });
   }
 
   if (!response.ok) {

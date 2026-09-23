@@ -240,6 +240,7 @@ jhipster:
       audience:
         - account
         - api://default
+        - web_app
 
 
 # jhipster-needle-add-application-yaml-document

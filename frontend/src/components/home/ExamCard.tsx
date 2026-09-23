@@ -108,13 +108,6 @@ function ExamCard({ card }: ExamCardProps) {
               {card.totalQuestions} câu
             </span>
           </div>
-
-          <div className="flex items-center gap-1.5 text-slate-600 min-w-0">
-            <TrendingUp className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="tabular-nums font-semibold text-slate-800 truncate">
-              TB {card.averageScore}
-            </span>
-          </div>
         </div>
 
         {/* Question Breakdown Chips */}
