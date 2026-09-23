@@ -102,6 +102,9 @@ export async function loginWithCredentials(
       if (!user) {
         user = parseUserFromToken(data.access_token);
       }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user } }));
+      }
       return { success: true, user: user || undefined };
     }
 
@@ -167,6 +170,9 @@ export async function registerNewUser(payload: RegisterPayload): Promise<Registe
  */
 export async function performLogout(): Promise<void> {
   setStoredToken(null);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: null } }));
+  }
   try {
     const baseUrl = getBaseApiUrl();
     await fetch(`${baseUrl}/api/logout`, {

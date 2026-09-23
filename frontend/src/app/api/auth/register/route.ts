@@ -4,7 +4,7 @@ function getKeycloakAdminUrl(): string {
   return (
     process.env.INTERNAL_KEYCLOAK_URL ||
     process.env.NEXT_PUBLIC_KEYCLOAK_URL ||
-    'http://localhost:9080'
+    'http://127.0.0.1:9080'
   );
 }
 
@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
 
     const keycloakBase = getKeycloakAdminUrl();
 
+    console.log(`[API /api/auth/register] Bắt đầu đăng ký cho user: ${username}, email: ${email}`);
+
     // 2. Lấy Admin Access Token từ Realm 'master' qua client 'admin-cli'
     const adminTokenParams = new URLSearchParams({
       client_id: 'admin-cli',
@@ -52,11 +54,13 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: adminTokenParams.toString(),
+        signal: AbortSignal.timeout(8000),
       }
     );
 
     if (!tokenRes.ok) {
       const errText = await tokenRes.text().catch(() => '');
+      console.error(`[API /api/auth/register] Lỗi lấy admin token: status ${tokenRes.status}, ${errText}`);
       return NextResponse.json(
         {
           success: false,
@@ -97,6 +101,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(createPayload),
+      signal: AbortSignal.timeout(8000),
     });
 
     if (createRes.status === 201) {

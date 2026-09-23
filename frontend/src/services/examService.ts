@@ -92,3 +92,27 @@ export async function fetchExamReviewFromBackend(
     return null;
   }
 }
+
+export interface MyExamHistoryItem {
+  attemptId: number;
+  examId: number;
+  examTitle: string;
+  totalScore: number;
+  completedAt: string;
+}
+
+/**
+ * Lấy lịch sử làm bài và điểm số của tài khoản đang đăng nhập (/api/exam-attempts/my-history)
+ */
+export async function fetchMyExamHistory(): Promise<MyExamHistoryItem[]> {
+  try {
+    const data = await fetchApi<MyExamHistoryItem[]>('/api/exam-attempts/my-history');
+    if (Array.isArray(data)) {
+      return data;
+    }
+  } catch {
+    // Chưa đăng nhập hoặc offline
+  }
+  return [];
+}
+

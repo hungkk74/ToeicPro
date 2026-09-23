@@ -80,6 +80,21 @@
       "key": "order_code",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "frontend_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "registered_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "registered_password",
+      "value": "",
+      "type": "string"
     }
   ],
   "event": [
@@ -104,6 +119,130 @@
     {
       "name": "0. Auth — Lấy Access Token",
       "item": [
+        {
+          "name": "0.0 FE — Đăng ký tài khoản mới (Register)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Sinh tự động username và email ngẫu nhiên để tránh lỗi 409 Conflict khi chạy nhiều lần",
+                  "const rand = Math.floor(1000 + Math.random() * 9000);",
+                  "const uname = \"student_\" + rand;",
+                  "const uemail = \"student_\" + rand + \"@toeicpro.vn\";",
+                  "const upass = \"Password123!\";",
+                  "",
+                  "pm.collectionVariables.set(\"registered_username\", uname);",
+                  "pm.collectionVariables.set(\"registered_password\", upass);",
+                  "pm.variables.set(\"dyn_username\", uname);",
+                  "pm.variables.set(\"dyn_email\", uemail);",
+                  "pm.variables.set(\"dyn_password\", upass);",
+                  "console.log(\"👉 Đang chuẩn bị đăng ký tài khoản:\", uname);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 201 Created\", () => pm.response.to.have.status(201));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Đăng ký thành công (success === true)\", () => pm.expect(json.success).to.be.true);",
+                  "pm.test(\"Tên tài khoản phản hồi trùng khớp\", () => pm.expect(json.username).to.eql(pm.collectionVariables.get(\"registered_username\")));",
+                  "",
+                  "console.log(\"✅ Đăng ký thành công tài khoản:\", json.username);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{dyn_username}}\",\n  \"email\": \"{{dyn_email}}\",\n  \"password\": \"{{dyn_password}}\",\n  \"firstName\": \"Học Viên\",\n  \"lastName\": \"Mới\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{frontend_url}}/api/auth/register",
+              "host": [
+                "{{frontend_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "API Đăng ký tài khoản học viên mới từ Frontend Next.js. Handler sẽ dùng quyền admin Keycloak để tạo User trong realm jhipster và gán role ROLE_USER."
+          }
+        },
+        {
+          "name": "0.0b FE — Đăng nhập từ Frontend (Login via FE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status 200 OK\", () => pm.response.to.have.status(200));",
+                  "",
+                  "const json = pm.response.json();",
+                  "pm.test(\"Đăng nhập thành công (success === true)\", () => pm.expect(json.success).to.be.true);",
+                  "pm.test(\"Nhận được access_token hợp lệ\", () => pm.expect(json.access_token).to.be.a(\"string\"));",
+                  "",
+                  "pm.collectionVariables.set(\"access_token\", json.access_token);",
+                  "const payload = JSON.parse(atob(json.access_token.split(\".\")[1]));",
+                  "pm.collectionVariables.set(\"user_id\", payload.sub);",
+                  "",
+                  "console.log(\"✅ Đăng nhập FE thành công! User ID:\", payload.sub);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{registered_username}}\",\n  \"password\": \"{{registered_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{frontend_url}}/api/auth/login",
+              "host": [
+                "{{frontend_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "API Đăng nhập trực tiếp từ Frontend Next.js gọi vào Keycloak Password Grant để xác thực và trả về access_token JWT."
+          }
+        },
         {
           "name": "0.1 Login as Admin (Password Grant)",
           "event": [

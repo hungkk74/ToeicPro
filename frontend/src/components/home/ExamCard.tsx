@@ -143,7 +143,7 @@ function ExamCard({ card }: ExamCardProps) {
               ? 'Làm lại đề'
               : card.status === 'in_progress'
               ? 'Tiếp tục thi'
-              : 'Vào thi ngay'}
+              : 'Vào thi'}
           </span>
           <ArrowRight className="w-4 h-4 shrink-0 group-hover/btn:translate-x-0.5 transition-transform" />
         </Link>

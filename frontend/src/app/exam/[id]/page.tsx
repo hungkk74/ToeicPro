@@ -11,18 +11,23 @@ import QuestionCard from '@/components/exam/QuestionCard';
 import QuestionMatrix, { MatrixPartItem } from '@/components/exam/QuestionMatrix';
 import ScoreReportModal from '@/components/exam/ScoreReportModal';
 import ExamExitDialog from '@/components/exam/ExamExitDialog';
+import ExamResetDialog from '@/components/exam/ExamResetDialog';
+import { getCurrentUser } from '@/services/authService';
 import {
   fetchExamForTakingFromBackend,
   createExamAttemptInBackend,
   submitExamAttemptToBackend,
 } from '@/services/examService';
-import { ExamResultDTO, ExamTakeDTO, QuestionAnswerSubmissionDTO } from '@/types/backend';
+import { ExamResultDTO, ExamTakeDTO, QuestionAnswerSubmissionDTO, UserAccountDTO } from '@/types/backend';
 
 export default function ExamRoomPage() {
   const params = useParams();
   const router = useRouter();
   const examId = params?.id ? String(params.id) : '1';
-  const progressKey = `exam_progress_${examId}`;
+
+  const [currentUser, setCurrentUser] = useState<UserAccountDTO | null>(null);
+  const userScope = currentUser?.login ? `user_${currentUser.login}` : 'guest';
+  const progressKey = `exam_progress_${userScope}_${examId}`;
 
   const [examData, setExamData] = useState<ExamTakeDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,8 +42,9 @@ export default function ExamRoomPage() {
   const [examResult, setExamResult] = useState<ExamResultDTO | null>(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
 
-  // Persist progress to localStorage
+  // Persist progress to localStorage strictly scoped by user
   const saveProgress = useCallback(() => {
     try {
       const progress = {
@@ -55,22 +61,75 @@ export default function ExamRoomPage() {
     }
   }, [selectedAnswers, flaggedQuestions, currentQuestion, timeRemaining, backendAttemptId, progressKey]);
 
-  // Load exam data and restore saved progress
+  // Thoát không lưu: Xoá sạch tiến trình lưu trữ và về trang chủ
+  const handleExitWithoutSaving = useCallback(() => {
+    try {
+      localStorage.removeItem(progressKey);
+      localStorage.removeItem(`exam_progress_${examId}`);
+    } catch {
+      // noop
+    }
+    router.push('/');
+  }, [progressKey, examId, router]);
+
+  // Làm lại bài thi từ đầu: Xoá toàn bộ đáp án, cờ, reset thời gian và tạo lượt thi mới
+  const handleResetExam = useCallback(async () => {
+    setSelectedAnswers({});
+    setFlaggedQuestions({});
+    setCurrentQuestion(1);
+    if (examData?.durationMinutes) {
+      setTimeRemaining(examData.durationMinutes * 60);
+    } else {
+      setTimeRemaining(4500);
+    }
+
+    try {
+      localStorage.removeItem(progressKey);
+      localStorage.removeItem(`exam_progress_${examId}`);
+    } catch {
+      // noop
+    }
+
+    try {
+      const attempt = await createExamAttemptInBackend(Number(examId));
+      if (attempt?.id) {
+        setBackendAttemptId(attempt.id);
+      }
+    } catch {
+      // offline
+    }
+
+    setShowResetDialog(false);
+  }, [examData, progressKey, examId]);
+
+  // Load exam data and restore saved progress for current user
   useEffect(() => {
     let isMounted = true;
     async function initExam() {
       try {
         setLoading(true);
+
+        // 1. Resolve current user identity first
+        const user = await getCurrentUser();
+        if (!isMounted) return;
+        setCurrentUser(user);
+
+        const scope = user?.login ? `user_${user.login}` : 'guest';
+        const activeKey = `exam_progress_${scope}_${examId}`;
+
+        // Clean up legacy unscoped progress key if exists
+        try { localStorage.removeItem(`exam_progress_${examId}`); } catch { /* noop */ }
+
         const data = await fetchExamForTakingFromBackend(examId);
         if (!isMounted) return;
 
         if (data) {
           setExamData(data);
 
-          // Try restoring saved progress
+          // Try restoring saved progress for this specific user
           let restored = false;
           try {
-            const saved = localStorage.getItem(progressKey);
+            const saved = localStorage.getItem(activeKey);
             if (saved) {
               const progress = JSON.parse(saved);
               // Only restore if saved within the last 24 hours
@@ -82,7 +141,7 @@ export default function ExamRoomPage() {
                 if (progress.backendAttemptId) setBackendAttemptId(progress.backendAttemptId);
                 restored = true;
               } else {
-                localStorage.removeItem(progressKey);
+                localStorage.removeItem(activeKey);
               }
             }
           } catch {
@@ -121,7 +180,7 @@ export default function ExamRoomPage() {
 
         // Only create a new attempt if we didn't restore one
         if (!isMounted) return;
-        const savedRaw = localStorage.getItem(progressKey);
+        const savedRaw = localStorage.getItem(activeKey);
         const savedProgress = savedRaw ? JSON.parse(savedRaw) : null;
         if (savedProgress?.backendAttemptId) {
           setBackendAttemptId(savedProgress.backendAttemptId);
@@ -143,7 +202,7 @@ export default function ExamRoomPage() {
     return () => {
       isMounted = false;
     };
-  }, [examId, progressKey]);
+  }, [examId]);
 
   // Flatten all questions for sequential navigation and state binding
   const flattenedQuestions = useMemo(() => {
@@ -295,7 +354,10 @@ export default function ExamRoomPage() {
       setIsSubmitting(false);
       setShowResultModal(true);
       // Clear saved progress after successful submission
-      try { localStorage.removeItem(progressKey); } catch { /* noop */ }
+      try {
+        localStorage.removeItem(progressKey);
+        localStorage.removeItem(`exam_progress_${examId}`);
+      } catch { /* noop */ }
     }
   };
 
@@ -343,6 +405,7 @@ export default function ExamRoomPage() {
         isSubmitting={isSubmitting}
         onSubmit={handleSubmitExam}
         onExit={() => setShowExitDialog(true)}
+        onResetExam={() => setShowResetDialog(true)}
         answeredCount={answeredCount}
         totalQuestions={totalQuestions}
         isPlaying={isPlaying}
@@ -439,14 +502,22 @@ export default function ExamRoomPage() {
       <ExamExitDialog
         isOpen={showExitDialog}
         onClose={() => setShowExitDialog(false)}
-        onConfirm={() => {
+        onSaveAndExit={() => {
           saveProgress();
           router.push('/');
         }}
+        onExitWithoutSaving={handleExitWithoutSaving}
         answeredCount={answeredCount}
         totalQuestions={totalQuestions}
         timeRemaining={timeRemaining}
         formatTime={formatTime}
+      />
+
+      <ExamResetDialog
+        isOpen={showResetDialog}
+        onClose={() => setShowResetDialog(false)}
+        onConfirmReset={handleResetExam}
+        answeredCount={answeredCount}
       />
     </div>
   );

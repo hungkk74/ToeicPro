@@ -39,6 +39,18 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
         onRoleResolved?.(false);
       }
     });
+
+    const handleAuthChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ user: UserAccountDTO | null }>;
+      const newUser = customEvent.detail?.user || null;
+      setUser(newUser);
+      onRoleResolved?.(hasPrivilegedRole(newUser?.authorities));
+    };
+
+    window.addEventListener('auth-state-changed', handleAuthChange);
+    return () => {
+      window.removeEventListener('auth-state-changed', handleAuthChange);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -61,6 +73,7 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
     setUser(null);
     setIsDropdownOpen(false);
     setIsModalOpen(false);
+    onRoleResolved?.(false);
   };
 
   // Mở modal đăng nhập trực tiếp (Không redirect sang Keycloak)
@@ -87,11 +100,19 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
   const handleLoginSuccess = (newUser: UserAccountDTO) => {
     setUser(newUser);
     setIsLoginModalOpen(false);
+    onRoleResolved?.(hasPrivilegedRole(newUser.authorities));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: newUser } }));
+    }
   };
 
   const handleRegisterSuccess = (newUser: UserAccountDTO) => {
     setUser(newUser);
     setIsRegisterModalOpen(false);
+    onRoleResolved?.(hasPrivilegedRole(newUser.authorities));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: newUser } }));
+    }
   };
 
   const handleSwitchToLogin = () => {

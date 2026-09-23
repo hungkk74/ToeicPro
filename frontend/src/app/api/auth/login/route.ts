@@ -4,7 +4,7 @@ function getKeycloakUrl(): string {
   return (
     process.env.INTERNAL_KEYCLOAK_URL ||
     process.env.NEXT_PUBLIC_KEYCLOAK_URL ||
-    'http://localhost:9080'
+    'http://127.0.0.1:9080'
   );
 }
 
@@ -39,12 +39,14 @@ export async function POST(request: NextRequest) {
       password: password,
     });
 
+    console.log(`[API /api/auth/login] Nhận yêu cầu đăng nhập: ${username}`);
     const tokenRes = await fetch(
       `${keycloakBase}/realms/jhipster/protocol/openid-connect/token`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: loginParams.toString(),
+        signal: AbortSignal.timeout(8000),
       }
     );
 

@@ -6,6 +6,8 @@ import { ExamItem, FilterState } from '@/types/examList';
 import { CoursePromoItem } from '@/types/coursePromo';
 import { PROMO_COURSES } from '@/constants/mockPromos';
 import { CourseItem } from '@/constants/mockCourses';
+import { getCurrentUser } from '@/services/authService';
+import { fetchMyExamHistory } from '@/services/examService';
 import ExamCard from './ExamCard';
 import CoursePromoCard from './CoursePromoCard';
 import TopPromotionBanner from './TopPromotionBanner';
@@ -27,37 +29,122 @@ const DEFAULT_FILTER_STATE: FilterState = {
 };
 
 export default function ExamListPage({ initialExams, courses }: ExamListPageProps) {
-  const [exams, setExams] = useState<ExamItem[]>(initialExams);
+  // Mặc định ban đầu luôn là untaken (Vào thi) khi chưa đăng nhập
+  const [exams, setExams] = useState<ExamItem[]>(() =>
+    initialExams.map((e) => ({
+      ...e,
+      status: 'untaken' as const,
+      userProgress: undefined,
+      userScore: undefined,
+    }))
+  );
   const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
 
-  // Hydrate exam status from localStorage (saved progress)
+  // Tải trạng thái và tiến độ bài thi chuẩn xác theo từng tài khoản đăng nhập
   useEffect(() => {
-    setExams(
-      initialExams.map((exam) => {
-        try {
-          const saved = localStorage.getItem(`exam_progress_${exam.id}`);
-          if (saved) {
-            const progress = JSON.parse(saved);
-            // Only consider valid, non-expired progress (< 24h)
-            if (progress.savedAt && Date.now() - progress.savedAt < 24 * 60 * 60 * 1000) {
-              const answeredCount = progress.selectedAnswers
-                ? Object.keys(progress.selectedAnswers).length
-                : 0;
-              return {
-                ...exam,
-                status: 'in_progress' as const,
-                userProgress: `${answeredCount}/${exam.totalQuestions}`,
-              };
+    let isCancelled = false;
+
+    async function hydrate() {
+      const user = await getCurrentUser();
+      if (isCancelled) return;
+
+      // CHƯA ĐĂNG NHẬP -> Tất cả đề thi đều là 'untaken' (Vào thi), tuyệt đối không hiện 'Tiếp tục thi'
+      if (!user) {
+        setExams(
+          initialExams.map((exam) => ({
+            ...exam,
+            status: 'untaken' as const,
+            userProgress: undefined,
+            userScore: undefined,
+          }))
+        );
+        return;
+      }
+
+      const userScope = `user_${user.login}`;
+
+      // Xoá các key cũ không có prefix tài khoản để không bị xung đột dữ liệu
+      initialExams.forEach((exam) => {
+        try { localStorage.removeItem(`exam_progress_${exam.id}`); } catch { /* noop */ }
+      });
+
+      // Nếu đã đăng nhập, tải điểm số và lịch sử các đề đã hoàn thành (completed) từ backend
+      const historyMap: Record<string, number> = {};
+      try {
+        const history = await fetchMyExamHistory();
+        if (!isCancelled && Array.isArray(history)) {
+          history.forEach((item) => {
+            if (item.examId != null) {
+              const currentBest = historyMap[String(item.examId)];
+              if (currentBest === undefined || (item.totalScore != null && item.totalScore > currentBest)) {
+                historyMap[String(item.examId)] = item.totalScore ?? 0;
+              }
             }
-            // Expired — clean up
-            localStorage.removeItem(`exam_progress_${exam.id}`);
-          }
-        } catch {
-          // localStorage unavailable
+          });
         }
-        return exam;
-      })
-    );
+      } catch {
+        // Chưa đăng nhập hoặc offline
+      }
+
+      if (isCancelled) return;
+
+      setExams(
+        initialExams.map((exam) => {
+          // 1. Kiểm tra tiến độ đang làm dở (in_progress) của chính tài khoản này
+          try {
+            const saved = localStorage.getItem(`exam_progress_${userScope}_${exam.id}`);
+            if (saved) {
+              const progress = JSON.parse(saved);
+              if (progress.savedAt && Date.now() - progress.savedAt < 24 * 60 * 60 * 1000) {
+                const answeredCount = progress.selectedAnswers
+                  ? Object.keys(progress.selectedAnswers).length
+                  : 0;
+                return {
+                  ...exam,
+                  status: 'in_progress' as const,
+                  userProgress: `${answeredCount}/${exam.totalQuestions}`,
+                  userScore: undefined,
+                };
+              }
+              localStorage.removeItem(`exam_progress_${userScope}_${exam.id}`);
+            }
+          } catch {
+            // localStorage unavailable
+          }
+
+          // 2. Kiểm tra lịch sử đã hoàn thành (completed) của chính tài khoản này từ Backend
+          if (historyMap[String(exam.id)] !== undefined) {
+            return {
+              ...exam,
+              status: 'completed' as const,
+              userScore: historyMap[String(exam.id)],
+              userProgress: undefined,
+            };
+          }
+
+          // 3. Nếu chưa làm: untaken (tuyệt đối không chia sẻ trạng thái với tài khoản khác)
+          return {
+            ...exam,
+            status: 'untaken' as const,
+            userScore: undefined,
+            userProgress: undefined,
+          };
+        })
+      );
+    }
+
+    hydrate();
+
+    // Tự động cập nhật lại giao diện ngay lập tức khi đăng nhập / đăng xuất hoặc đổi tài khoản
+    const handleAuthChange = () => {
+      hydrate();
+    };
+
+    window.addEventListener('auth-state-changed', handleAuthChange);
+    return () => {
+      isCancelled = true;
+      window.removeEventListener('auth-state-changed', handleAuthChange);
+    };
   }, [initialExams]);
 
   const handleFilterChange = (updates: Partial<FilterState>) => {

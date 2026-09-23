@@ -11,6 +11,7 @@ interface ExamHeaderProps {
   isSubmitting: boolean;
   onSubmit: () => void;
   onExit: () => void;
+  onResetExam?: () => void;
   answeredCount: number;
   totalQuestions: number;
   isPlaying?: boolean;
@@ -28,6 +29,7 @@ export default function ExamHeader({
   isSubmitting,
   onSubmit,
   onExit,
+  onResetExam,
   answeredCount,
   totalQuestions,
   isPlaying: _isPlaying,
@@ -74,6 +76,18 @@ export default function ExamHeader({
               {formatTime(timeRemaining)}
             </span>
           </div>
+
+          {onResetExam && (
+            <button
+              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-blue-600 hover:bg-blue-50/50 hover:border-blue-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
+              type="button"
+              onClick={onResetExam}
+              title="Làm lại bài thi từ đầu"
+            >
+              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">restart_alt</span>
+              <span className="hidden md:inline">Làm lại</span>
+            </button>
+          )}
 
           <button
             className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-red-600 hover:bg-red-50/50 hover:border-red-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
