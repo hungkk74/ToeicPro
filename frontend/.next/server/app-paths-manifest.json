@@ -1,7 +1,8 @@
 {
   "/page": "app/page.js",
-  "/exam/[id]/page": "app/exam/[id]/page.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/admin/page": "app/admin/page.js",
-  "/icon.png/route": "app/icon.png/route.js"
+  "/tac-gia/page": "app/tac-gia/page.js",
+  "/chinh-sach-bao-hanh/page": "app/chinh-sach-bao-hanh/page.js",
+  "/khoa-hoc/page": "app/khoa-hoc/page.js",
+  "/de-thi/page": "app/de-thi/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js"
 }

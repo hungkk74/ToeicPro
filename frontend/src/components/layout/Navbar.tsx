@@ -38,16 +38,23 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-1 shrink-0">
             <Link
               href="/"
-              className="px-3 py-1.5 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 border border-blue-100 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+            >
+              Trang Chủ
+            </Link>
+            <Link
+              href="/de-thi"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             >
               Kho Đề Thi
             </Link>
             <Link
-              href="/exam/1"
-              className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              href="/khoa-hoc"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
             >
-              Phòng Thi Thử
+              Khóa Học
             </Link>
+
             {showAdminNav && (
               <Link
                 href="/admin"
@@ -62,17 +69,6 @@ export default function Navbar() {
 
         {/* Right Tools: Search, Status, Notification, User Profile */}
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          {/* Search Bar */}
-          <div className="relative hidden md:flex items-center group">
-            <div className="absolute left-3.5 pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-              <Search className="w-4 h-4" />
-            </div>
-            <input
-              type="text"
-              placeholder="Tìm đề thi, bài học..."
-              className="w-40 lg:w-56 xl:w-64 pl-10 pr-4 py-2 bg-slate-100 hover:bg-slate-200/70 border-none rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/30 focus:shadow-sm transition-all"
-            />
-          </div>
 
           <button
             type="button"

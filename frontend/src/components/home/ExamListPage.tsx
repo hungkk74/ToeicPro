@@ -16,7 +16,6 @@ import CourseCatalog from './CourseCatalog';
 
 interface ExamListPageProps {
   initialExams: ExamItem[];
-  courses?: CourseItem[];
 }
 
 const DEFAULT_FILTER_STATE: FilterState = {
@@ -28,7 +27,7 @@ const DEFAULT_FILTER_STATE: FilterState = {
   searchQuery: '',
 };
 
-export default function ExamListPage({ initialExams, courses }: ExamListPageProps) {
+export default function ExamListPage({ initialExams }: ExamListPageProps) {
   // Mặc định ban đầu luôn là untaken (Vào thi) khi chưa đăng nhập
   const [exams, setExams] = useState<ExamItem[]>(() =>
     initialExams.map((e) => ({
@@ -286,12 +285,6 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
         </div>
       )}
 
-      {/* Mục Khóa Học Bổ Sung */}
-      {courses && courses.length > 0 && (
-        <div className="pt-8">
-          <CourseCatalog courses={courses} />
-        </div>
-      )}
     </div>
   );
 }
