@@ -2357,6 +2357,11 @@ html, body {
   background-color: rgb(241 245 249 / var(--tw-bg-opacity, 1));
 }
 
+.hover\:bg-white:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
+}
+
 .hover\:text-blue-600:hover{
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity, 1));
@@ -2427,6 +2432,11 @@ html, body {
   border-color: rgb(37 99 235 / var(--tw-border-opacity, 1));
 }
 
+.focus\:border-blue-500:focus{
+  --tw-border-opacity: 1;
+  border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
+}
+
 .focus\:bg-white:focus{
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
@@ -2468,6 +2478,10 @@ html, body {
 .focus\:ring-blue-600:focus{
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(37 99 235 / var(--tw-ring-opacity, 1));
+}
+
+.focus\:ring-blue-500\/20:focus{
+  --tw-ring-color: rgb(59 130 246 / 0.2);
 }
 
 .active\:scale-95:active{

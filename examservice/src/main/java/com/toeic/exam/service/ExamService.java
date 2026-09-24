@@ -76,5 +76,14 @@ public interface ExamService {
      * @return Cây dữ liệu ExamTakeDTO đã tinh gọn.
      */
     ExamTakeDTO getExamForTaking(Long examId);
+
+    /**
+     * Search for exams by keyword using FULLTEXT index.
+     *
+     * @param keyword the search keyword.
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<ExamDTO> search(String keyword, Pageable pageable);
 }
 

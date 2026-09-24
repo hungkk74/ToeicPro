@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { HelpCircle } from 'lucide-react';
 import { ExamItem, FilterState } from '@/types/examList';
 
@@ -37,7 +38,43 @@ export default function ExamListPage({ initialExams, courses }: ExamListPageProp
       userScore: undefined,
     }))
   );
-  const [filterState, setFilterState] = useState<FilterState>(DEFAULT_FILTER_STATE);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [filterState, setFilterState] = useState<FilterState>(() => {
+    return {
+      category: (searchParams.get('category') as any) || DEFAULT_FILTER_STATE.category,
+      source: searchParams.get('source') || DEFAULT_FILTER_STATE.source,
+      targetScore: searchParams.get('targetScore') || DEFAULT_FILTER_STATE.targetScore,
+      status: searchParams.get('status') || DEFAULT_FILTER_STATE.status,
+      sortBy: (searchParams.get('sortBy') as any) || DEFAULT_FILTER_STATE.sortBy,
+      searchQuery: searchParams.get('search') || DEFAULT_FILTER_STATE.searchQuery,
+    };
+  });
+
+  // Đồng bộ FilterState lên URL params (Debounced bởi next/navigation mặc định cho router.replace)
+  useEffect(() => {
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    
+    const setOrDelete = (key: string, value: string, defaultVal: string) => {
+      if (value !== defaultVal && value !== '') params.set(key, value);
+      else params.delete(key);
+    };
+
+    setOrDelete('category', filterState.category, DEFAULT_FILTER_STATE.category);
+    setOrDelete('source', filterState.source, DEFAULT_FILTER_STATE.source);
+    setOrDelete('targetScore', filterState.targetScore, DEFAULT_FILTER_STATE.targetScore);
+    setOrDelete('status', filterState.status, DEFAULT_FILTER_STATE.status);
+    setOrDelete('sortBy', filterState.sortBy, DEFAULT_FILTER_STATE.sortBy);
+    setOrDelete('search', filterState.searchQuery, DEFAULT_FILTER_STATE.searchQuery);
+
+    const query = params.toString();
+    const newUrl = query ? `${pathname}?${query}` : pathname;
+    
+    // Dùng replace thay vì push để không làm rác History khi gõ phím
+    router.replace(newUrl, { scroll: false });
+  }, [filterState, pathname, router, searchParams]);
 
   // Tải trạng thái và tiến độ bài thi chuẩn xác theo từng tài khoản đăng nhập
   useEffect(() => {

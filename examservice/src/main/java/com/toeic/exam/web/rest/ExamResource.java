@@ -182,9 +182,17 @@ public class ExamResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Exams in body.
      */
     @GetMapping("")
-    public ResponseEntity<List<ExamDTO>> getAllExams(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<ExamDTO>> getAllExams(
+        @org.springdoc.core.annotations.ParameterObject Pageable pageable,
+        @RequestParam(value = "search", required = false) String search
+    ) {
         LOG.debug("REST request to get a page of Exams");
-        Page<ExamDTO> page = examService.findAll(pageable);
+        Page<ExamDTO> page;
+        if (search != null && !search.trim().isEmpty()) {
+            page = examService.search(search, pageable);
+        } else {
+            page = examService.findAll(pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

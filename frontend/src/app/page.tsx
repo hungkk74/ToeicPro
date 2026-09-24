@@ -3,11 +3,12 @@ import Footer from '@/components/layout/Footer';
 import ExamListPage from '@/components/home/ExamListPage';
 import { fetchExamsFromBackend } from '@/services/examService';
 import { fetchCoursesFromBackend } from '@/services/courseService';
+import { Suspense } from 'react';
 import { FALLBACK_EXAM_CARDS } from '@/constants/mockExams';
 import { FALLBACK_COURSES, CourseItem } from '@/constants/mockCourses';
 import { ExamItem } from '@/types/examList';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // ISR cache for 60 seconds
 
 const CATEGORY_MAP: Record<string, ExamItem['category']> = {
   FULL_TEST: 'full',
@@ -29,6 +30,18 @@ export default async function HomePage() {
           const cat = (e.category && CATEGORY_MAP[e.category]) || (e.title?.toLowerCase().includes('reading') ? 'reading' : 'full');
           const isReading = cat === 'reading';
           const isListening = cat === 'listening';
+          const titleLower = e.title?.toLowerCase() || '';
+          
+          let examSource = 'ETS Authentic';
+          if (titleLower.includes('economy')) examSource = 'Economy';
+          else if (titleLower.includes('hackers')) examSource = 'Hackers';
+          else if (titleLower.includes('2023')) examSource = 'ETS Authentic 2023';
+
+          let examTargetScore = '750+';
+          if (titleLower.includes('550')) examTargetScore = '550+';
+          else if (titleLower.includes('850')) examTargetScore = '850+';
+          else if (titleLower.includes('900')) examTargetScore = '900+';
+
           return {
             id: String(e.id),
             title: e.title || `ToeicPro Practice Exam ${e.id}`,
@@ -42,8 +55,8 @@ export default async function HomePage() {
             takenCount: (idx + 1) * 1240,
             averageScore: 680,
             category: cat,
-            source: 'ETS Authentic',
-            targetScore: '750+',
+            source: examSource,
+            targetScore: examTargetScore,
             status: 'untaken' as const,
             audioAccents: isReading ? 'Bài thi Đọc' : 'Audio: 4 Giọng đọc',
             listeningQuestions: isReading ? 0 : 100,
@@ -73,7 +86,9 @@ export default async function HomePage() {
 
       <main className="w-full pt-20 pb-16 flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ExamListPage initialExams={examCards} courses={courses} />
+          <Suspense fallback={<div className="p-12 text-center text-slate-500">Đang tải danh sách đề thi...</div>}>
+            <ExamListPage initialExams={examCards} courses={courses} />
+          </Suspense>
         </div>
       </main>
 

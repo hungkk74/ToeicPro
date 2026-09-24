@@ -192,6 +192,16 @@ public class ExamServiceImpl implements ExamService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<ExamDTO> search(String keyword, Pageable pageable) {
+        LOG.debug("Request to search Exams by keyword : {}", keyword);
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return findAll(pageable);
+        }
+        return examRepository.searchExamsFullText(keyword, pageable).map(examMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<ExamDTO> findOne(Long id) {
         LOG.debug("Request to get Exam : {}", id);
         return examRepository.findById(id).map(examMapper::toDto);

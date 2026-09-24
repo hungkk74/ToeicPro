@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.security.access.AccessDeniedException;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -45,6 +46,18 @@ public class UserProfileResource {
     public UserProfileResource(UserProfileService userProfileService, UserProfileRepository userProfileRepository) {
         this.userProfileService = userProfileService;
         this.userProfileRepository = userProfileRepository;
+    }
+
+    private void checkAccess(Long profileId) {
+        String currentUser = com.toeic.user.security.SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            
+        UserProfileDTO profile = userProfileService.findOne(profileId)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+            
+        if (!currentUser.equals(profile.getUserId())) {
+            throw new AccessDeniedException("You are not authorized to modify this profile");
+        }
     }
 
     /**
@@ -93,6 +106,8 @@ public class UserProfileResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
+        checkAccess(id);
+
         userProfileDTO = userProfileService.update(userProfileDTO);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userProfileDTO.getId().toString()))
@@ -126,6 +141,8 @@ public class UserProfileResource {
         if (!userProfileRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
+
+        checkAccess(id);
 
         Optional<UserProfileDTO> result = userProfileService.partialUpdate(userProfileDTO);
 
@@ -171,6 +188,7 @@ public class UserProfileResource {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserProfile(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete UserProfile : {}", id);
+        checkAccess(id);
         userProfileService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

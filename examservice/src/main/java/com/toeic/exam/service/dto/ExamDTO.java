@@ -12,7 +12,7 @@ import java.util.Objects;
  */
 @Schema(description = "Danh mục đề thi (Full test 200 câu, Mini test, hoặc Practice)")
 @SuppressWarnings("common-java:DuplicatedBlocks")
-public class ExamDTO implements Serializable {
+public class    ExamDTO implements Serializable {
 
     private Long id;
 
@@ -22,7 +22,7 @@ public class ExamDTO implements Serializable {
 
     @NotNull
     @Size(max = 255)
-    private String title;
+    private String title;   
 
     @NotNull
     private ExamCategory category;

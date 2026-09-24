@@ -22,9 +22,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-/**
- * Service quản lý lưu trữ, tải lên và xóa file hình ảnh / âm thanh trên Cloudflare R2.
- */
+
 @Service
 public class FileStorageService {
 
@@ -38,12 +36,7 @@ public class FileStorageService {
         this.properties = properties;
     }
 
-    /**
-     * Upload file âm thanh TOEIC (MP3, WAV, AAC,...) lên thư mục audio/
-     *
-     * @param file file âm thanh từ client
-     * @return FileUploadResponse chứa URL và key
-     */
+
     public FileUploadResponse uploadAudio(MultipartFile file) {
         validateFile(file, "audio");
 
@@ -107,31 +100,26 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Upload hình ảnh câu hỏi TOEIC (PNG, JPG, WEBP,...) lên thư mục images/
-     *
-     * @param file file hình ảnh từ client
-     * @return FileUploadResponse chứa URL và key
-     */
+
     public FileUploadResponse uploadImage(MultipartFile file) {
         validateFile(file, "image");
-        
+
         try {
             // 1. Đọc ảnh vào bộ nhớ
             ImmutableImage image = ImmutableImage.loader().fromStream(file.getInputStream());
-            
+
             // 2. Resize nếu ảnh quá lớn (width > 1200)
             if (image.awt().getWidth() > 1200) {
                 image = image.scaleToWidth(1200);
             }
-            
+
             // 3. Convert to WebP với chất lượng 75%
             byte[] webpBytes = image.bytes(WebpWriter.DEFAULT.withQ(75));
-            
+
             // 4. Khởi tạo metadata cho R2
             String fileKey = generateFileKey(file.getOriginalFilename(), "images", ".webp");
             String contentType = "image/webp";
-            
+
             LOG.info("Uploading optimized WebP to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
                 properties.getBucketName(), fileKey, file.getSize(), webpBytes.length);
 
@@ -146,7 +134,7 @@ public class FileStorageService {
 
             String fileUrl = buildPublicUrl(fileKey);
             LOG.info("Optimized Image uploaded successfully to R2: {}", fileUrl);
-            
+
             String originalFilename = file.getOriginalFilename();
             return new FileUploadResponse(fileKey, fileUrl, originalFilename, webpBytes.length, contentType);
 
@@ -156,9 +144,7 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Tải file lên Cloudflare R2 theo thư mục chỉ định.
-     */
+
     public FileUploadResponse uploadFile(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File upload không được để trống");
@@ -198,9 +184,7 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Xóa file trên Cloudflare R2 theo key.
-     */
+
     public void deleteFile(String fileKey) {
         if (fileKey == null || fileKey.isBlank()) {
             return;
@@ -247,10 +231,10 @@ public class FileStorageService {
         if (originalFilename != null && !originalFilename.isBlank()) {
             int lastDot = originalFilename.lastIndexOf('.');
             String nameWithoutExt = lastDot > 0 ? originalFilename.substring(0, lastDot) : originalFilename;
-            
+
             // Chỉ đổi dấu cách thành dấu gạch dưới để link không bị lỗi khoảng trắng, còn lại giữ nguyên tên gốc
             String sanitized = nameWithoutExt.replaceAll("\\s+", "_");
-            
+
             return "%s/%s%s".formatted(folder, sanitized, targetExtension);
         }
         return "%s/%s%s".formatted(folder, UUID.randomUUID().toString(), targetExtension);
