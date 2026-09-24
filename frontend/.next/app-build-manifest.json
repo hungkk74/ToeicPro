@@ -11,30 +11,25 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/admin/page": [
+    "/tai-khoan/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/admin/page.js"
+      "static/chunks/app/tai-khoan/page.js"
     ],
-    "/tac-gia/page": [
+    "/khoa-hoc/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/tac-gia/page.js"
-    ],
-    "/chinh-sach-bao-hanh/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/chinh-sach-bao-hanh/page.js"
+      "static/chunks/app/khoa-hoc/page.js"
     ],
     "/de-thi/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/de-thi/page.js"
     ],
-    "/khoa-hoc/page": [
+    "/exam/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/khoa-hoc/page.js"
+      "static/chunks/app/exam/[id]/page.js"
     ]
   }
 }

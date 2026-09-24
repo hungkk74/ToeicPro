@@ -87,30 +87,40 @@ export default function AccountManagementModal({
         {/* Modal Content */}
         <div className="p-6 space-y-5">
           {/* User Profile Summary Card */}
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="w-14 h-14 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0">
-              <CircleUserRound className="w-8 h-8 text-slate-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div>
-                <h3 className="text-base font-bold text-slate-900 truncate">
-                  {displayName}
-                </h3>
-                <p className="text-xs text-slate-500 truncate mt-0.5">{email}</p>
+          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="w-14 h-14 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0">
+                <CircleUserRound className="w-8 h-8 text-slate-600" />
               </div>
-              {displayRoles.length > 0 && (
-                <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                  {displayRoles.map((role) => (
-                    <span
-                      key={role}
-                      className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200"
-                    >
-                      {role === 'ROLE_ADMIN' ? 'Quản trị viên (Admin)' : role}
-                    </span>
-                  ))}
+              <div className="flex-1 min-w-0">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 truncate">
+                    {displayName}
+                  </h3>
+                  <p className="text-xs text-slate-500 truncate mt-0.5">{email}</p>
                 </div>
-              )}
+                {displayRoles.length > 0 && (
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                    {displayRoles.map((role) => (
+                      <span
+                        key={role}
+                        className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200"
+                      >
+                        {role === 'ROLE_ADMIN' ? 'Quản trị viên (Admin)' : role}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
+            <a
+              href="/tai-khoan"
+              onClick={onClose}
+              className="inline-flex items-center justify-center p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition-colors"
+              title="Chỉnh sửa hồ sơ"
+            >
+              <span className="material-symbols-outlined text-[20px]">edit</span>
+            </a>
           </div>
 
           {/* Account Details Grid */}

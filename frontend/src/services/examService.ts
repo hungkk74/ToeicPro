@@ -6,6 +6,47 @@ import {
   ExamResultDTO,
   ExamReviewDTO,
 } from '@/types/backend';
+import { FALLBACK_EXAM_CARDS } from '@/constants/mockExams';
+
+const FALLBACK_EXAM_TAKE: ExamTakeDTO = {
+  id: 1,
+  code: 'MOCK-TEST-01',
+  title: 'Mock TOEIC Exam (Offline Mode)',
+  durationMinutes: 120,
+  totalQuestions: 200,
+  parts: [
+    {
+      id: 1,
+      partNumber: 1,
+      name: 'Photographs',
+      totalQuestions: 6,
+      standaloneQuestions: Array.from({ length: 6 }).map((_, i) => ({
+        id: i + 1,
+        questionNumber: i + 1,
+        content: 'Look at the picture and select the best statement.',
+        optionA: 'Statement A',
+        optionB: 'Statement B',
+        optionC: 'Statement C',
+        optionD: 'Statement D',
+      })),
+    },
+    {
+      id: 5,
+      partNumber: 5,
+      name: 'Incomplete Sentences',
+      totalQuestions: 30,
+      standaloneQuestions: Array.from({ length: 30 }).map((_, i) => ({
+        id: i + 101,
+        questionNumber: i + 101,
+        content: `Sample grammar question ${i + 101}: The company _______ to announce its new product line next week.`,
+        optionA: 'is pleased',
+        optionB: 'pleasing',
+        optionC: 'pleases',
+        optionD: 'pleased',
+      })),
+    }
+  ],
+};
 
 /**
  * Lấy danh sách đề thi từ examservice qua Gateway (/api/exams)
@@ -34,7 +75,13 @@ export async function fetchExamForTakingFromBackend(id: string | number): Promis
   } catch (err) {
     console.warn(`Backend /api/exams/${id}/take error, fallback simulator active:`, err);
   }
-  return null;
+  
+  // Trả về dữ liệu mock giả lập để UI không bị trắng
+  return {
+    ...FALLBACK_EXAM_TAKE,
+    id: Number(id),
+    title: FALLBACK_EXAM_CARDS.find(e => e.id === String(id))?.title || FALLBACK_EXAM_TAKE.title
+  };
 }
 
 /**

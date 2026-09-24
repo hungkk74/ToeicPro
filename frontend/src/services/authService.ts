@@ -164,6 +164,59 @@ export async function registerNewUser(payload: RegisterPayload): Promise<Registe
 }
 
 
+export interface UpdateAccountPayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
+export interface UpdateAccountResult {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+
+/**
+ * Cập nhật thông tin tài khoản người dùng
+ */
+export async function updateUserAccount(payload: UpdateAccountPayload): Promise<UpdateAccountResult> {
+  const token = getStoredToken();
+  if (!token) {
+    return { success: false, error: 'Bạn chưa đăng nhập.' };
+  }
+
+  try {
+    const res = await fetch('/api/auth/update-account', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) {
+      return {
+        success: false,
+        error: data.error || 'Cập nhật tài khoản thất bại.',
+      };
+    }
+
+    return {
+      success: true,
+      message: data.message || 'Cập nhật thông tin thành công!',
+    };
+  } catch {
+    return {
+      success: false,
+      error: 'Không thể kết nối đến máy chủ. Vui lòng thử lại.',
+    };
+  }
+}
+
+
+
 /**
  * Đăng xuất trực tiếp ngay trong ứng dụng:
  * Xóa token lưu trữ, gọi API hủy phiên làm việc nền, KHÔNG chuyển hướng sang Keycloak!

@@ -373,11 +373,11 @@ export default function ExamRoomPage() {
 
   const currentOptions = currentQData
     ? [
-        { key: 'A', text: currentQData.optionA },
-        { key: 'B', text: currentQData.optionB },
-        { key: 'C', text: currentQData.optionC },
-        { key: 'D', text: currentQData.optionD },
-      ]
+      { key: 'A', text: currentQData.optionA },
+      { key: 'B', text: currentQData.optionB },
+      { key: 'C', text: currentQData.optionC },
+      { key: 'D', text: currentQData.optionD },
+    ]
     : undefined;
 
   if (loading) {
