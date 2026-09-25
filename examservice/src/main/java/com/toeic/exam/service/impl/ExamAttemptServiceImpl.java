@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,8 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         Optional<String> currentUserLogin = SecurityUtils.getCurrentUserLogin();
         if (currentUserLogin.isPresent() && !currentUserLogin.get().isBlank()) {
             examAttemptDTO.setUserId(currentUserLogin.get());
+        } else if (examAttemptDTO.getUserId() == null || examAttemptDTO.getUserId().isBlank()) {
+            examAttemptDTO.setUserId("guest_" + UUID.randomUUID().toString().substring(0, 8));
         }
         if (examAttemptDTO.getStatus() == null) {
             examAttemptDTO.setStatus(AttemptStatus.IN_PROGRESS);
@@ -135,8 +138,8 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     @Transactional
     public ExamResultDTO submitExam(Long attemptId, ExamSubmissionDTO dto) {
         // 1. Lấy ExamAttempt và kiểm tra status == IN_PROGRESS
-        ExamAttempt attempt = examAttemptRepository.findById(attemptId)
-            .orElseThrow(() -> new EntityNotFoundException("Attempt not found"));
+        ExamAttempt attempt = examAttemptRepository.findOneWithToOneRelationships(attemptId)
+            .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + attemptId));
         if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
             throw new IllegalStateException("Bài thi đã được nộp trước đó");
         }
@@ -144,38 +147,55 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         // Chống IDOR: Chỉ chủ nhân bài thi hoặc ADMIN mới được nộp
         checkOwnershipOrAdmin(attempt.getUserId(), "Bạn không có quyền nộp bài thi này!");
 
-        // 2. Lấy danh sách câu hỏi bằng 1 query duy nhất (Batch query)
-        Set<Long> qIds = dto.getAnswers().stream()
-            .map(QuestionAnswerSubmissionDTO::questionId).collect(Collectors.toSet());
-        Map<Long, Question> questionMap = questionRepository.findAllByIdInWithPart(qIds).stream()
-            .collect(Collectors.toMap(Question::getId, q -> q));
+        // 2. Lấy toàn bộ câu hỏi của đề thi để lưu đầy đủ cho cả câu làm và câu bỏ qua
+        List<Question> allQuestions;
+        if (attempt.getExam() != null && attempt.getExam().getId() != null) {
+            allQuestions = questionRepository.findByExamIdOrderByQuestionNumberAsc(attempt.getExam().getId());
+        } else {
+            Set<Long> qIds = dto.getAnswers() != null
+                ? dto.getAnswers().stream().map(QuestionAnswerSubmissionDTO::questionId).collect(Collectors.toSet())
+                : Set.of();
+            allQuestions = questionRepository.findAllByIdInWithPart(qIds);
+        }
+
+        Map<Long, QuestionAnswerSubmissionDTO> submittedMap = new HashMap<>();
+        if (dto.getAnswers() != null) {
+            for (QuestionAnswerSubmissionDTO a : dto.getAnswers()) {
+                if (a != null && a.questionId() != null) {
+                    submittedMap.put(a.questionId(), a);
+                }
+            }
+        }
 
         // 3. Duyệt chấm từng câu
         int listeningCorrect = 0, readingCorrect = 0, totalCorrect = 0, totalWrong = 0, totalSkipped = 0;
-        List<UserAnswer> userAnswers = new ArrayList<>();
+        List<UserAnswer> userAnswers = new ArrayList<>(allQuestions.size());
 
-        for (QuestionAnswerSubmissionDTO ans : dto.getAnswers()) {
-            Question q = questionMap.get(ans.questionId());
-            if (q == null) continue;
+        for (Question q : allQuestions) {
+            QuestionAnswerSubmissionDTO ans = submittedMap.get(q.getId());
+            boolean hasAnswer = ans != null && ans.selectedOption() != null;
+            boolean isCorrect = hasAnswer && ans.selectedOption() == q.getCorrectOption();
 
-            boolean isCorrect = ans.selectedOption() != null && ans.selectedOption() == q.getCorrectOption();
-            if (ans.selectedOption() == null) {
+            if (!hasAnswer) {
                 totalSkipped++;
             } else if (isCorrect) {
                 totalCorrect++;
-                if (q.getPart().getPartNumber() <= 4) listeningCorrect++;
-                else readingCorrect++;
+                if (q.getPart() != null && q.getPart().getPartNumber() != null && q.getPart().getPartNumber() <= 4) {
+                    listeningCorrect++;
+                } else {
+                    readingCorrect++;
+                }
             } else {
                 totalWrong++;
             }
 
-            // Tạo UserAnswer
+            // Tạo UserAnswer (lưu cả câu bỏ qua để Review hiển thị đầy đủ)
             UserAnswer ua = new UserAnswer()
                 .examAttempt(attempt)
                 .question(q)
-                .selectedOption(ans.selectedOption())
+                .selectedOption(hasAnswer ? ans.selectedOption() : null)
                 .isCorrect(isCorrect)
-                .timeSpentSeconds(ans.timeSpentSeconds());
+                .timeSpentSeconds(ans != null && ans.timeSpentSeconds() != null ? ans.timeSpentSeconds() : 0);
             userAnswers.add(ua);
         }
 
@@ -353,11 +373,23 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     }
 
     private void checkOwnershipOrAdmin(String attemptUserId, String errorMessage) {
+        if (attemptUserId == null) {
+            return;
+        }
+        boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+        if (isAdmin) {
+            return;
+        }
+
         Optional<String> currentUserOpt = SecurityUtils.getCurrentUserLogin();
-        if (currentUserOpt.isPresent()) {
+
+        // Nếu bài thi thuộc về một tài khoản học viên cụ thể (không phải guest)
+        if (!attemptUserId.startsWith("guest_")) {
+            if (currentUserOpt.isEmpty()) {
+                throw new AccessDeniedException("Yêu cầu đăng nhập để truy cập tài nguyên bài thi này!");
+            }
             String currentUser = currentUserOpt.get();
-            boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
-            if (!isAdmin && attemptUserId != null && !attemptUserId.equals(currentUser)) {
+            if (!attemptUserId.equals(currentUser)) {
                 throw new AccessDeniedException(errorMessage);
             }
         }

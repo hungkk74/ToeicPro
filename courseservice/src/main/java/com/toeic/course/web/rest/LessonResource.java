@@ -23,6 +23,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.course.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.course.domain.Lesson}.
@@ -55,6 +57,7 @@ public class LessonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<LessonDTO> createLesson(@Valid @RequestBody LessonDTO lessonDTO) throws URISyntaxException {
         LOG.debug("REST request to save Lesson : {}", lessonDTO);
         if (lessonDTO.getId() != null) {
@@ -77,6 +80,7 @@ public class LessonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<LessonDTO> updateLesson(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody LessonDTO lessonDTO
@@ -111,6 +115,7 @@ public class LessonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<LessonDTO> partialUpdateLesson(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody LessonDTO lessonDTO
@@ -178,6 +183,7 @@ public class LessonResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteLesson(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Lesson : {}", id);
         lessonService.delete(id);

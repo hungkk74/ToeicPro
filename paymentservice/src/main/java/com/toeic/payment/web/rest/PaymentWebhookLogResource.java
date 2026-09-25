@@ -23,12 +23,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.payment.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.payment.domain.PaymentWebhookLog}.
  */
 @RestController
 @RequestMapping("/api/payment-webhook-logs")
+@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class PaymentWebhookLogResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(PaymentWebhookLogResource.class);

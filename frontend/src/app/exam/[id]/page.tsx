@@ -329,19 +329,45 @@ export default function ExamRoomPage() {
     );
 
     try {
-      const attemptIdToUse = backendAttemptId || Number(examId);
-      const result = await submitExamAttemptToBackend(attemptIdToUse, {
-        timeSpentSeconds: (examData?.durationMinutes ? examData.durationMinutes * 60 : 4500) - timeRemaining,
-        answers: answersList,
-      });
-      setExamResult(result);
-    } catch {
+      let attemptIdToUse = backendAttemptId;
+      if (!attemptIdToUse) {
+        const newAttempt = await createExamAttemptInBackend(Number(examId));
+        if (newAttempt?.id) {
+          attemptIdToUse = newAttempt.id;
+          setBackendAttemptId(newAttempt.id);
+        }
+      }
+
+      if (attemptIdToUse) {
+        const result = await submitExamAttemptToBackend(attemptIdToUse, {
+          timeSpentSeconds: (examData?.durationMinutes ? examData.durationMinutes * 60 : 4500) - timeRemaining,
+          answers: answersList,
+        });
+        setExamResult(result);
+        return;
+      }
+
       // Offline / dev fallback: calculate real-time estimate
       const answered = Object.keys(selectedAnswers).length;
       const totalQ = flattenedQuestions.length || 100;
       const estimatedReading = Math.min(495, Math.round((answered / totalQ) * 495));
       setExamResult({
-        attemptId: backendAttemptId || Number(examId),
+        attemptId: backendAttemptId || 0,
+        listeningScore: 0,
+        readingScore: estimatedReading,
+        totalScore: estimatedReading,
+        correctAnswers: Math.round(answered * 0.8),
+        wrongAnswers: Math.round(answered * 0.2),
+        skippedAnswers: Math.max(0, totalQ - answered),
+        completedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.warn('Submit attempt to backend failed, falling back to local grading:', err);
+      const answered = Object.keys(selectedAnswers).length;
+      const totalQ = flattenedQuestions.length || 100;
+      const estimatedReading = Math.min(495, Math.round((answered / totalQ) * 495));
+      setExamResult({
+        attemptId: backendAttemptId || 0,
         listeningScore: 0,
         readingScore: estimatedReading,
         totalScore: estimatedReading,

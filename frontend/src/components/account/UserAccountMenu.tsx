@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, LogOut, LogIn, User, Shield, ExternalLink, UserPlus, LayoutDashboard, CircleUserRound } from 'lucide-react';
 import { getCurrentUser, performLogout } from '@/services/authService';
+import { getKeycloakUrl } from '@/lib/api-client';
 import { UserAccountDTO } from '@/types/backend';
 import AccountManagementModal from './AccountManagementModal';
 import LoginModal from './LoginModal';
@@ -233,7 +234,7 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
               {/* Cổng bảo mật Keycloak - Chỉ hiển thị cho Admin */}
               {isAdmin && (
                 <a
-                  href="http://localhost:9080/realms/jhipster/account"
+                  href={`${getKeycloakUrl()}/realms/jhipster/account`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-lg w-full text-left transition-colors cursor-pointer"

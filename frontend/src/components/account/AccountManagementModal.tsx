@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Mail, Shield, Target, Key, LogOut, LogIn, ExternalLink, CircleUserRound } from 'lucide-react';
+import { X, User, Mail, Shield, Key, LogOut, LogIn, ExternalLink, CircleUserRound } from 'lucide-react';
 import { UserAccountDTO } from '@/types/backend';
 
 interface AccountManagementModalProps {
@@ -124,7 +124,7 @@ export default function AccountManagementModal({
           </div>
 
           {/* Account Details Grid */}
-          <div className={`grid grid-cols-1 ${isAdmin ? 'sm:grid-cols-2' : 'sm:grid-cols-3'} gap-3 text-xs`}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 rounded-lg border border-slate-200 bg-white">
               <div className="flex items-center gap-2 text-slate-500 mb-1">
                 <User className="w-3.5 h-3.5 text-slate-400" />
@@ -139,14 +139,6 @@ export default function AccountManagementModal({
                 <span className="font-semibold uppercase tracking-wider text-[10px]">Địa chỉ Email</span>
               </div>
               <span className="font-semibold text-slate-900 truncate block">{email}</span>
-            </div>
-
-            <div className="p-3 rounded-lg border border-slate-200 bg-white">
-              <div className="flex items-center gap-2 text-slate-500 mb-1">
-                <Target className="w-3.5 h-3.5 text-slate-400" />
-                <span className="font-semibold uppercase tracking-wider text-[10px]">Mục tiêu điểm thi</span>
-              </div>
-              <span className="font-semibold text-blue-600">TOEIC 850–950+</span>
             </div>
 
             {/* Chỉ hiển thị Phương thức xác thực đối với quản trị viên (Admin) */}

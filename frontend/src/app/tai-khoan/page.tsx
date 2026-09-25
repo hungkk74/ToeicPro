@@ -57,10 +57,25 @@ export default function AccountProfilePage() {
       if (res.success) {
         setMessage({ type: 'success', text: res.message || 'Cập nhật thành công!' });
         
-        // Cập nhật lại thông tin ở Header nếu có
-        const updatedUser = await getCurrentUser();
-        if (updatedUser) {
+        // Cập nhật state trực tiếp từ dữ liệu vừa lưu thành công, không bị JWT token cũ ghi đè
+        if (user) {
+          const updatedUser: UserAccountDTO = {
+            ...user,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+          };
           setUser(updatedUser);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('user_profile_override', JSON.stringify({
+                id: updatedUser.id,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
+                email: updatedUser.email,
+              }));
+            } catch {}
+          }
           window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: updatedUser } }));
         }
       } else {

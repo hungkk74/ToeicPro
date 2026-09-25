@@ -42,5 +42,9 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, Long> {
     List<UserAnswer> findByExamAttemptIdWithQuestion(@Param("attemptId") Long attemptId);
 
     void deleteByExamAttemptId(Long examAttemptId);
+
+    @Modifying
+    @Query("DELETE FROM UserAnswer ua WHERE ua.examAttempt.id IN :attemptIds")
+    void deleteByExamAttemptIdIn(@Param("attemptIds") List<Long> attemptIds);
 }
 

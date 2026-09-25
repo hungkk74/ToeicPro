@@ -14,28 +14,13 @@ import com.toeic.exam.service.dto.take.ExamTakeDTO;
  */
 
 public interface ExamService {
-    /**
-     * Save a exam.
-     *
-     * @param examDTO the entity to save.
-     * @return the persisted entity.
-     */
+    
     ExamDTO save(ExamDTO examDTO);
 
-    /**
-     * Create a full exam including parts, question groups, and questions.
-     *
-     * @param request the full exam create DTO.
-     * @return the persisted entity.
-     */
+    
     ExamDTO createFullExam(FullExamCreateDTO request);
 
-    /**
-     * Updates a exam.
-     *
-     * @param examDTO the entity to update.
-     * @return the persisted entity.
-     */
+    
     ExamDTO update(ExamDTO examDTO);
 
     /**

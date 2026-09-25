@@ -23,6 +23,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.course.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.course.domain.Chapter}.
@@ -55,6 +57,7 @@ public class ChapterResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ChapterDTO> createChapter(@Valid @RequestBody ChapterDTO chapterDTO) throws URISyntaxException {
         LOG.debug("REST request to save Chapter : {}", chapterDTO);
         if (chapterDTO.getId() != null) {
@@ -77,6 +80,7 @@ public class ChapterResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ChapterDTO> updateChapter(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody ChapterDTO chapterDTO
@@ -111,6 +115,7 @@ public class ChapterResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<ChapterDTO> partialUpdateChapter(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody ChapterDTO chapterDTO
@@ -178,6 +183,7 @@ public class ChapterResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteChapter(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Chapter : {}", id);
         chapterService.delete(id);

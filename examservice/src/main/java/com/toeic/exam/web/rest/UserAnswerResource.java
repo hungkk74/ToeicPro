@@ -23,12 +23,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.exam.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.exam.domain.UserAnswer}.
  */
 @RestController
 @RequestMapping("/api/user-answers")
+@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class UserAnswerResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserAnswerResource.class);

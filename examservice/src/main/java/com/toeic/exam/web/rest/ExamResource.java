@@ -90,20 +90,6 @@ public class ExamResource {
             .body(examDTO);
     }
 
-    @GetMapping("/debug-parse-file")
-    public ResponseEntity<String> debugParseFile() {
-        try {
-            String json = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get("d:/Projects/Toeic_Pro/ets2023_test3_formatted.json")));
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            FullExamCreateDTO dto = mapper.readValue(json, FullExamCreateDTO.class);
-            return ResponseEntity.ok("Parse successful! " + dto.getTitle());
-        } catch (Exception e) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            e.printStackTrace(new java.io.PrintWriter(sw));
-            return ResponseEntity.badRequest().body(sw.toString());
-        }
-    }
-
     /**
      * {@code PUT  /exams/:id} : Updates an existing exam.
      *

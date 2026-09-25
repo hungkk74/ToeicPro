@@ -33,13 +33,100 @@ async function getAdminToken(keycloakBase: string): Promise<string> {
   return tokenData.access_token;
 }
 
+async function verifyAdminCaller(
+  request: NextRequest,
+  keycloakBase: string
+): Promise<{ success: boolean; error?: string; status?: number }> {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return {
+      success: false,
+      error: 'Yêu cầu đăng nhập quản trị viên (Missing Authorization Header).',
+      status: 401,
+    };
+  }
+  const userToken = authHeader.substring(7);
+
+  // 1. Kiểm tra tính hợp lệ của token qua Keycloak UserInfo
+  try {
+    const userInfoRes = await fetch(
+      `${keycloakBase}/realms/jhipster/protocol/openid-connect/userinfo`,
+      {
+        headers: { Authorization: `Bearer ${userToken}` },
+        signal: AbortSignal.timeout(5000),
+      }
+    );
+
+    if (!userInfoRes.ok) {
+      return {
+        success: false,
+        error: 'Phiên làm việc không hợp lệ hoặc đã hết hạn.',
+        status: 401,
+      };
+    }
+  } catch {
+    return {
+      success: false,
+      error: 'Không thể kết nối đến máy chủ xác thực Keycloak.',
+      status: 502,
+    };
+  }
+
+  // 2. Decode claims từ JWT để xác nhận quyền ROLE_ADMIN
+  try {
+    const parts = userToken.split('.');
+    if (parts.length >= 2) {
+      const base64Url = parts[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(jsonPayload);
+      const roles: string[] = [
+        ...(payload.roles || []),
+        ...(payload.realm_access?.roles || []),
+      ];
+      const isAdmin = roles.some((r) => r === 'ROLE_ADMIN' || r === 'ROLE_STAFF');
+      if (!isAdmin) {
+        return {
+          success: false,
+          error: 'Từ chối truy cập: Bạn không có quyền Quản trị viên (ROLE_ADMIN).',
+          status: 403,
+        };
+      }
+      return { success: true };
+    }
+  } catch {
+    return {
+      success: false,
+      error: 'Không thể giải mã quyền hạn từ mã xác thực.',
+      status: 403,
+    };
+  }
+
+  return { success: false, error: 'Quyền hạn không hợp lệ.', status: 403 };
+}
+
 /**
  * GET /api/admin/users
  * Lấy danh sách toàn bộ người dùng từ Keycloak Realm 'jhipster' kèm vai trò & nhóm
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const keycloakBase = getKeycloakAdminUrl();
+
+    // Xác thực quyền Admin của người gọi
+    const authCheck = await verifyAdminCaller(request, keycloakBase);
+    if (!authCheck.success) {
+      return NextResponse.json(
+        { success: false, error: authCheck.error },
+        { status: authCheck.status || 401 }
+      );
+    }
+
     const adminToken = await getAdminToken(keycloakBase);
 
     // Lấy tối đa 100 người dùng gần nhất
@@ -122,6 +209,17 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const keycloakBase = getKeycloakAdminUrl();
+
+    // Xác thực quyền Admin của người gọi
+    const authCheck = await verifyAdminCaller(request, keycloakBase);
+    if (!authCheck.success) {
+      return NextResponse.json(
+        { success: false, error: authCheck.error },
+        { status: authCheck.status || 401 }
+      );
+    }
+
     const body = await request.json();
     const { userId, makeAdmin } = body;
 
@@ -132,7 +230,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const keycloakBase = getKeycloakAdminUrl();
     const adminToken = await getAdminToken(keycloakBase);
 
     // Lấy thông tin role ROLE_ADMIN

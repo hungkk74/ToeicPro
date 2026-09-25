@@ -23,6 +23,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.payment.security.AuthoritiesConstants;
+import com.toeic.payment.security.SecurityUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * REST controller for managing {@link com.toeic.payment.domain.PaymentTransaction}.
@@ -58,6 +66,7 @@ public class PaymentTransactionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PaymentTransactionDTO> createPaymentTransaction(@Valid @RequestBody PaymentTransactionDTO paymentTransactionDTO)
         throws URISyntaxException {
         LOG.debug("REST request to save PaymentTransaction : {}", paymentTransactionDTO);
@@ -81,6 +90,7 @@ public class PaymentTransactionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PaymentTransactionDTO> updatePaymentTransaction(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody PaymentTransactionDTO paymentTransactionDTO
@@ -115,6 +125,7 @@ public class PaymentTransactionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PaymentTransactionDTO> partialUpdatePaymentTransaction(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody PaymentTransactionDTO paymentTransactionDTO
@@ -146,6 +157,7 @@ public class PaymentTransactionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Payment Transactions in body.
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<PaymentTransactionDTO>> getAllPaymentTransactions(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable
     ) {
@@ -165,6 +177,22 @@ public class PaymentTransactionResource {
     public ResponseEntity<PaymentTransactionDTO> getPaymentTransaction(@PathVariable("id") Long id) {
         LOG.debug("REST request to get PaymentTransaction : {}", id);
         Optional<PaymentTransactionDTO> paymentTransactionDTO = paymentTransactionService.findOne(id);
+        if (paymentTransactionDTO.isPresent()) {
+            PaymentTransactionDTO dto = paymentTransactionDTO.get();
+            if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                String currentLogin = SecurityUtils.getCurrentUserLogin().orElse(null);
+                boolean matches = Objects.equals(currentLogin, dto.getUserId());
+                if (!matches) {
+                    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                    if (auth instanceof JwtAuthenticationToken jwt) {
+                        matches = Objects.equals(jwt.getToken().getSubject(), dto.getUserId());
+                    }
+                }
+                if (!matches) {
+                    throw new AccessDeniedException("Access Denied: You do not own this transaction");
+                }
+            }
+        }
         return ResponseUtil.wrapOrNotFound(paymentTransactionDTO);
     }
 
@@ -175,6 +203,7 @@ public class PaymentTransactionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deletePaymentTransaction(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete PaymentTransaction : {}", id);
         paymentTransactionService.delete(id);

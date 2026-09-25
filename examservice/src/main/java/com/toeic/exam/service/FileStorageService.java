@@ -229,13 +229,19 @@ public class FileStorageService {
 
     private String generateFileKey(String originalFilename, String folder, String targetExtension) {
         if (originalFilename != null && !originalFilename.isBlank()) {
-            int lastDot = originalFilename.lastIndexOf('.');
-            String nameWithoutExt = lastDot > 0 ? originalFilename.substring(0, lastDot) : originalFilename;
+            String cleanName = originalFilename.replaceAll("^.*[/\\\\]", "");
+            int lastDot = cleanName.lastIndexOf('.');
+            String nameWithoutExt = lastDot > 0 ? cleanName.substring(0, lastDot) : cleanName;
 
-            // Chỉ đổi dấu cách thành dấu gạch dưới để link không bị lỗi khoảng trắng, còn lại giữ nguyên tên gốc
-            String sanitized = nameWithoutExt.replaceAll("\\s+", "_");
+            String sanitized = nameWithoutExt.replaceAll("[^a-zA-Z0-9._-]", "_");
+            if (sanitized.isBlank()) {
+                sanitized = "file";
+            } else if (sanitized.length() > 50) {
+                sanitized = sanitized.substring(0, 50);
+            }
 
-            return "%s/%s%s".formatted(folder, sanitized, targetExtension);
+            String uniquePrefix = UUID.randomUUID().toString().substring(0, 8);
+            return "%s/%s_%s%s".formatted(folder, uniquePrefix, sanitized, targetExtension);
         }
         return "%s/%s%s".formatted(folder, UUID.randomUUID().toString(), targetExtension);
     }

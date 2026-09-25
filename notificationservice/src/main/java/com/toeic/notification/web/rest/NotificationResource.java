@@ -23,6 +23,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.notification.security.AuthoritiesConstants;
+import com.toeic.notification.security.SecurityUtils;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
  * REST controller for managing {@link com.toeic.notification.domain.Notification}.
@@ -55,6 +62,7 @@ public class NotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<NotificationDTO> createNotification(@Valid @RequestBody NotificationDTO notificationDTO)
         throws URISyntaxException {
         LOG.debug("REST request to save Notification : {}", notificationDTO);
@@ -78,6 +86,7 @@ public class NotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<NotificationDTO> updateNotification(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody NotificationDTO notificationDTO
@@ -112,6 +121,7 @@ public class NotificationResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<NotificationDTO> partialUpdateNotification(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody NotificationDTO notificationDTO
@@ -143,6 +153,7 @@ public class NotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Notifications in body.
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<NotificationDTO>> getAllNotifications(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         LOG.debug("REST request to get a page of Notifications");
         Page<NotificationDTO> page = notificationService.findAll(pageable);
@@ -160,6 +171,9 @@ public class NotificationResource {
     public ResponseEntity<NotificationDTO> getNotification(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Notification : {}", id);
         Optional<NotificationDTO> notificationDTO = notificationService.findOne(id);
+        if (notificationDTO.isPresent()) {
+            checkOwnershipOrAdmin(notificationDTO.get().getUserId());
+        }
         return ResponseUtil.wrapOrNotFound(notificationDTO);
     }
 
@@ -170,6 +184,7 @@ public class NotificationResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteNotification(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Notification : {}", id);
         notificationService.delete(id);
@@ -187,6 +202,7 @@ public class NotificationResource {
         @org.springdoc.core.annotations.ParameterObject Pageable pageable
     ) {
         LOG.debug("REST request to get Notifications for user : {}", userId);
+        checkOwnershipOrAdmin(userId);
         Page<NotificationDTO> page = notificationService.findByUserId(userId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -198,6 +214,7 @@ public class NotificationResource {
     @GetMapping("/user/{userId}/unread-count")
     public ResponseEntity<Long> countUnreadNotifications(@PathVariable("userId") String userId) {
         LOG.debug("REST request to count unread Notifications for user : {}", userId);
+        checkOwnershipOrAdmin(userId);
         long count = notificationService.countUnreadByUserId(userId);
         return ResponseEntity.ok().body(count);
     }
@@ -208,6 +225,10 @@ public class NotificationResource {
     @PatchMapping("/{id}/mark-as-read")
     public ResponseEntity<NotificationDTO> markAsRead(@PathVariable("id") Long id) {
         LOG.debug("REST request to mark Notification as read : {}", id);
+        Optional<NotificationDTO> notificationDTO = notificationService.findOne(id);
+        if (notificationDTO.isPresent()) {
+            checkOwnershipOrAdmin(notificationDTO.get().getUserId());
+        }
         return ResponseUtil.wrapOrNotFound(notificationService.markAsRead(id));
     }
 
@@ -217,7 +238,33 @@ public class NotificationResource {
     @PatchMapping("/user/{userId}/mark-all-as-read")
     public ResponseEntity<Integer> markAllAsRead(@PathVariable("userId") String userId) {
         LOG.debug("REST request to mark all Notifications as read for user : {}", userId);
+        checkOwnershipOrAdmin(userId);
         int count = notificationService.markAllAsRead(userId);
         return ResponseEntity.ok().body(count);
+    }
+
+    private void checkOwnershipOrAdmin(String targetUserId) {
+        if (targetUserId == null) {
+            return;
+        }
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return;
+        }
+        Optional<String> currentUserLogin = SecurityUtils.getCurrentUserLogin();
+        if (currentUserLogin.isEmpty()) {
+            throw new AccessDeniedException("Yêu cầu đăng nhập để truy cập thông báo!");
+        }
+        String login = currentUserLogin.get();
+        if (targetUserId.equals(login)) {
+            return;
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof JwtAuthenticationToken jwt) {
+            String sub = jwt.getToken().getSubject();
+            if (targetUserId.equals(sub)) {
+                return;
+            }
+        }
+        throw new AccessDeniedException("Bạn không có quyền truy cập thông báo của người dùng khác!");
     }
 }

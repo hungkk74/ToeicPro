@@ -23,6 +23,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.subscription.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.subscription.domain.Plan}.
@@ -55,6 +57,7 @@ public class PlanResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PlanDTO> createPlan(@Valid @RequestBody PlanDTO planDTO) throws URISyntaxException {
         LOG.debug("REST request to save Plan : {}", planDTO);
         if (planDTO.getId() != null) {
@@ -77,6 +80,7 @@ public class PlanResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PlanDTO> updatePlan(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody PlanDTO planDTO
@@ -111,6 +115,7 @@ public class PlanResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PlanDTO> partialUpdatePlan(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody PlanDTO planDTO
@@ -169,6 +174,7 @@ public class PlanResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deletePlan(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Plan : {}", id);
         planService.delete(id);

@@ -54,7 +54,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
 
   // Đồng bộ FilterState lên URL params (Debounced bởi next/navigation mặc định cho router.replace)
   useEffect(() => {
-    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    const params = new URLSearchParams();
     
     const setOrDelete = (key: string, value: string, defaultVal: string) => {
       if (value !== defaultVal && value !== '') params.set(key, value);
@@ -68,11 +68,14 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
     setOrDelete('sortBy', filterState.sortBy, DEFAULT_FILTER_STATE.sortBy);
     setOrDelete('search', filterState.searchQuery, DEFAULT_FILTER_STATE.searchQuery);
 
-    const query = params.toString();
-    const newUrl = query ? `${pathname}?${query}` : pathname;
-    
-    // Dùng replace thay vì push để không làm rác History khi gõ phím
-    router.replace(newUrl, { scroll: false });
+    const currentQuery = searchParams.toString();
+    const newQuery = params.toString();
+
+    // Chỉ thực hiện replace khi query params thực sự có sự thay đổi, tránh navigation loop
+    if (newQuery !== currentQuery) {
+      const newUrl = newQuery ? `${pathname}?${newQuery}` : pathname;
+      router.replace(newUrl, { scroll: false });
+    }
   }, [filterState, pathname, router, searchParams]);
 
   // Tải trạng thái và tiến độ bài thi chuẩn xác theo từng tài khoản đăng nhập

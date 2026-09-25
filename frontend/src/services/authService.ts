@@ -1,4 +1,4 @@
-import { fetchApi, getBaseApiUrl, getKeycloakUrl, setStoredToken, getStoredToken } from '@/lib/api-client';
+import { fetchApi, getBaseApiUrl, getKeycloakUrl, setStoredToken, getStoredToken, setStoredRefreshToken } from '@/lib/api-client';
 import { UserAccountDTO } from '@/types/backend';
 
 /**
@@ -64,7 +64,24 @@ export async function getCurrentUser(): Promise<UserAccountDTO | null> {
     // Sử dụng thông tin từ JWT đã giải mã nếu endpoint backend bận
   }
 
-  return parseUserFromToken(token);
+  const userFromToken = parseUserFromToken(token);
+  if (!userFromToken) return null;
+
+  if (typeof window !== 'undefined') {
+    try {
+      const cached = localStorage.getItem('user_profile_override');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.id === userFromToken.id) {
+          return { ...userFromToken, ...parsed };
+        }
+      }
+    } catch {
+      // Ignore cache parse error
+    }
+  }
+
+  return userFromToken;
 }
 
 export interface LoginResult {
@@ -98,6 +115,9 @@ export async function loginWithCredentials(
 
     if (data.access_token) {
       setStoredToken(data.access_token);
+      if (data.refresh_token) {
+        setStoredRefreshToken(data.refresh_token);
+      }
       let user = await getCurrentUser();
       if (!user) {
         user = parseUserFromToken(data.access_token);
@@ -223,7 +243,11 @@ export async function updateUserAccount(payload: UpdateAccountPayload): Promise<
  */
 export async function performLogout(): Promise<void> {
   setStoredToken(null);
+  setStoredRefreshToken(null);
   if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('user_profile_override');
+    } catch {}
     window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: null } }));
   }
   try {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { getStoredToken } from '@/lib/api-client';
 import {
   Users,
   Search,
@@ -38,7 +39,10 @@ export default function AdminUsersTab() {
     setIsLoading(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/admin/users');
+      const token = getStoredToken();
+      const res = await fetch('/api/admin/users', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       if (data.success && data.users) {
         setUsers(data.users);
@@ -68,9 +72,13 @@ export default function AdminUsersTab() {
     setMessage(null);
 
     try {
+      const token = getStoredToken();
       const res = await fetch('/api/admin/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ userId: user.id, makeAdmin: newAdminState }),
       });
       const data = await res.json();

@@ -42,4 +42,14 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     List<ExamAttempt> findCompletedByUserId(@Param("userId") String userId);
 
     List<ExamAttempt> findByStatusAndStartedAtBefore(com.toeic.exam.domain.enumeration.AttemptStatus status, java.time.Instant startedAt);
+
+    @Query("SELECT a.id FROM ExamAttempt a WHERE a.status = :status AND a.startedAt < :startedAt")
+    List<Long> findIdsByStatusAndStartedAtBefore(
+        @Param("status") com.toeic.exam.domain.enumeration.AttemptStatus status,
+        @Param("startedAt") java.time.Instant startedAt
+    );
+
+    @Modifying
+    @Query("DELETE FROM ExamAttempt a WHERE a.id IN :ids")
+    void deleteAllByIdIn(@Param("ids") List<Long> ids);
 }
