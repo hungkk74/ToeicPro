@@ -73,8 +73,6 @@ public class CacheConfiguration {
             createCache(cm, com.toeic.exam.domain.Part.class.getName(), jcacheConfiguration);
             createCache(cm, com.toeic.exam.domain.QuestionGroup.class.getName(), jcacheConfiguration);
             createCache(cm, com.toeic.exam.domain.Question.class.getName(), jcacheConfiguration);
-            createCache(cm, com.toeic.exam.domain.ExamAttempt.class.getName(), jcacheConfiguration);
-            createCache(cm, com.toeic.exam.domain.UserAnswer.class.getName(), jcacheConfiguration);
             // jhipster-needle-redis-add-entry
         };
     }

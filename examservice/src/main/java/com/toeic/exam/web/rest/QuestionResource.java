@@ -23,6 +23,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.exam.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.exam.domain.Question}.
@@ -55,6 +57,7 @@ public class QuestionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<QuestionDTO> createQuestion(@Valid @RequestBody QuestionDTO questionDTO) throws URISyntaxException {
         LOG.debug("REST request to save Question : {}", questionDTO);
         if (questionDTO.getId() != null) {
@@ -77,6 +80,7 @@ public class QuestionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<QuestionDTO> updateQuestion(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody QuestionDTO questionDTO
@@ -111,6 +115,7 @@ public class QuestionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<QuestionDTO> partialUpdateQuestion(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody QuestionDTO questionDTO
@@ -178,6 +183,7 @@ public class QuestionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteQuestion(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Question : {}", id);
         questionService.delete(id);

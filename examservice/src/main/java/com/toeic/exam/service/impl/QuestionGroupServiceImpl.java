@@ -70,7 +70,10 @@ public class QuestionGroupServiceImpl implements QuestionGroupService {
         return questionGroupRepository.findAll().stream().map(questionGroupMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<QuestionGroupDTO> findAllWithEagerRelationships() {
+        LOG.debug("Request to get all QuestionGroups with eager relationships");
         return questionGroupRepository
             .findAllWithEagerRelationships()
             .stream()

@@ -41,6 +41,18 @@ public class AsyncConfiguration implements AsyncConfigurer {
         return new ExceptionHandlingAsyncTaskExecutor(executor);
     }
 
+    @Bean(name = "fileProcessingExecutor")
+    public Executor fileProcessingExecutor() {
+        LOG.debug("Creating File Processing Task Executor");
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(20);
+        executor.setThreadNamePrefix("file-proc-");
+        executor.initialize();
+        return new ExceptionHandlingAsyncTaskExecutor(executor);
+    }
+
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return new SimpleAsyncUncaughtExceptionHandler();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import ExamHeader from '@/components/exam/ExamHeader';
@@ -32,6 +32,7 @@ export default function ExamRoomPage() {
   const [examData, setExamData] = useState<ExamTakeDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [backendAttemptId, setBackendAttemptId] = useState<number | null>(null);
+  const isCreatingAttemptRef = useRef(false);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Record<number, boolean>>({});
@@ -90,15 +91,8 @@ export default function ExamRoomPage() {
       // noop
     }
 
-    try {
-      const attempt = await createExamAttemptInBackend(Number(examId));
-      if (attempt?.id) {
-        setBackendAttemptId(attempt.id);
-      }
-    } catch {
-      // offline
-    }
-
+    setBackendAttemptId(null);
+    isCreatingAttemptRef.current = false;
     setShowResetDialog(false);
   }, [examData, progressKey, examId]);
 
@@ -178,18 +172,6 @@ export default function ExamRoomPage() {
           }
         }
 
-        // Only create a new attempt if we didn't restore one
-        if (!isMounted) return;
-        const savedRaw = localStorage.getItem(activeKey);
-        const savedProgress = savedRaw ? JSON.parse(savedRaw) : null;
-        if (savedProgress?.backendAttemptId) {
-          setBackendAttemptId(savedProgress.backendAttemptId);
-        } else {
-          const attempt = await createExamAttemptInBackend(Number(examId));
-          if (attempt?.id && isMounted) {
-            setBackendAttemptId(attempt.id);
-          }
-        }
       } catch (err) {
         console.warn('Failed to load exam details:', err);
       } finally {
@@ -314,6 +296,19 @@ export default function ExamRoomPage() {
 
   const handleSelectAnswer = (qNum: number, answer: string) => {
     setSelectedAnswers((prev) => ({ ...prev, [qNum]: answer }));
+    if (!backendAttemptId && !isCreatingAttemptRef.current) {
+      isCreatingAttemptRef.current = true;
+      createExamAttemptInBackend(Number(examId))
+        .then((attempt) => {
+          if (attempt?.id) {
+            setBackendAttemptId(attempt.id);
+          }
+        })
+        .catch((err) => {
+          console.warn('Failed to initialize exam attempt on first answer:', err);
+          isCreatingAttemptRef.current = false;
+        });
+    }
   };
 
   const handleSubmitExam = async () => {
@@ -338,52 +333,29 @@ export default function ExamRoomPage() {
         }
       }
 
-      if (attemptIdToUse) {
-        const result = await submitExamAttemptToBackend(attemptIdToUse, {
-          timeSpentSeconds: (examData?.durationMinutes ? examData.durationMinutes * 60 : 4500) - timeRemaining,
-          answers: answersList,
-        });
-        setExamResult(result);
-        return;
+      if (!attemptIdToUse) {
+        throw new Error('Không thể khởi tạo phiên làm bài thi. Vui lòng đăng nhập và thử lại!');
       }
 
-      // Offline / dev fallback: calculate real-time estimate
-      const answered = Object.keys(selectedAnswers).length;
-      const totalQ = flattenedQuestions.length || 100;
-      const estimatedReading = Math.min(495, Math.round((answered / totalQ) * 495));
-      setExamResult({
-        attemptId: backendAttemptId || 0,
-        listeningScore: 0,
-        readingScore: estimatedReading,
-        totalScore: estimatedReading,
-        correctAnswers: Math.round(answered * 0.8),
-        wrongAnswers: Math.round(answered * 0.2),
-        skippedAnswers: Math.max(0, totalQ - answered),
-        completedAt: new Date().toISOString(),
+      const result = await submitExamAttemptToBackend(attemptIdToUse, {
+        timeSpentSeconds: (examData?.durationMinutes ? examData.durationMinutes * 60 : 4500) - timeRemaining,
+        answers: answersList,
       });
-    } catch (err) {
-      console.warn('Submit attempt to backend failed, falling back to local grading:', err);
-      const answered = Object.keys(selectedAnswers).length;
-      const totalQ = flattenedQuestions.length || 100;
-      const estimatedReading = Math.min(495, Math.round((answered / totalQ) * 495));
-      setExamResult({
-        attemptId: backendAttemptId || 0,
-        listeningScore: 0,
-        readingScore: estimatedReading,
-        totalScore: estimatedReading,
-        correctAnswers: Math.round(answered * 0.8),
-        wrongAnswers: Math.round(answered * 0.2),
-        skippedAnswers: Math.max(0, totalQ - answered),
-        completedAt: new Date().toISOString(),
-      });
-    } finally {
-      setIsSubmitting(false);
+
+      setExamResult(result);
       setShowResultModal(true);
-      // Clear saved progress after successful submission
+
+      // Clear saved progress only after successful submission
       try {
         localStorage.removeItem(progressKey);
         localStorage.removeItem(`exam_progress_${examId}`);
       } catch { /* noop */ }
+    } catch (err: unknown) {
+      console.error('Submit attempt to backend failed:', err);
+      const message = err instanceof Error ? err.message : 'Lỗi kết nối máy chủ hoặc hệ thống. Vui lòng thử lại!';
+      alert(`Nộp bài thi thất bại: ${message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

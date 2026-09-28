@@ -69,7 +69,10 @@ public class UserAnswerServiceImpl implements UserAnswerService {
         return userAnswerRepository.findAll(pageable).map(userAnswerMapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Page<UserAnswerDTO> findAllWithEagerRelationships(Pageable pageable) {
+        LOG.debug("Request to get all UserAnswers with eager relationships");
         return userAnswerRepository.findAllWithEagerRelationships(pageable).map(userAnswerMapper::toDto);
     }
 

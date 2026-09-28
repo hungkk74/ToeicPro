@@ -101,6 +101,18 @@ public class UserProfileService {
     }
 
     /**
+     * Get one userProfile by userId.
+     *
+     * @param userId the userId of the entity.
+     * @return the entity.
+     */
+    @Transactional(readOnly = true)
+    public Optional<UserProfileDTO> findByUserId(String userId) {
+        LOG.debug("Request to get UserProfile by userId : {}", userId);
+        return userProfileRepository.findByUserId(userId).map(userProfileMapper::toDto);
+    }
+
+    /**
      * Delete the userProfile by id.
      *
      * @param id the id of the entity.

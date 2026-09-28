@@ -6,15 +6,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Chi tiết đáp án học viên chọn cho từng câu hỏi
  */
 @Entity
 @Table(name = "user_answer")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class UserAnswer implements Serializable {
 

@@ -24,6 +24,11 @@ import com.toeic.exam.service.dto.review.QuestionReviewDTO;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.Duration;
 import java.time.Instant;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,28 +59,28 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     private final ExamAttemptMapper examAttemptMapper;
     private final QuestionRepository questionRepository;
     private final UserAnswerRepository userAnswerRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     public ExamAttemptServiceImpl(
         ExamAttemptRepository examAttemptRepository,
         ExamAttemptMapper examAttemptMapper,
         QuestionRepository questionRepository,
-        UserAnswerRepository userAnswerRepository
+        UserAnswerRepository userAnswerRepository,
+        JdbcTemplate jdbcTemplate
     ) {
         this.examAttemptRepository = examAttemptRepository;
         this.examAttemptMapper = examAttemptMapper;
         this.questionRepository = questionRepository;
         this.userAnswerRepository = userAnswerRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public ExamAttemptDTO save(ExamAttemptDTO examAttemptDTO) {
         LOG.debug("Request to save ExamAttempt : {}", examAttemptDTO);
-        Optional<String> currentUserLogin = SecurityUtils.getCurrentUserLogin();
-        if (currentUserLogin.isPresent() && !currentUserLogin.get().isBlank()) {
-            examAttemptDTO.setUserId(currentUserLogin.get());
-        } else if (examAttemptDTO.getUserId() == null || examAttemptDTO.getUserId().isBlank()) {
-            examAttemptDTO.setUserId("guest_" + UUID.randomUUID().toString().substring(0, 8));
-        }
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new AccessDeniedException("Yêu cầu đăng nhập để bắt đầu bài thi!"));
+        examAttemptDTO.setUserId(currentUser);
         if (examAttemptDTO.getStatus() == null) {
             examAttemptDTO.setStatus(AttemptStatus.IN_PROGRESS);
         }
@@ -117,7 +122,10 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         return examAttemptRepository.findAll(pageable).map(examAttemptMapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Page<ExamAttemptDTO> findAllWithEagerRelationships(Pageable pageable) {
+        LOG.debug("Request to get all ExamAttempts with eager relationships");
         return examAttemptRepository.findAllWithEagerRelationships(pageable).map(examAttemptMapper::toDto);
     }
 
@@ -169,9 +177,17 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
 
         // 3. Duyệt chấm từng câu
         int listeningCorrect = 0, readingCorrect = 0, totalCorrect = 0, totalWrong = 0, totalSkipped = 0;
+        int totalListeningQuestions = 0, totalReadingQuestions = 0;
         List<UserAnswer> userAnswers = new ArrayList<>(allQuestions.size());
 
         for (Question q : allQuestions) {
+            boolean isListening = q.getPart() != null && q.getPart().getPartNumber() != null && q.getPart().getPartNumber() <= 4;
+            if (isListening) {
+                totalListeningQuestions++;
+            } else {
+                totalReadingQuestions++;
+            }
+
             QuestionAnswerSubmissionDTO ans = submittedMap.get(q.getId());
             boolean hasAnswer = ans != null && ans.selectedOption() != null;
             boolean isCorrect = hasAnswer && ans.selectedOption() == q.getCorrectOption();
@@ -180,7 +196,7 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
                 totalSkipped++;
             } else if (isCorrect) {
                 totalCorrect++;
-                if (q.getPart() != null && q.getPart().getPartNumber() != null && q.getPart().getPartNumber() <= 4) {
+                if (isListening) {
                     listeningCorrect++;
                 } else {
                     readingCorrect++;
@@ -199,12 +215,44 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
             userAnswers.add(ua);
         }
 
-        // 4. Batch save câu trả lời
-        userAnswerRepository.saveAll(userAnswers);
+        // 4. Idempotent cleanup và high-performance JDBC batch insert câu trả lời
+        userAnswerRepository.deleteByExamAttemptId(attemptId);
+        if (!userAnswers.isEmpty()) {
+            final String sql = "INSERT INTO user_answer (selected_option, is_correct, time_spent_seconds, exam_attempt_id, question_id) VALUES (?, ?, ?, ?, ?)";
+            jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    UserAnswer ua = userAnswers.get(i);
+                    if (ua.getSelectedOption() != null) {
+                        ps.setString(1, ua.getSelectedOption().name());
+                    } else {
+                        ps.setNull(1, Types.VARCHAR);
+                    }
+                    if (ua.getIsCorrect() != null) {
+                        ps.setBoolean(2, ua.getIsCorrect());
+                    } else {
+                        ps.setNull(2, Types.BOOLEAN);
+                    }
+                    ps.setInt(3, ua.getTimeSpentSeconds() != null ? ua.getTimeSpentSeconds() : 0);
+                    ps.setLong(4, attemptId);
+                    ps.setLong(5, ua.getQuestion().getId());
+                }
 
-        // 5. Tính điểm theo ToeicScoreConverter & Cập nhật Attempt
-        int lScore = ToeicScoreConverter.toListeningScore(listeningCorrect);
-        int rScore = ToeicScoreConverter.toReadingScore(readingCorrect);
+                @Override
+                public int getBatchSize() {
+                    return userAnswers.size();
+                }
+            });
+        }
+
+        // 5. Tính điểm theo ToeicScoreConverter (chuẩn hóa động theo số lượng câu hỏi thực tế của đề thi)
+        int lScore = totalListeningQuestions > 0
+            ? ToeicScoreConverter.toListeningScore(listeningCorrect, totalListeningQuestions)
+            : 0;
+        int rScore = totalReadingQuestions > 0
+            ? ToeicScoreConverter.toReadingScore(readingCorrect, totalReadingQuestions)
+            : 0;
+        int totalScore = lScore + rScore;
 
         // Chống gian lận thời gian làm bài (Time Tampering Guard)
         Instant completedAt = Instant.now();
@@ -223,13 +271,13 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
         attempt.setStatus(AttemptStatus.COMPLETED);
         attempt.setListeningScore(lScore);
         attempt.setReadingScore(rScore);
-        attempt.setTotalScore(lScore + rScore);
+        attempt.setTotalScore(totalScore);
         attempt.setCorrectAnswers(totalCorrect);
         attempt.setWrongAnswers(totalWrong);
         attempt.setSkippedAnswers(totalSkipped);
         attempt.setTimeSpentSeconds(finalTimeSpent);
         attempt.setCompletedAt(completedAt);
-        examAttemptRepository.save(attempt);
+        attempt = examAttemptRepository.saveAndFlush(attempt);
 
         // 6. Trả về DTO kết quả
         return buildResultDTO(attempt);
@@ -373,25 +421,15 @@ public class ExamAttemptServiceImpl implements ExamAttemptService {
     }
 
     private void checkOwnershipOrAdmin(String attemptUserId, String errorMessage) {
-        if (attemptUserId == null) {
-            return;
-        }
-        boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
-        if (isAdmin) {
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             return;
         }
 
-        Optional<String> currentUserOpt = SecurityUtils.getCurrentUserLogin();
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new AccessDeniedException("Yêu cầu đăng nhập để truy cập tài nguyên bài thi này!"));
 
-        // Nếu bài thi thuộc về một tài khoản học viên cụ thể (không phải guest)
-        if (!attemptUserId.startsWith("guest_")) {
-            if (currentUserOpt.isEmpty()) {
-                throw new AccessDeniedException("Yêu cầu đăng nhập để truy cập tài nguyên bài thi này!");
-            }
-            String currentUser = currentUserOpt.get();
-            if (!attemptUserId.equals(currentUser)) {
-                throw new AccessDeniedException(errorMessage);
-            }
+        if (attemptUserId == null || !attemptUserId.equals(currentUser)) {
+            throw new AccessDeniedException(errorMessage);
         }
     }
 }

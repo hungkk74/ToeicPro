@@ -20,9 +20,13 @@ public class PaymentEventListener {
     @KafkaListener(topics = "payment-completed-topic", groupId = "subscription-service-group")
     @Transactional
     public void handlePaymentCompleted(PaymentCompletedEvent event) {
-        log.info("Received PaymentCompletedEvent for user: {}, plan/sub: {}", event.userId(), event.subscriptionId());
+        if (event == null || event.orderCode() == null) {
+            log.warn("Received empty event or missing orderCode, skipping");
+            return;
+        }
+        log.info("Received PaymentCompletedEvent for user: {}, plan/sub: {}, order: {}", event.userId(), event.subscriptionId(), event.orderCode());
 
-        // Cập nhật trạng thái subscription sang ACTIVE
-        subscriptionService.activateSubscription(event.subscriptionId(), event.userId());
+        // Cập nhật trạng thái subscription sang ACTIVE một cách idempotent
+        subscriptionService.processPaymentCompleted(event);
     }
 }

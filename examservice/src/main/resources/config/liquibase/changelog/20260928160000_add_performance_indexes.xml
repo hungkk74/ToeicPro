@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20260928160000-1" author="toeicpro">
+        <createIndex indexName="idx_exam_attempt_user_status" tableName="exam_attempt">
+            <column name="user_id"/>
+            <column name="status"/>
+        </createIndex>
+        <createIndex indexName="idx_user_answer_attempt" tableName="user_answer">
+            <column name="exam_attempt_id"/>
+        </createIndex>
+        <createIndex indexName="idx_question_part_num" tableName="question">
+            <column name="part_id"/>
+            <column name="question_number"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

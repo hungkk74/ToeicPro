@@ -21,6 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import com.toeic.user.security.AuthoritiesConstants;
+import com.toeic.user.security.SecurityUtils;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -49,7 +52,10 @@ public class UserProfileResource {
     }
 
     private void checkAccess(Long profileId) {
-        String currentUser = com.toeic.user.security.SecurityUtils.getCurrentUserLogin()
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return;
+        }
+        String currentUser = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
             
         UserProfileDTO profile = userProfileService.findOne(profileId)
@@ -72,6 +78,11 @@ public class UserProfileResource {
         LOG.debug("REST request to save UserProfile : {}", userProfileDTO);
         if (userProfileDTO.getId() != null) {
             throw new BadRequestAlertException("A new userProfile cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            userProfileDTO.setUserId(currentUser);
         }
         userProfileDTO = userProfileService.save(userProfileDTO);
         return ResponseEntity.created(new URI("/api/user-profiles/" + userProfileDTO.getId()))
@@ -159,11 +170,26 @@ public class UserProfileResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of User Profiles in body.
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<UserProfileDTO>> getAllUserProfiles(@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
         LOG.debug("REST request to get a page of UserProfiles");
         Page<UserProfileDTO> page = userProfileService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /user-profiles/my-profile} : get current user's profile.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the userProfileDTO, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/my-profile")
+    public ResponseEntity<UserProfileDTO> getMyProfile() {
+        LOG.debug("REST request to get current user profile");
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+        Optional<UserProfileDTO> userProfileDTO = userProfileService.findByUserId(currentUser);
+        return ResponseUtil.wrapOrNotFound(userProfileDTO);
     }
 
     /**
@@ -176,6 +202,13 @@ public class UserProfileResource {
     public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable("id") Long id) {
         LOG.debug("REST request to get UserProfile : {}", id);
         Optional<UserProfileDTO> userProfileDTO = userProfileService.findOne(id);
+        if (userProfileDTO.isPresent()) {
+            boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+            String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
+            if (!isAdmin && (currentUser == null || !currentUser.equals(userProfileDTO.get().getUserId()))) {
+                throw new AccessDeniedException("You are not authorized to view this profile");
+            }
+        }
         return ResponseUtil.wrapOrNotFound(userProfileDTO);
     }
 

@@ -2,11 +2,13 @@ package com.toeic.exam.service;
 
 import com.toeic.exam.config.CloudflareR2Properties;
 import com.toeic.exam.service.dto.FileUploadResponse;
-import java.io.IOException;
-import java.util.UUID;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.scheduling.annotation.Async;
 import ws.schild.jave.Encoder;
 import ws.schild.jave.MultimediaObject;
 import ws.schild.jave.encode.AudioAttributes;
@@ -38,17 +40,33 @@ public class FileStorageService {
 
 
     public FileUploadResponse uploadAudio(MultipartFile file) {
-        validateFile(file, "audio");
+        return processAudioAsync(file).join();
+    }
 
+    public CompletableFuture<FileUploadResponse> processAudioAsync(MultipartFile file) {
+        validateFile(file, "audio");
         File tempInput = null;
+        try {
+            tempInput = File.createTempFile("audio_input_", ".tmp");
+            Files.copy(file.getInputStream(), tempInput.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            return uploadAudioAsync(tempInput, file.getOriginalFilename(), file.getSize());
+        } catch (IOException e) {
+            if (tempInput != null && tempInput.exists()) {
+                tempInput.delete();
+            }
+            LOG.error("Failed to buffer audio upload input stream", e);
+            CompletableFuture<FileUploadResponse> failed = new CompletableFuture<>();
+            failed.completeExceptionally(new RuntimeException("Lỗi khi đọc file audio upload: " + e.getMessage(), e));
+            return failed;
+        }
+    }
+
+    @Async("fileProcessingExecutor")
+    public CompletableFuture<FileUploadResponse> uploadAudioAsync(File tempInput, String originalFilename, long originalSize) {
         File tempOutput = null;
 
         try {
-            // 1. Tạo file tạm để chứa âm thanh gốc
-            tempInput = File.createTempFile("audio_input_", ".tmp");
-            Files.copy(file.getInputStream(), tempInput.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
-            // 2. Tạo cấu hình mã hoá Audio (MP3, 64kbps, Mono)
+            // 1. Tạo cấu hình mã hoá Audio (MP3, 64kbps, Mono)
             AudioAttributes audio = new AudioAttributes();
             audio.setCodec("libmp3lame");
             audio.setBitRate(64000);
@@ -59,18 +77,18 @@ public class FileStorageService {
             attrs.setOutputFormat("mp3");
             attrs.setAudioAttributes(audio);
 
-            // 3. Tiến hành encode bằng JAVE2
+            // 2. Tiến hành encode bằng JAVE2 trên thread pool riêng
             tempOutput = File.createTempFile("audio_output_", ".mp3");
             Encoder encoder = new Encoder();
             encoder.encode(new MultimediaObject(tempInput), tempOutput, attrs);
 
-            // 4. Upload file đã nén lên R2
-            String fileKey = generateFileKey(file.getOriginalFilename(), "audio", ".mp3");
+            // 3. Upload file đã nén lên R2
+            String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
             String contentType = "audio/mpeg";
             long optimizedSize = tempOutput.length();
 
             LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
-                properties.getBucketName(), fileKey, file.getSize(), optimizedSize);
+                properties.getBucketName(), fileKey, originalSize, optimizedSize);
 
             PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(properties.getBucketName())
@@ -83,14 +101,17 @@ public class FileStorageService {
             String fileUrl = buildPublicUrl(fileKey);
             LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
 
-            String originalFilename = file.getOriginalFilename();
-            return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
+            return CompletableFuture.completedFuture(
+                new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType)
+            );
 
         } catch (Exception e) {
             LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
-            throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
+            CompletableFuture<FileUploadResponse> failed = new CompletableFuture<>();
+            failed.completeExceptionally(new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e));
+            return failed;
         } finally {
-            // 5. Dọn dẹp file tạm
+            // 4. Dọn dẹp file tạm
             if (tempInput != null && tempInput.exists()) {
                 tempInput.delete();
             }

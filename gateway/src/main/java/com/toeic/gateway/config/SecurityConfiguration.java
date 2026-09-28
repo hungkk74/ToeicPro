@@ -71,6 +71,8 @@ public class SecurityConfiguration {
         .recordStats()
         .build();
 
+    private final WebClient userInfoWebClient = WebClient.create();
+
     public SecurityConfiguration(ReactiveClientRegistrationRepository clientRegistrationRepository, JHipsterProperties jHipsterProperties) {
         this.clientRegistrationRepository = clientRegistrationRepository;
         this.jHipsterProperties = jHipsterProperties;
@@ -232,7 +234,7 @@ public class SecurityConfiguration {
                 }
                 // Get user info from `users` cache if present
                 return Optional.ofNullable(users.getIfPresent(jwt.getSubject())).orElseGet(() ->
-                    WebClient.create()
+                    userInfoWebClient
                         .get()
                         .uri(userInfoUri)
                         .headers(headers -> headers.setBearerAuth(token))

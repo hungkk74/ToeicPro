@@ -29,9 +29,31 @@ public final class ToeicScoreConverter {
         return LISTENING_SCALE[rawScore];
     }
 
+    public static int toListeningScore(int rawScore, int totalQuestions) {
+        if (totalQuestions <= 0) {
+            return toListeningScore(rawScore);
+        }
+        if (totalQuestions == 100) {
+            return toListeningScore(rawScore);
+        }
+        int normalizedScore = (int) Math.round(((double) Math.max(0, rawScore) / totalQuestions) * 100);
+        return toListeningScore(normalizedScore);
+    }
+
     public static int toReadingScore(int rawScore) {
         if (rawScore <= 0) return 5;
         if (rawScore >= 100) return 495;
         return READING_SCALE[rawScore];
+    }
+
+    public static int toReadingScore(int rawScore, int totalQuestions) {
+        if (totalQuestions <= 0) {
+            return toReadingScore(rawScore);
+        }
+        if (totalQuestions == 100) {
+            return toReadingScore(rawScore);
+        }
+        int normalizedScore = (int) Math.round(((double) Math.max(0, rawScore) / totalQuestions) * 100);
+        return toReadingScore(normalizedScore);
     }
 }

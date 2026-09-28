@@ -70,7 +70,10 @@ public class PartServiceImpl implements PartService {
         return partRepository.findAll().stream().map(partMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<PartDTO> findAllWithEagerRelationships() {
+        LOG.debug("Request to get all Parts with eager relationships");
         return partRepository
             .findAllWithEagerRelationships()
             .stream()

@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import com.toeic.exam.security.AuthoritiesConstants;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * REST controller for managing {@link com.toeic.exam.domain.Part}.
@@ -50,6 +52,7 @@ public class PartResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PartDTO> createPart(@Valid @RequestBody PartDTO partDTO) throws URISyntaxException {
         LOG.debug("REST request to save Part : {}", partDTO);
         if (partDTO.getId() != null) {
@@ -72,6 +75,7 @@ public class PartResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PartDTO> updatePart(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody PartDTO partDTO
@@ -106,6 +110,7 @@ public class PartResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<PartDTO> partialUpdatePart(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody PartDTO partDTO
@@ -166,6 +171,7 @@ public class PartResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deletePart(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Part : {}", id);
         partService.delete(id);

@@ -6,15 +6,12 @@ import jakarta.validation.constraints.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Lịch sử lần làm bài thi của học viên
  */
 @Entity
 @Table(name = "exam_attempt")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ExamAttempt implements Serializable {
 
@@ -74,6 +71,10 @@ public class ExamAttempt implements Serializable {
     @NotNull
     private Exam exam;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
     public Long getId() {
@@ -87,6 +88,19 @@ public class ExamAttempt implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getVersion() {
+        return this.version;
+    }
+
+    public ExamAttempt version(Long version) {
+        this.setVersion(version);
+        return this;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public String getUserId() {

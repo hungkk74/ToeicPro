@@ -3,6 +3,7 @@ package com.toeic.exam.web.rest;
 import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.FileStorageService;
 import com.toeic.exam.service.dto.FileUploadResponse;
+import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -28,13 +29,12 @@ public class StorageResource {
     }
 
     /**
-     * POST /api/storage/upload/audio : Upload file âm thanh TOEIC.
+     * POST /api/storage/upload/audio : Upload file âm thanh TOEIC (Async non-blocking worker).
      */
     @PostMapping(value = "/upload/audio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileUploadResponse> uploadAudio(@RequestParam("file") MultipartFile file) {
-        LOG.debug("REST request to upload audio file: {}", file.getOriginalFilename());
-        FileUploadResponse response = fileStorageService.uploadAudio(file);
-        return ResponseEntity.ok(response);
+    public CompletableFuture<ResponseEntity<FileUploadResponse>> uploadAudio(@RequestParam("file") MultipartFile file) {
+        LOG.debug("REST request to upload audio file asynchronously: {}", file.getOriginalFilename());
+        return fileStorageService.processAudioAsync(file).thenApply(ResponseEntity::ok);
     }
 
     /**

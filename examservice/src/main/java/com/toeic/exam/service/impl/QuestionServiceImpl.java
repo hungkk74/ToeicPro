@@ -69,7 +69,10 @@ public class QuestionServiceImpl implements QuestionService {
         return questionRepository.findAll(pageable).map(questionMapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Page<QuestionDTO> findAllWithEagerRelationships(Pageable pageable) {
+        LOG.debug("Request to get all Questions with eager relationships");
         return questionRepository.findAllWithEagerRelationships(pageable).map(questionMapper::toDto);
     }
 

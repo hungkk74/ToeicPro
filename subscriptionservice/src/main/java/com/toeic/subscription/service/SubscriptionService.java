@@ -1,5 +1,6 @@
 package com.toeic.subscription.service;
 
+import com.toeic.subscription.service.dto.PaymentCompletedEvent;
 import com.toeic.subscription.service.dto.SubscriptionDTO;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -73,12 +74,19 @@ public interface SubscriptionService {
     void activateSubscription(Long userSubscriptionId, String gatewayTransId);
 
     /**
- * Kiểm tra xem người dùng có gói subscription còn hiệu lực hay không.
- *
- * @param userId ID định danh của người dùng
- * @return true nếu có gói ACTIVE và chưa hết hạn
- */
-boolean hasActiveSubscription(String userId);
+     * Kiểm tra xem người dùng có gói subscription còn hiệu lực hay không.
+     *
+     * @param userId ID định danh của người dùng
+     * @return true nếu có gói ACTIVE và chưa hết hạn
+     */
+    boolean hasActiveSubscription(String userId);
+
+    /**
+     * Process payment completed event idempotently.
+     *
+     * @param event the payment completed event
+     */
+    void processPaymentCompleted(PaymentCompletedEvent event);
 
 
 }
