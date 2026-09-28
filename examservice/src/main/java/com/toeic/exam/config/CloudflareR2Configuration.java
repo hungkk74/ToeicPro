@@ -15,6 +15,8 @@ import software.amazon.awssdk.services.s3.S3Configuration;
 @Configuration
 public class CloudflareR2Configuration {
 
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CloudflareR2Configuration.class);
+
     private final CloudflareR2Properties properties;
 
     public CloudflareR2Configuration(CloudflareR2Properties properties) {
@@ -23,10 +25,24 @@ public class CloudflareR2Configuration {
 
     @Bean
     public S3Client s3Client() {
+        String accessKey = properties.getAccessKey();
+        String secretKey = properties.getSecretKey();
+
+        if (accessKey == null || accessKey.isBlank() || secretKey == null || secretKey.isBlank()) {
+            LOG.warn("Cloudflare R2 credentials are not configured or blank. Initializing S3Client with placeholder credentials for local dev.");
+            accessKey = "dummy-access-key";
+            secretKey = "dummy-secret-key";
+        }
+
+        String endpoint = properties.getEndpoint();
+        URI endpointUri = (endpoint != null && !endpoint.isBlank())
+            ? URI.create(endpoint)
+            : URI.create("https://localhost");
+
         return S3Client.builder()
-            .endpointOverride(URI.create(properties.getEndpoint()))
+            .endpointOverride(endpointUri)
             .credentialsProvider(StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(properties.getAccessKey(), properties.getSecretKey())
+                AwsBasicCredentials.create(accessKey, secretKey)
             ))
             .region(Region.of("auto"))
             .serviceConfiguration(S3Configuration.builder()

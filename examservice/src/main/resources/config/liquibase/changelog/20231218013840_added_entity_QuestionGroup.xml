@@ -41,6 +41,9 @@
           Spring Boot configuration key.
     -->
     <changeSet id="20231218013840-1-data" author="jhipster" context="faker">
+        <validCheckSum>9:736d977a4a770559fcd1a6210da91167</validCheckSum>
+        <validCheckSum>9:5d20f92481b8e4f644dc83de55b4f660</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <loadData
                   file="../fake-data/question_group.csv"
                   relativeToChangelogFile="true"
