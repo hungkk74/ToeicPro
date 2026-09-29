@@ -156,21 +156,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             .findOneWithToOneRelationships(event.subscriptionId())
             .ifPresentOrElse(
                 subscription -> {
-                    subscription.setStatus(SubscriptionStatus.ACTIVE);
                     Instant now = Instant.now();
-                    if (subscription.getStartsAt() == null) {
-                        subscription.setStartsAt(now);
-                    }
-                    int durationDays = 30;
-                    if (subscription.getPlan() != null && subscription.getPlan().getDurationDays() != null) {
-                        durationDays = subscription.getPlan().getDurationDays();
-                    }
-                    Instant baseTime = (subscription.getExpiresAt() != null && subscription.getExpiresAt().isAfter(now))
-                        ? subscription.getExpiresAt()
-                        : now;
-                    subscription.setExpiresAt(baseTime.plus(durationDays, ChronoUnit.DAYS));
-                    subscriptionRepository.save(subscription);
-
                     PaymentTransaction tx = new PaymentTransaction();
                     tx.setOrderCode(event.orderCode());
                     tx.setGatewayTransId(event.orderCode());
@@ -187,7 +173,21 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                     tx.setStatus(PaymentStatus.SUCCESS);
                     tx.setCreatedAt(event.paidAt() != null ? event.paidAt() : now);
                     tx.setSubscription(subscription);
-                    paymentTransactionRepository.save(tx);
+                    paymentTransactionRepository.saveAndFlush(tx);
+
+                    subscription.setStatus(SubscriptionStatus.ACTIVE);
+                    if (subscription.getStartsAt() == null) {
+                        subscription.setStartsAt(now);
+                    }
+                    int durationDays = 30;
+                    if (subscription.getPlan() != null && subscription.getPlan().getDurationDays() != null) {
+                        durationDays = subscription.getPlan().getDurationDays();
+                    }
+                    Instant baseTime = (subscription.getExpiresAt() != null && subscription.getExpiresAt().isAfter(now))
+                        ? subscription.getExpiresAt()
+                        : now;
+                    subscription.setExpiresAt(baseTime.plus(durationDays, ChronoUnit.DAYS));
+                    subscriptionRepository.save(subscription);
 
                     LOG.info("Subscription {} activated and PaymentTransaction created for orderCode: {}", subscription.getId(), event.orderCode());
                 },

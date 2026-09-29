@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentEventListener {
@@ -18,7 +17,6 @@ public class PaymentEventListener {
     }
 
     @KafkaListener(topics = "payment-completed-topic", groupId = "subscription-service-group")
-    @Transactional
     public void handlePaymentCompleted(PaymentCompletedEvent event) {
         if (event == null || event.orderCode() == null) {
             log.warn("Received empty event or missing orderCode, skipping");
@@ -26,7 +24,10 @@ public class PaymentEventListener {
         }
         log.info("Received PaymentCompletedEvent for user: {}, plan/sub: {}, order: {}", event.userId(), event.subscriptionId(), event.orderCode());
 
-        // Cập nhật trạng thái subscription sang ACTIVE một cách idempotent
-        subscriptionService.processPaymentCompleted(event);
+        try {
+            subscriptionService.processPaymentCompleted(event);
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            log.warn("Payment event already processed for orderCode {} (duplicate event ignored): {}", event.orderCode(), ex.getMessage());
+        }
     }
 }

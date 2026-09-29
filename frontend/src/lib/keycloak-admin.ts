@@ -151,46 +151,39 @@ export async function fetchUsersWithRoles(
 
   const users: KeycloakUserRaw[] = await usersRes.json();
 
-  return Promise.all(
-    users.map(async (u) => {
-      try {
-        const rolesRes = await fetch(
-          `${keycloakBase}/admin/realms/jhipster/users/${u.id}/role-mappings/realm/composite`,
-          {
-            headers: { Authorization: `Bearer ${adminToken}` },
-            cache: 'no-store',
-          }
-        );
-        const rolesData = rolesRes.ok ? await rolesRes.json() : [];
-        const roles = rolesData.map((r: { name: string }) => r.name);
-        return {
-          id: u.id,
-          username: u.username,
-          email: u.email || '—',
-          firstName: u.firstName || '',
-          lastName: u.lastName || '',
-          fullName: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username,
-          enabled: u.enabled ?? true,
-          createdTimestamp: u.createdTimestamp,
-          isAdmin: roles.includes('ROLE_ADMIN'),
-          roles: roles.filter((r: string) => ['ROLE_ADMIN', 'ROLE_USER'].includes(r)),
-        };
-      } catch {
-        return {
-          id: u.id,
-          username: u.username,
-          email: u.email || '—',
-          firstName: u.firstName || '',
-          lastName: u.lastName || '',
-          fullName: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username,
-          enabled: u.enabled ?? true,
-          createdTimestamp: u.createdTimestamp,
-          isAdmin: false,
-          roles: ['ROLE_USER'],
-        };
+  // Single batch call for ROLE_ADMIN to eliminate N+1 HTTP request cascade
+  let adminUserIds = new Set<string>();
+  try {
+    const adminUsersRes = await fetch(
+      `${keycloakBase}/admin/realms/jhipster/roles/ROLE_ADMIN/users`,
+      {
+        headers: { Authorization: `Bearer ${adminToken}` },
+        cache: 'no-store',
       }
-    })
-  );
+    );
+    if (adminUsersRes.ok) {
+      const adminUsers: KeycloakUserRaw[] = await adminUsersRes.json();
+      adminUserIds = new Set(adminUsers.map((u) => u.id));
+    }
+  } catch {
+    // fallback to user list if role endpoint fails
+  }
+
+  return users.map((u) => {
+    const isAdmin = adminUserIds.has(u.id);
+    return {
+      id: u.id,
+      username: u.username,
+      email: u.email || '—',
+      firstName: u.firstName || '',
+      lastName: u.lastName || '',
+      fullName: [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username,
+      enabled: u.enabled ?? true,
+      createdTimestamp: u.createdTimestamp,
+      isAdmin,
+      roles: isAdmin ? ['ROLE_ADMIN', 'ROLE_USER'] : ['ROLE_USER'],
+    };
+  });
 }
 
 export async function updateUserAdminRole(

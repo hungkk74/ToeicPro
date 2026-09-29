@@ -30,7 +30,7 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
   const [examData, setExamData] = useState<ExamTakeDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [backendAttemptId, setBackendAttemptId] = useState<number | null>(null);
-  const isCreatingAttemptRef = useRef(false);
+  const pendingAttemptPromiseRef = useRef<Promise<{ id: number } | null> | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Record<number, boolean>>({});
@@ -65,7 +65,7 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
     }
 
     setBackendAttemptId(null);
-    isCreatingAttemptRef.current = false;
+    pendingAttemptPromiseRef.current = null;
     setShowResetDialog(false);
   }, [examData, progressKey, examId]);
 
@@ -310,17 +310,18 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
   const handleSelectAnswer = (qNum: number, answer: string) => {
     if (isReviewMode || examResult) return;
     setSelectedAnswers((prev) => ({ ...prev, [qNum]: answer }));
-    if (!backendAttemptId && !isCreatingAttemptRef.current) {
-      isCreatingAttemptRef.current = true;
-      createExamAttemptInBackend(Number(examId))
+    if (!backendAttemptId && !pendingAttemptPromiseRef.current) {
+      pendingAttemptPromiseRef.current = createExamAttemptInBackend(Number(examId))
         .then((attempt) => {
           if (attempt?.id) {
             setBackendAttemptId(attempt.id);
           }
+          return attempt;
         })
         .catch((err) => {
           console.warn('Failed to initialize exam attempt on first answer:', err);
-          isCreatingAttemptRef.current = false;
+          pendingAttemptPromiseRef.current = null;
+          return null;
         });
     }
   };
@@ -345,8 +346,16 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
 
     try {
       let attemptIdToUse = backendAttemptId;
+      if (!attemptIdToUse && pendingAttemptPromiseRef.current) {
+        const inFlight = await pendingAttemptPromiseRef.current;
+        if (inFlight?.id) {
+          attemptIdToUse = inFlight.id;
+          setBackendAttemptId(inFlight.id);
+        }
+      }
       if (!attemptIdToUse) {
-        const newAttempt = await createExamAttemptInBackend(Number(examId));
+        pendingAttemptPromiseRef.current = createExamAttemptInBackend(Number(examId));
+        const newAttempt = await pendingAttemptPromiseRef.current;
         if (newAttempt?.id) {
           attemptIdToUse = newAttempt.id;
           setBackendAttemptId(newAttempt.id);
@@ -397,7 +406,7 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
       }
 
       setBackendAttemptId(null);
-      isCreatingAttemptRef.current = false;
+      pendingAttemptPromiseRef.current = null;
       try {
         localStorage.removeItem(progressKey);
         localStorage.removeItem(`exam_progress_${examId}`);

@@ -110,6 +110,7 @@ public class SecurityConfiguration {
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/plans/**").permitAll()
                     .pathMatchers("/api/exam-attempts/**").permitAll()
+                    .pathMatchers("/api/payment-webhook-logs/**").permitAll()
                     .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
                     .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/services/*/management/health/readiness").permitAll()

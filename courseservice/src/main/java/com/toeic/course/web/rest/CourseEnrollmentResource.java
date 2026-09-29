@@ -18,8 +18,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.toeic.course.security.AuthoritiesConstants;
+import com.toeic.course.security.SecurityUtils;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -58,6 +62,7 @@ public class CourseEnrollmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CourseEnrollmentDTO> createCourseEnrollment(@Valid @RequestBody CourseEnrollmentDTO courseEnrollmentDTO)
         throws URISyntaxException {
         LOG.debug("REST request to save CourseEnrollment : {}", courseEnrollmentDTO);
@@ -81,6 +86,7 @@ public class CourseEnrollmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CourseEnrollmentDTO> updateCourseEnrollment(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody CourseEnrollmentDTO courseEnrollmentDTO
@@ -115,6 +121,7 @@ public class CourseEnrollmentResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<CourseEnrollmentDTO> partialUpdateCourseEnrollment(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody CourseEnrollmentDTO courseEnrollmentDTO
@@ -147,6 +154,7 @@ public class CourseEnrollmentResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Course Enrollments in body.
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<CourseEnrollmentDTO>> getAllCourseEnrollments(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
@@ -172,6 +180,13 @@ public class CourseEnrollmentResource {
     public ResponseEntity<CourseEnrollmentDTO> getCourseEnrollment(@PathVariable("id") Long id) {
         LOG.debug("REST request to get CourseEnrollment : {}", id);
         Optional<CourseEnrollmentDTO> courseEnrollmentDTO = courseEnrollmentService.findOne(id);
+        if (courseEnrollmentDTO.isPresent()) {
+            boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
+            String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
+            if (!isAdmin && (currentUser == null || !currentUser.equals(courseEnrollmentDTO.get().getUserId()))) {
+                throw new AccessDeniedException("You are not authorized to view this enrollment");
+            }
+        }
         return ResponseUtil.wrapOrNotFound(courseEnrollmentDTO);
     }
 
@@ -182,6 +197,7 @@ public class CourseEnrollmentResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteCourseEnrollment(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete CourseEnrollment : {}", id);
         courseEnrollmentService.delete(id);
