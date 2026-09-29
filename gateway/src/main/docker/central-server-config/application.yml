@@ -2,6 +2,11 @@ configserver:
   name: Docker Consul Service
   status: Connected to Consul Server running in Docker
 
+spring:
+  threads:
+    virtual:
+      enabled: true
+
 jhipster:
   security:
     authentication:

@@ -101,6 +101,9 @@ management:
       application: ${spring.application.name}
 
 spring:
+  threads:
+    virtual:
+      enabled: true
   servlet:
     multipart:
       max-file-size: 200MB

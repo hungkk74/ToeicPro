@@ -99,6 +99,9 @@ management:
       application: ${spring.application.name}
 
 spring:
+  threads:
+    virtual:
+      enabled: true
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
