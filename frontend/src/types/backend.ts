@@ -83,6 +83,7 @@ export interface ExamResultDTO {
   skippedAnswers?: number;
   timeSpentSeconds?: number;
   completedAt?: string;
+  canViewAnswers?: boolean;
 }
 
 export interface QuestionReviewDTO {
@@ -92,19 +93,26 @@ export interface QuestionReviewDTO {
   content?: string;
   imageUrl?: string;
   audioUrl?: string;
+  optionA?: string;
+  optionB?: string;
+  optionC?: string;
+  optionD?: string;
   selectedOption?: string;
-  correctOption: string;
-  isCorrect: boolean;
+  correctOption?: string;
+  isCorrect?: boolean;
   explanation?: string;
   transcript?: string;
+  timeSpentSeconds?: number;
 }
 
 export interface PartScoreSummaryDTO {
   partNumber: number;
   partName: string;
-  correctQuestions: number;
-  totalQuestions: number;
-  accuracyPercentage: number;
+  correctCount?: number;
+  totalCount?: number;
+  correctQuestions?: number;
+  totalQuestions?: number;
+  accuracyPercentage?: number;
 }
 
 export interface ExamReviewDTO {
@@ -124,6 +132,7 @@ export interface ExamReviewDTO {
   completedAt?: string;
   partSummaries?: PartScoreSummaryDTO[];
   questions?: QuestionReviewDTO[];
+  canViewAnswers?: boolean;
 }
 
 export interface UserAccountDTO {

@@ -107,15 +107,16 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
       });
 
       // Nếu đã đăng nhập, tải điểm số và lịch sử các đề đã hoàn thành (completed) từ backend
-      const historyMap: Record<string, number> = {};
+      const latestHistoryMap: Record<string, import('@/services/examService').MyExamHistoryItem> = {};
       try {
         const history = await fetchMyExamHistory();
         if (!isCancelled && Array.isArray(history)) {
           history.forEach((item) => {
             if (item.examId != null) {
-              const currentBest = historyMap[String(item.examId)];
-              if (currentBest === undefined || (item.totalScore != null && item.totalScore > currentBest)) {
-                historyMap[String(item.examId)] = item.totalScore ?? 0;
+              const strId = String(item.examId);
+              // Backend trả về mảng đã sắp xếp completedAt desc, nên phần tử đầu tiên cho mỗi examId chính là lần thi gần nhất
+              if (!latestHistoryMap[strId]) {
+                latestHistoryMap[strId] = item;
               }
             }
           });
@@ -128,44 +129,90 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
 
       setExams(
         initialExams.map((exam) => {
-          // 1. Kiểm tra tiến độ đang làm dở (in_progress) của chính tài khoản này
+          const examIdStr = String(exam.id);
+          let latest = latestHistoryMap[examIdStr];
+
+          // Nếu chưa có từ API backend (hoặc vừa nộp xong), lấy ngay từ cache localStorage
+          if (!latest) {
+            try {
+              const cached =
+                localStorage.getItem(`toeic_latest_attempt_${userScope}_${exam.id}`) ||
+                localStorage.getItem(`toeic_latest_attempt_${exam.id}`);
+              if (cached) {
+                latest = JSON.parse(cached);
+              }
+            } catch {
+              // noop
+            }
+          }
+
+          // 1. Kiểm tra tiến độ đang làm dở (in_progress) của tài khoản này
           try {
             const saved = localStorage.getItem(`exam_progress_${userScope}_${exam.id}`);
             if (saved) {
               const progress = JSON.parse(saved);
-              if (progress.savedAt && Date.now() - progress.savedAt < 24 * 60 * 60 * 1000) {
+              const isExpired = !progress.savedAt || (Date.now() - progress.savedAt >= 24 * 60 * 60 * 1000);
+
+              if (!isExpired) {
+                // Đang làm dở và chưa quá 24h: hiển thị trạng thái 'in_progress'
                 const answeredCount = progress.selectedAnswers
                   ? Object.keys(progress.selectedAnswers).length
-                  : 0;
+                  : (progress.answeredCount || 0);
+                const totalQ = progress.totalQuestions || exam.totalQuestions;
+
                 return {
                   ...exam,
                   status: 'in_progress' as const,
-                  userProgress: `${answeredCount}/${exam.totalQuestions}`,
-                  userScore: undefined,
+                  userProgress: `${answeredCount}/${totalQ}`,
+                  userScore: latest?.totalScore,
+                  latestAttempt: latest ? {
+                    attemptId: latest.attemptId,
+                    totalScore: latest.totalScore,
+                    listeningScore: latest.listeningScore,
+                    readingScore: latest.readingScore,
+                    correctAnswers: latest.correctAnswers,
+                    wrongAnswers: latest.wrongAnswers,
+                    skippedAnswers: latest.skippedAnswers,
+                    completedAt: latest.completedAt,
+                  } : undefined,
                 };
+              } else {
+                // Quá 24 giờ: Xóa sạch tiến trình đang làm
+                localStorage.removeItem(`exam_progress_${userScope}_${exam.id}`);
               }
-              localStorage.removeItem(`exam_progress_${userScope}_${exam.id}`);
             }
           } catch {
             // localStorage unavailable
           }
 
-          // 2. Kiểm tra lịch sử đã hoàn thành (completed) của chính tài khoản này từ Backend
-          if (historyMap[String(exam.id)] !== undefined) {
+          // 2. Nếu không có tiến trình dở dang (hoặc đã xóa sau 24h / thoát không lưu):
+          // Kiểm tra kết quả lần thi gần nhất
+          if (latest) {
             return {
               ...exam,
               status: 'completed' as const,
-              userScore: historyMap[String(exam.id)],
-              userProgress: undefined,
+              userScore: latest.totalScore,
+              userProgress: latest.correctAnswers != null ? `${latest.correctAnswers}/${exam.totalQuestions}` : undefined,
+              latestAttempt: {
+                attemptId: latest.attemptId,
+                totalScore: latest.totalScore,
+                listeningScore: latest.listeningScore,
+                readingScore: latest.readingScore,
+                correctAnswers: latest.correctAnswers,
+                wrongAnswers: latest.wrongAnswers,
+                skippedAnswers: latest.skippedAnswers,
+                completedAt: latest.completedAt,
+              },
             };
           }
 
-          // 3. Nếu chưa làm: untaken (tuyệt đối không chia sẻ trạng thái với tài khoản khác)
+          // 3. Nếu chưa từng làm: untaken
           return {
             ...exam,
             status: 'untaken' as const,
             userScore: undefined,
             userProgress: undefined,
+            latestAttempt: undefined,
           };
         })
       );
@@ -173,15 +220,22 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
 
     hydrate();
 
-    // Tự động cập nhật lại giao diện ngay lập tức khi đăng nhập / đăng xuất hoặc đổi tài khoản
-    const handleAuthChange = () => {
+    // Tự động cập nhật lại giao diện ngay lập tức khi đăng nhập / đăng xuất hoặc đổi tiến trình bài thi
+    const handleUpdate = () => {
       hydrate();
     };
 
-    window.addEventListener('auth-state-changed', handleAuthChange);
+    window.addEventListener('auth-state-changed', handleUpdate);
+    window.addEventListener('exam-progress-updated', handleUpdate);
+    window.addEventListener('exam-history-updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
     return () => {
       isCancelled = true;
-      window.removeEventListener('auth-state-changed', handleAuthChange);
+      window.removeEventListener('auth-state-changed', handleUpdate);
+      window.removeEventListener('exam-progress-updated', handleUpdate);
+      window.removeEventListener('exam-history-updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
     };
   }, [initialExams]);
 

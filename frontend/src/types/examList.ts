@@ -22,6 +22,16 @@ export interface ExamItem {
   audioAccents?: string;
   listeningQuestions: number;
   readingQuestions: number;
+  latestAttempt?: {
+    attemptId: number;
+    totalScore: number;
+    listeningScore?: number;
+    readingScore?: number;
+    correctAnswers?: number;
+    wrongAnswers?: number;
+    skippedAnswers?: number;
+    completedAt?: string;
+  };
 }
 
 export interface FilterState {

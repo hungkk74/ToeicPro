@@ -1,1 +1,16 @@
 node_modules
+
+# Secrets - NEVER commit
+.env
+.env.*
+!.env.example
+**/application-local.yml
+
+# Java / Maven
+**/target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/

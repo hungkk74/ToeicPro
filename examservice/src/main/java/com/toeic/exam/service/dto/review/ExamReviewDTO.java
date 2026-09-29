@@ -23,5 +23,6 @@ public record ExamReviewDTO(
     Instant startedAt,
     Instant completedAt,
     List<PartScoreSummaryDTO> partSummaries,
-    List<QuestionReviewDTO> questions
+    List<QuestionReviewDTO> questions,
+    Boolean canViewAnswers
 ) implements Serializable {}

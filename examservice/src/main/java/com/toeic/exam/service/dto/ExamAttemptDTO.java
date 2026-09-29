@@ -21,15 +21,15 @@ public class ExamAttemptDTO implements Serializable {
 
     private AttemptStatus status;
 
-    @Min(value = 5)
+    @Min(value = 0)
     @Max(value = 495)
     private Integer listeningScore;
 
-    @Min(value = 5)
+    @Min(value = 0)
     @Max(value = 495)
     private Integer readingScore;
 
-    @Min(value = 10)
+    @Min(value = 0)
     @Max(value = 990)
     private Integer totalScore;
 

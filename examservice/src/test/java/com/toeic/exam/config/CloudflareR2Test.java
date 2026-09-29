@@ -17,9 +17,14 @@ class CloudflareR2Test {
     @Disabled("Chạy thủ công khi cần kiểm tra kết nối trực tiếp tới Cloudflare R2")
     void testCloudflareR2Connection() {
         String endpoint = "https://64c053901170dae4a44916ada3c5847f.r2.cloudflarestorage.com";
-        String accessKey = "08892b3781c8ccbddfb22200bd39332e";
-        String secretKey = "00171e511d22789b7d29efcf41b97ddd60e32df8a0a2b7ce1655d8b0fcbf0696";
+        String accessKey = System.getenv("CLOUDFLARE_R2_ACCESS_KEY");
+        String secretKey = System.getenv("CLOUDFLARE_R2_SECRET_KEY");
         String bucket = "toeic-sever";
+
+        if (accessKey == null || secretKey == null) {
+            System.out.println(">>> SKIP: CLOUDFLARE_R2_ACCESS_KEY / SECRET_KEY env vars not set");
+            return;
+        }
 
         S3Client s3Client = S3Client.builder()
             .endpointOverride(URI.create(endpoint))
@@ -33,21 +38,14 @@ class CloudflareR2Test {
             .build();
 
         ListObjectsV2Response response = s3Client.listObjectsV2(
-            ListObjectsV2Request.builder().bucket(bucket).maxKeys(50).build()
+            ListObjectsV2Request.builder().bucket(bucket).maxKeys(5).build()
         );
 
         System.out.println(">>> Cloudflare R2 Connection SUCCESS! Bucket: " + bucket);
         System.out.println(">>> Key count: " + response.keyCount());
-        // Copy to clean name without spaces
-        s3Client.copyObject(
-            software.amazon.awssdk.services.s3.model.CopyObjectRequest.builder()
-                .sourceBucket(bucket)
-                .sourceKey("audio/AUDIO Test 01.mp3")
-                .destinationBucket(bucket)
-                .destinationKey("audio/ets2023_test01.mp3")
-                .build()
+        response.contents().forEach(obj ->
+            System.out.println("    - " + obj.key() + " (" + obj.size() + " bytes)")
         );
-        System.out.println(">>> Copied to clean name: audio/ets2023_test01.mp3");
 
         s3Client.close();
     }

@@ -21,5 +21,6 @@ public record ExamResultDTO(
     Integer wrongAnswers,
     Integer skippedAnswers,
     Integer timeSpentSeconds,
-    Instant completedAt
+    Instant completedAt,
+    Boolean canViewAnswers
 ) implements Serializable {}

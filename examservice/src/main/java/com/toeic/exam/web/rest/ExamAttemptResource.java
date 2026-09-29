@@ -231,5 +231,18 @@ public class ExamAttemptResource {
         List<ExamAttemptHistoryDTO> result = examAttemptService.getMyExamHistory();
         return ResponseEntity.ok(result);
     }
+
+    /**
+     * {@code DELETE  /exam-attempts/:id/cancel} : cancel and discard an in-progress exam attempt without saving.
+     *
+     * @param id the id of the examAttempt to cancel.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/{id}/cancel")
+    public ResponseEntity<Void> cancelAttempt(@PathVariable Long id) {
+        LOG.debug("REST request to cancel in-progress ExamAttempt : {}", id);
+        examAttemptService.cancelAttempt(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 

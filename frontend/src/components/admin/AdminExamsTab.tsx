@@ -10,119 +10,11 @@ import {
   CheckCircle2,
   Clock,
   HelpCircle,
-  X,
-  Sparkles,
   Trash2,
 } from 'lucide-react';
 import { deleteExamInBackend, fetchExamsFromBackend } from '@/services/examService';
-
-interface ExamAdminItem {
-  id: number;
-  title: string;
-  category: string;
-  year: string;
-  totalQuestions: number;
-  durationMinutes: number;
-  attemptsCount: number;
-  status: 'published' | 'draft';
-  partsDetail: { part: number; name: string; questions: number }[];
-}
-
-const MOCK_ADMIN_EXAMS: ExamAdminItem[] = [
-  {
-    id: 1,
-    title: 'ETS TOEIC 2026 - Test 01 (Official ETS Standard)',
-    category: 'ETS Format',
-    year: '2026',
-    totalQuestions: 200,
-    durationMinutes: 120,
-    attemptsCount: 428,
-    status: 'published',
-    partsDetail: [
-      { part: 1, name: 'Photographs', questions: 6 },
-      { part: 2, name: 'Question-Response', questions: 25 },
-      { part: 3, name: 'Short Conversations', questions: 39 },
-      { part: 4, name: 'Short Talks', questions: 30 },
-      { part: 5, name: 'Incomplete Sentences', questions: 30 },
-      { part: 6, name: 'Text Completion', questions: 16 },
-      { part: 7, name: 'Reading Comprehension', questions: 54 },
-    ],
-  },
-  {
-    id: 2,
-    title: 'ETS TOEIC 2026 - Test 02 (Full Listening & Reading)',
-    category: 'ETS Format',
-    year: '2026',
-    totalQuestions: 200,
-    durationMinutes: 120,
-    attemptsCount: 312,
-    status: 'published',
-    partsDetail: [
-      { part: 1, name: 'Photographs', questions: 6 },
-      { part: 2, name: 'Question-Response', questions: 25 },
-      { part: 3, name: 'Short Conversations', questions: 39 },
-      { part: 4, name: 'Short Talks', questions: 30 },
-      { part: 5, name: 'Incomplete Sentences', questions: 30 },
-      { part: 6, name: 'Text Completion', questions: 16 },
-      { part: 7, name: 'Reading Comprehension', questions: 54 },
-    ],
-  },
-  {
-    id: 3,
-    title: 'ETS TOEIC 2024 - Test 01 (Cọ Xát Đề Thi Thật)',
-    category: 'ETS Format',
-    year: '2024',
-    totalQuestions: 200,
-    durationMinutes: 120,
-    attemptsCount: 284,
-    status: 'published',
-    partsDetail: [
-      { part: 1, name: 'Photographs', questions: 6 },
-      { part: 2, name: 'Question-Response', questions: 25 },
-      { part: 3, name: 'Short Conversations', questions: 39 },
-      { part: 4, name: 'Short Talks', questions: 30 },
-      { part: 5, name: 'Incomplete Sentences', questions: 30 },
-      { part: 6, name: 'Text Completion', questions: 16 },
-      { part: 7, name: 'Reading Comprehension', questions: 54 },
-    ],
-  },
-  {
-    id: 4,
-    title: 'Hacker TOEIC 2024 - Actual Test 01 (Độ Khó Cao 800+)',
-    category: 'Hacker TOEIC',
-    year: '2024',
-    totalQuestions: 200,
-    durationMinutes: 120,
-    attemptsCount: 176,
-    status: 'published',
-    partsDetail: [
-      { part: 1, name: 'Photographs', questions: 6 },
-      { part: 2, name: 'Question-Response', questions: 25 },
-      { part: 3, name: 'Short Conversations', questions: 39 },
-      { part: 4, name: 'Short Talks', questions: 30 },
-      { part: 5, name: 'Incomplete Sentences', questions: 30 },
-      { part: 6, name: 'Text Completion', questions: 16 },
-      { part: 7, name: 'Reading Comprehension', questions: 54 },
-    ],
-  },
-  {
-    id: 5,
-    title: 'Mini Test Nhanh 30 Phút - Đánh Giá Năng Lực Khởi Đầu',
-    category: 'Mini Test',
-    year: '2026',
-    totalQuestions: 50,
-    durationMinutes: 30,
-    attemptsCount: 80,
-    status: 'published',
-    partsDetail: [
-      { part: 1, name: 'Photographs', questions: 3 },
-      { part: 2, name: 'Question-Response', questions: 7 },
-      { part: 3, name: 'Short Conversations', questions: 10 },
-      { part: 5, name: 'Incomplete Sentences', questions: 15 },
-      { part: 7, name: 'Reading Comprehension', questions: 15 },
-    ],
-  },
-];
+import { ExamAdminItem } from '@/constants/mockAdminExams';
+import { AdminExamDetailModal } from '@/components/admin/AdminExamDetailModal';
 
 export default function AdminExamsTab() {
   const [exams, setExams] = useState<ExamAdminItem[]>([]);
@@ -141,7 +33,7 @@ export default function AdminExamsTab() {
           year: d.createdAt ? new Date(d.createdAt).getFullYear().toString() : '2026',
           totalQuestions: d.totalQuestions,
           durationMinutes: d.durationMinutes,
-          attemptsCount: 0, // Chưa có API trả về số lượt thi
+          attemptsCount: 0,
           status: d.isPublished !== false ? 'published' : 'draft',
           partsDetail: d.parts
             ? d.parts.map((p) => ({ part: p.partNumber, name: p.name, questions: p.totalQuestions }))
@@ -292,57 +184,10 @@ export default function AdminExamsTab() {
 
       {/* Modal Xem Cấu Trúc Chi Tiết Đề Thi */}
       {selectedExamForModal && (
-        <div
-          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
-          onClick={() => setSelectedExamForModal(null)}
-        >
-          <div
-            className="bg-white rounded-2xl max-w-lg w-full border border-slate-200 shadow-2xl p-6 space-y-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-600" />
-                <h3 className="font-bold text-slate-900 text-sm">
-                  Cấu Trúc Đề: {selectedExamForModal.title}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedExamForModal(null)}
-                className="text-slate-400 hover:text-slate-700 p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
-                Phân bố 7 phần thi TOEIC tiêu chuẩn:
-              </span>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
-                {selectedExamForModal.partsDetail.map((p) => (
-                  <div key={p.part} className="flex items-center justify-between p-2.5 text-xs">
-                    <span className="font-semibold text-slate-800">Part {p.part}: {p.name}</span>
-                    <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                      {p.questions} câu
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setSelectedExamForModal(null)}
-                className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
+        <AdminExamDetailModal
+          exam={selectedExamForModal}
+          onClose={() => setSelectedExamForModal(null)}
+        />
       )}
     </div>
   );

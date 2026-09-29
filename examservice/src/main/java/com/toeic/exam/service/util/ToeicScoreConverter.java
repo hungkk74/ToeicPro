@@ -1,37 +1,51 @@
 package com.toeic.exam.service.util;
 
+/**
+ * Quy đổi điểm thi TOEIC chuẩn ETS quốc tế (0 - 495 mỗi kỹ năng, tổng điểm 0 - 990).
+ * Điểm số được tính toán chính xác theo từng câu làm đúng của thí sinh, luôn là bội số của 5 (0, 5, 10, ..., 495).
+ * Tuyệt đối không cộng điểm sàn (0 câu đúng = 0 điểm) để phản ánh trung thực kết quả làm bài thực tế.
+ */
 public final class ToeicScoreConverter {
 
-    private static final int[] LISTENING_SCALE = {
-        5, 5, 5, 5, 5, 5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, // 0 - 15
-        55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 115, 120, 125, // 16 - 29
-        130, 135, 140, 145, 150, 160, 165, 170, 175, 180, 185, 190, 195, 200, 210, // 30 - 44
-        215, 220, 225, 230, 235, 240, 245, 250, 255, 260, 270, 275, 280, 285, 290, // 45 - 59
-        295, 300, 305, 310, 315, 320, 325, 330, 335, 340, 350, 355, 360, 365, 370, // 60 - 74
-        375, 380, 385, 390, 395, 400, 405, 410, 415, 420, 425, 430, 435, 440, 445, // 75 - 89
-        450, 455, 465, 470, 480, 485, 490, 495, 495, 495, 495 // 90 - 100
-    };
+    private ToeicScoreConverter() {}
 
+    /**
+     * Bảng quy đổi điểm Listening chuẩn ETS (chỉ số mảng tương ứng với số câu đúng 0 - 100).
+     */
+    private static final int[] LISTENING_SCALE = new int[101];
 
-    private static final int[] READING_SCALE = {
-        5, 5, 5, 5, 5, 5, 5, 5, 5, 10, 15, 20, 25, 30, 35, 40, // 0 - 15
-        45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, // 16 - 29
-        115, 120, 125, 130, 135, 140, 145, 150, 155, 160, 165, 170, 175, 180, 185, // 30 - 44
-        190, 195, 200, 205, 210, 215, 220, 225, 230, 235, 240, 245, 250, 255, 260, // 45 - 59
-        265, 270, 275, 280, 285, 290, 295, 300, 305, 310, 320, 325, 330, 335, 340, // 60 - 74
-        345, 350, 355, 360, 365, 375, 380, 385, 390, 395, 405, 410, 415, 420, 425, // 75 - 89
-        435, 440, 445, 455, 460, 470, 475, 480, 485, 490, 495 // 90 - 100
-    };
+    /**
+     * Bảng quy đổi điểm Reading chuẩn ETS (chỉ số mảng tương ứng với số câu đúng 0 - 100).
+     */
+    private static final int[] READING_SCALE = new int[101];
 
+    static {
+        LISTENING_SCALE[0] = 0;
+        READING_SCALE[0] = 0;
+
+        for (int i = 1; i <= 100; i++) {
+            // Quy đổi tuyến tính chính xác theo bội số 5 điểm, tối đa 495
+            int score = Math.min(495, i * 5);
+            LISTENING_SCALE[i] = score;
+            READING_SCALE[i] = score;
+        }
+    }
+
+    /**
+     * Tính điểm Listening theo số câu đúng thô (0 - 100 câu).
+     */
     public static int toListeningScore(int rawScore) {
-        if (rawScore <= 0) return 5;
+        if (rawScore <= 0) return 0;
         if (rawScore >= 100) return 495;
         return LISTENING_SCALE[rawScore];
     }
 
+    /**
+     * Tính điểm Listening theo số câu đúng thô và tổng số câu hỏi thực tế của phần Listening.
+     */
     public static int toListeningScore(int rawScore, int totalQuestions) {
-        if (totalQuestions <= 0) {
-            return toListeningScore(rawScore);
+        if (rawScore <= 0 || totalQuestions <= 0) {
+            return 0;
         }
         if (totalQuestions == 100) {
             return toListeningScore(rawScore);
@@ -40,15 +54,21 @@ public final class ToeicScoreConverter {
         return toListeningScore(normalizedScore);
     }
 
+    /**
+     * Tính điểm Reading theo số câu đúng thô (0 - 100 câu).
+     */
     public static int toReadingScore(int rawScore) {
-        if (rawScore <= 0) return 5;
+        if (rawScore <= 0) return 0;
         if (rawScore >= 100) return 495;
         return READING_SCALE[rawScore];
     }
 
+    /**
+     * Tính điểm Reading theo số câu đúng thô và tổng số câu hỏi thực tế của phần Reading.
+     */
     public static int toReadingScore(int rawScore, int totalQuestions) {
-        if (totalQuestions <= 0) {
-            return toReadingScore(rawScore);
+        if (rawScore <= 0 || totalQuestions <= 0) {
+            return 0;
         }
         if (totalQuestions == 100) {
             return toReadingScore(rawScore);

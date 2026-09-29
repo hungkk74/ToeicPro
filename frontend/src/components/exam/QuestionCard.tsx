@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+
 export interface QuestionOptionItem {
   key: string;
   text: string;
@@ -21,13 +25,17 @@ interface QuestionCardProps {
   onNextQuestion: () => void;
   canGoPrev: boolean;
   canGoNext: boolean;
+  isReviewMode?: boolean;
+  correctOption?: string;
+  explanation?: string;
+  transcript?: string;
 }
 
-const SAMPLE_OPTIONS: QuestionOptionItem[] = [
-  { key: 'A', text: 'One of the workers is adjusting a safety helmet.' },
-  { key: 'B', text: 'Boxes are being stacked with a forklift machine.' },
-  { key: 'C', text: 'The supervisors are examining documents on a clipboard.' },
-  { key: 'D', text: 'Pallets are being loaded into the back of a delivery truck.' },
+const DEFAULT_EMPTY_OPTIONS: QuestionOptionItem[] = [
+  { key: 'A', text: '' },
+  { key: 'B', text: '' },
+  { key: 'C', text: '' },
+  { key: 'D', text: '' },
 ];
 
 export default function QuestionCard({
@@ -39,7 +47,7 @@ export default function QuestionCard({
   passageText,
   imageUrl,
   audioUrl,
-  options = SAMPLE_OPTIONS,
+  options = DEFAULT_EMPTY_OPTIONS,
   isFlagged,
   onToggleFlag,
   selectedAnswer,
@@ -48,8 +56,13 @@ export default function QuestionCard({
   onNextQuestion,
   canGoPrev,
   canGoNext,
+  isReviewMode = false,
+  correctOption,
+  explanation,
+  transcript,
 }: QuestionCardProps) {
-  const displayOptions = options && options.length > 0 ? options : SAMPLE_OPTIONS;
+  const [showTranscript, setShowTranscript] = useState(false);
+  const displayOptions = options && options.length > 0 ? options : DEFAULT_EMPTY_OPTIONS;
   const isReadingPart = partNumber >= 5;
 
   return (
@@ -147,57 +160,129 @@ export default function QuestionCard({
       <div className="flex flex-col gap-space-sm mt-space-md">
         {displayOptions.map((opt) => {
           const isSelected = selectedAnswer === opt.key;
+          const isCorrectChoice = isReviewMode && correctOption === opt.key;
+          const isUserWrongChoice = isReviewMode && isSelected && !isCorrectChoice;
+
+          let optionContainerClasses = 'bg-surface border-border-subtle hover:bg-surface-subtle';
+          let badgeClasses = 'bg-surface-subtle text-text-body';
+
+          if (isReviewMode) {
+            if (isCorrectChoice) {
+              optionContainerClasses = 'bg-emerald-50 border-emerald-500 shadow-xs ring-1 ring-emerald-500';
+              badgeClasses = 'bg-emerald-600 text-white font-bold';
+            } else if (isUserWrongChoice) {
+              optionContainerClasses = 'bg-rose-50 border-rose-400 shadow-xs ring-1 ring-rose-400';
+              badgeClasses = 'bg-rose-600 text-white font-bold';
+            } else {
+              optionContainerClasses = 'bg-slate-50/70 border-slate-200 opacity-80';
+              badgeClasses = 'bg-slate-100 text-slate-600';
+            }
+          } else if (isSelected) {
+            optionContainerClasses = 'bg-surface-container-low border-primary shadow-sm';
+            badgeClasses = 'bg-primary text-on-primary font-bold';
+          }
+
           return (
             <label
               key={opt.key}
-              className={`group flex items-center justify-between p-space-md rounded cursor-pointer transition-all border ${
-                isSelected
-                  ? 'bg-surface-container-low border-primary shadow-sm'
-                  : 'bg-surface border-border-subtle hover:bg-surface-subtle'
-              }`}
-              onClick={() => onSelectAnswer(opt.key)}
+              className={`group flex items-center justify-between p-space-md rounded ${
+                isReviewMode ? 'cursor-default' : 'cursor-pointer'
+              } transition-all border ${optionContainerClasses}`}
+              onClick={() => {
+                if (!isReviewMode) onSelectAnswer(opt.key);
+              }}
             >
               <div className="flex items-center gap-space-md flex-1">
                 <div
-                  className={`w-9 h-9 min-w-[36px] rounded flex items-center justify-center font-headline-sm text-headline-sm transition-colors font-bold ${
-                    isSelected
-                      ? 'bg-primary text-on-primary'
-                      : 'bg-surface-subtle text-text-body group-hover:bg-primary/10 group-hover:text-primary'
-                  }`}
+                  className={`w-9 h-9 min-w-[36px] rounded flex items-center justify-center font-headline-sm text-headline-sm transition-colors font-bold ${badgeClasses}`}
                 >
                   {opt.key}
                 </div>
                 <span
                   className={`font-body-reading text-body-reading ${
-                    isSelected ? 'font-semibold text-text-primary' : 'text-text-body'
+                    isSelected || isCorrectChoice ? 'font-semibold text-text-primary' : 'text-text-body'
                   }`}
                 >
-                  {opt.text}
+                  {opt.text || `Đáp án (${opt.key})`}
                 </span>
               </div>
-              <input
-                checked={isSelected}
-                onChange={() => onSelectAnswer(opt.key)}
-                className="w-4 h-4 text-primary focus:ring-0"
-                name={`question-${currentQuestion}`}
-                type="radio"
-                value={opt.key}
-              />
+
+              {/* Status chips in Review Mode */}
+              {isReviewMode && isCorrectChoice && (
+                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full shrink-0 ml-2">
+                  ✓ Đáp án đúng
+                </span>
+              )}
+              {isReviewMode && isUserWrongChoice && (
+                <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-1 rounded-full shrink-0 ml-2">
+                  ✗ Bạn chọn
+                </span>
+              )}
+
+              {!isReviewMode && (
+                <input
+                  checked={isSelected}
+                  onChange={() => onSelectAnswer(opt.key)}
+                  className="w-4 h-4 text-primary focus:ring-0"
+                  name={`question-${currentQuestion}`}
+                  type="radio"
+                  value={opt.key}
+                />
+              )}
             </label>
           );
         })}
       </div>
 
+      {/* Review Mode: Detailed Explanation and Audio Transcript */}
+      {isReviewMode && (explanation || transcript) && (
+        <div className="mt-4 p-4 rounded-xl bg-blue-50/60 border border-blue-200/80 space-y-3 animate-in fade-in duration-200">
+          {explanation && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 mb-1">
+                <span>💡 Giải thích chi tiết câu {currentQuestion}:</span>
+              </div>
+              <p className="text-xs sm:text-sm text-blue-950 leading-relaxed whitespace-pre-wrap font-medium">
+                {explanation}
+              </p>
+            </div>
+          )}
+
+          {transcript && showTranscript && (
+            <div className="pt-2 border-t border-blue-200/60">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 mb-1">
+                <span>🎙️ Lời thoại Audio (Transcript):</span>
+              </div>
+              <p className="text-xs font-mono text-blue-900 leading-relaxed whitespace-pre-wrap bg-white/70 p-2.5 rounded border border-blue-200/50">
+                {transcript}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Bottom Interaction Action Row */}
       <div className="flex flex-wrap items-center justify-between gap-space-sm pt-space-lg mt-space-lg border-t border-border-subtle">
         <div className="flex items-center gap-space-sm">
-          <button
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-surface hover:bg-surface-subtle text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors shadow-sm border border-border-subtle"
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[18px]">lock</span>
-            <span>Lời thoại Audio (Khóa khi thi)</span>
-          </button>
+          {isReviewMode && transcript ? (
+            <button
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-label-md text-label-md transition-colors shadow-sm border border-blue-200 cursor-pointer"
+              type="button"
+              onClick={() => setShowTranscript((prev) => !prev)}
+            >
+              <span className="material-symbols-outlined text-[18px]">graphic_eq</span>
+              <span>{showTranscript ? 'Ẩn lời thoại Audio' : 'Xem lời thoại Audio'}</span>
+            </button>
+          ) : (
+            <button
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-surface hover:bg-surface-subtle text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors shadow-sm border border-border-subtle opacity-70"
+              type="button"
+              disabled
+            >
+              <span className="material-symbols-outlined text-[18px]">lock</span>
+              <span>Lời thoại Audio (Khóa khi thi)</span>
+            </button>
+          )}
           <button
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-surface hover:bg-surface-subtle text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors shadow-sm border border-border-subtle"
             type="button"

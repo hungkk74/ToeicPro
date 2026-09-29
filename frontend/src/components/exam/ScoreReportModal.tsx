@@ -1,238 +1,321 @@
-import Link from 'next/link';
-import { ExamResultDTO } from '@/types/backend';
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  ArrowRight,
+  Clock,
+  Award,
+  Pause,
+  Play,
+  Layers,
+  FileText,
+  Lock,
+  X,
+} from 'lucide-react';
+import { ExamResultDTO, ExamReviewDTO, QuestionReviewDTO } from '@/types/backend';
+import { fetchExamReviewFromBackend } from '@/services/examService';
+import { useScoreCountdown } from '@/hooks/useScoreCountdown';
+import { getCefrBadge, formatTimeSpent } from './score-report/scoreReportUtils';
+import { ScoreSummaryTab } from './score-report/ScoreSummaryTab';
+import { ScorePartsTab } from './score-report/ScorePartsTab';
+import { ScoreQuestionsTab } from './score-report/ScoreQuestionsTab';
 
 interface ScoreReportModalProps {
   isOpen: boolean;
   onClose: () => void;
   examResult: ExamResultDTO;
-  timeRemaining: number;
-  formatTime: (sec: number) => string;
-  answeredCount: number;
+  timeRemaining?: number;
+  formatTime?: (sec: number) => string;
+  answeredCount?: number;
+  totalQuestions?: number;
+  onViewDetailedReview?: () => void;
 }
 
 export default function ScoreReportModal({
   isOpen,
   onClose,
   examResult,
-  timeRemaining,
-  formatTime,
-  answeredCount,
+  answeredCount = 0,
+  totalQuestions,
+  onViewDetailedReview,
 }: ScoreReportModalProps) {
+  const [activeTab, setActiveTab] = useState<'summary' | 'parts' | 'questions'>('summary');
+  const [reviewData, setReviewData] = useState<ExamReviewDTO | null>(null);
+  const [loadingReview, setLoadingReview] = useState(false);
+  const [questionFilter, setQuestionFilter] = useState<'all' | 'wrong' | 'correct' | 'skipped'>('all');
+  const [expandedExplanation, setExpandedExplanation] = useState<Record<number, boolean>>({});
+
+  const { countdown, isPaused, togglePause, pause, redirectToTarget } = useScoreCountdown({
+    isOpen,
+    activeTab,
+  });
+
+  useEffect(() => {
+    if (!isOpen || !examResult?.attemptId) return;
+
+    let isMounted = true;
+    setLoadingReview(true);
+    fetchExamReviewFromBackend(examResult.attemptId)
+      .then((review) => {
+        if (isMounted && review) {
+          setReviewData(review);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not load detailed review:', err);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingReview(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, examResult?.attemptId]);
+
+  const handleTabChange = (tab: 'summary' | 'parts' | 'questions') => {
+    setActiveTab(tab);
+    if (tab !== 'summary') {
+      pause();
+    }
+  };
+
   if (!isOpen) return null;
 
-  const correctAnswers = examResult.correctAnswers ?? Math.round(answeredCount * 0.8);
-  const wrongAnswers = examResult.wrongAnswers ?? Math.round(answeredCount * 0.2);
-  const skippedAnswers = examResult.skippedAnswers ?? 200 - answeredCount;
+  const totalFromResults =
+    (examResult.correctAnswers ?? 0) +
+    (examResult.wrongAnswers ?? 0) +
+    (examResult.skippedAnswers ?? 0);
+
+  const resolvedTotal =
+    totalFromResults > 0
+      ? totalFromResults
+      : totalQuestions && totalQuestions > 0
+      ? totalQuestions
+      : 200;
+
+  const correctAnswers = examResult.correctAnswers ?? 0;
+  const wrongAnswers = examResult.wrongAnswers ?? 0;
+
+  const actualAnswered =
+    examResult.correctAnswers != null && examResult.wrongAnswers != null
+      ? correctAnswers + wrongAnswers
+      : Math.min(resolvedTotal, answeredCount);
+
+  const skippedAnswers =
+    examResult.skippedAnswers ?? Math.max(0, resolvedTotal - actualAnswered);
+
+  const completionPercentage =
+    resolvedTotal > 0 ? Math.round((actualAnswered / resolvedTotal) * 100) : 0;
+
+  const canViewAnswers =
+    examResult.canViewAnswers !== undefined
+      ? examResult.canViewAnswers
+      : reviewData?.canViewAnswers !== undefined
+      ? reviewData.canViewAnswers
+      : resolvedTotal > 0
+      ? actualAnswered * 100 >= resolvedTotal * 80
+      : false;
+
+  const requiredQuestionsToUnlock = Math.ceil(resolvedTotal * 0.8);
+  const accuracyPercentage =
+    actualAnswered > 0 ? Math.round((correctAnswers / actualAnswered) * 100) : 0;
+  const actualTimeSpentStr = formatTimeSpent(examResult.timeSpentSeconds);
+
+  const hasListeningQuestions = reviewData?.questions && reviewData.questions.length > 0
+    ? reviewData.questions.some((q) => (q.partNumber || 0) <= 4)
+    : resolvedTotal >= 100 || examResult.listeningScore !== undefined;
+
+  const hasReadingQuestions = reviewData?.questions && reviewData.questions.length > 0
+    ? reviewData.questions.some((q) => (q.partNumber || 0) >= 5)
+    : resolvedTotal >= 100 || examResult.readingScore !== undefined;
+
+  const hasListening = hasListeningQuestions || examResult.listeningScore !== undefined;
+  const hasReading = hasReadingQuestions || examResult.readingScore !== undefined;
+  const maxTotalScore = (hasListening && hasReading && resolvedTotal >= 100) || resolvedTotal >= 150 ? 990 : 495;
+  const cefr = getCefrBadge(examResult.totalScore, maxTotalScore);
+
+  const allReviewQuestions: QuestionReviewDTO[] = reviewData?.questions || [];
+  const filteredQuestions = allReviewQuestions.filter((q) => {
+    if (questionFilter === 'correct') return q.isCorrect;
+    if (questionFilter === 'wrong') return !q.isCorrect && q.selectedOption != null;
+    if (questionFilter === 'skipped') return q.selectedOption == null;
+    return true;
+  });
+
+  const toggleExplanation = (qId: number) => {
+    setExpandedExplanation((prev) => ({ ...prev, [qId]: !prev[qId] }));
+  };
 
   return (
-    <div className="fixed inset-0 z-50 bg-text-primary/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-surface rounded-xl shadow-2xl border border-border-subtle overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
-        {/* Modal Header Strip */}
-        <div className="bg-surface-bright border-b border-border-subtle px-space-lg py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-space-sm">
-            <div className="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center font-bold text-xs">
-              T
-            </div>
-            <div>
-              <h2 className="font-headline-sm text-headline-sm text-text-primary font-bold">
-                Báo Cáo Điểm &amp; Phân Tích Năng Lực TOEIC
-              </h2>
-              <p className="font-caption text-caption text-text-secondary">
-                Hệ thống chấm điểm chuẩn ETS theo thang ToeicScoreConverter (Lượt thi #{examResult.attemptId})
-              </p>
-            </div>
+    <div
+      className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-6 flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
+
+        {/* Header */}
+        <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+              Nộp bài thành công!
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {examResult.examTitle || 'Đề thi TOEIC'} — Kết quả làm bài
+            </p>
           </div>
+
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-surface-subtle transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
             aria-label="Đóng"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-space-lg space-y-space-lg">
-          {/* Top Meta Strip */}
-          <div className="bg-surface-subtle rounded-lg border border-border-subtle p-space-md flex flex-wrap items-center justify-between gap-space-md text-caption font-caption text-text-secondary">
-            <div className="flex items-center gap-2">
-              <span>Mã lượt thi:</span>
-              <strong className="text-text-primary font-numeric-metric">TP-ATTEMPT-{examResult.attemptId}</strong>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Thời gian làm bài:</span>
-              <strong className="text-text-primary font-numeric-metric">{formatTime(7200 - timeRemaining)}</strong>
-            </div>
-            <div className="flex items-center gap-1 text-status-success font-medium">
-              <span className="w-2 h-2 rounded-full bg-status-success inline-block"></span>
-              <span>Điểm thi đã được xác thực chuẩn ETS</span>
-            </div>
-          </div>
-
-          {/* MODULE 1: Official Score Certificate & Summary Card */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-border-subtle border border-border-subtle rounded-xl overflow-hidden bg-surface">
-            {/* Left Hero Block: Official Verified Score */}
-            <div className="lg:col-span-4 p-space-lg flex flex-col justify-between bg-surface-bright/50">
-              <div>
-                <div className="flex items-center justify-between mb-space-md">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-primary-container text-on-primary font-label-sm text-[11px] font-semibold tracking-wider uppercase">
-                    Thang điểm ETS
-                  </span>
-                  <span className="font-caption text-caption text-text-muted uppercase">Mã đề #2026</span>
-                </div>
-                <p className="font-label-md text-label-md text-text-secondary font-medium">Tổng điểm quy đổi</p>
-                <div className="mt-space-xs flex items-baseline gap-1.5">
-                  <span className="font-headline-xl text-[48px] leading-none font-bold text-text-primary tabular-nums tracking-tight">
-                    {examResult.totalScore}
-                  </span>
-                  <span className="font-headline-lg text-headline-lg text-text-muted tabular-nums">/ 990</span>
-                </div>
-
-                <div className="mt-space-md inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-status-success-bg text-status-success border border-status-success/30 font-caption text-caption font-medium">
-                  ✓ {examResult.totalScore >= 780 ? 'Đã đạt mục tiêu điểm số (Mục tiêu: 780+)' : 'Đạt tiến độ học tập tốt'}
-                </div>
-              </div>
-
-              <div className="pt-space-md mt-space-md border-t border-border-subtle text-caption font-caption text-text-secondary space-y-1">
-                <div className="flex justify-between">
-                  <span>Độ chính xác:</span>
-                  <strong className="text-text-primary font-medium tabular-nums">
-                    {correctAnswers} / 200 ({((correctAnswers / 200) * 100).toFixed(1)}%)
+        {/* Auto Redirect Countdown Bar */}
+        <div className="bg-slate-50 border-b border-slate-200 px-6 py-2.5 flex items-center justify-between text-xs text-slate-600 shrink-0">
+          <div className="flex items-center gap-2 font-medium">
+            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span>
+              {isPaused || activeTab !== 'summary' ? (
+                <span>Đã tạm dừng tự động chuyển trang</span>
+              ) : (
+                <>
+                  Tự động quay về danh sách đề thi sau{' '}
+                  <strong className="text-slate-900 font-bold tabular-nums font-mono text-sm">
+                    {countdown}s
                   </strong>
-                </div>
-                <div className="flex justify-between">
-                  <span>Điểm trung bình cộng đồng:</span>
-                  <span className="text-text-muted tabular-nums">612 / 990</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Middle Block: Sectional Sub-scores */}
-            <div className="lg:col-span-5 p-space-lg flex flex-col justify-center gap-space-lg">
-              {/* Listening Sub-score */}
-              <div className="space-y-space-xs">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm text-text-primary font-bold">
-                      Kỹ Năng Nghe (Listening)
-                    </h3>
-                    <p className="font-caption text-caption text-text-secondary">Phần Nghe (Part 1 - 4)</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-headline-lg text-headline-lg text-text-primary font-bold tabular-nums">
-                      {examResult.listeningScore}{' '}
-                      <span className="font-caption text-caption text-text-muted font-normal">/ 495</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full h-2 rounded bg-surface-subtle overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded transition-all duration-500"
-                    style={{ width: `${Math.min(100, (examResult.listeningScore / 495) * 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <hr className="border-border-subtle" />
-
-              {/* Reading Sub-score */}
-              <div className="space-y-space-xs">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm text-text-primary font-bold">
-                      Kỹ Năng Đọc (Reading)
-                    </h3>
-                    <p className="font-caption text-caption text-text-secondary">Phần Đọc (Part 5 - 7)</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-headline-lg text-headline-lg text-text-primary font-bold tabular-nums">
-                      {examResult.readingScore}{' '}
-                      <span className="font-caption text-caption text-text-muted font-normal">/ 495</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="w-full h-2 rounded bg-surface-subtle overflow-hidden">
-                  <div
-                    className="h-full bg-secondary rounded transition-all duration-500"
-                    style={{ width: `${Math.min(100, (examResult.readingScore / 495) * 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Block: CEFR Level */}
-            <div className="lg:col-span-3 p-space-lg flex flex-col justify-between bg-surface-subtle/40">
-              <div className="space-y-2">
-                <span className="font-caption text-caption uppercase tracking-wider text-text-muted font-medium">
-                  Chuẩn quốc tế CEFR
-                </span>
-                <div className="flex items-center gap-space-xs">
-                  <span className="px-2.5 py-0.5 rounded bg-primary text-on-primary font-headline-sm text-headline-sm font-bold">
-                    {examResult.totalScore >= 850
-                      ? 'C1'
-                      : examResult.totalScore >= 785
-                      ? 'B2'
-                      : examResult.totalScore >= 550
-                      ? 'B1'
-                      : 'A2'}
-                  </span>
-                  <span className="font-label-md text-label-md text-text-primary font-semibold">
-                    {examResult.totalScore >= 850
-                      ? 'C1 - Năng Lực Xuất Sắc'
-                      : examResult.totalScore >= 785
-                      ? 'B2 - Năng Lực Giao Tiếp Tốt'
-                      : examResult.totalScore >= 550
-                      ? 'B1 - Người Dùng Độc Lập'
-                      : 'A2 - Trình Độ Sơ Cấp'}
-                  </span>
-                </div>
-                <p className="font-caption text-caption text-text-secondary leading-snug">
-                  Có khả năng giao tiếp thành thạo, nắm bắt ý chính trong các tình huống công sở phức tạp, soạn thảo tài liệu chuyên môn chính xác.
-                </p>
-              </div>
-            </div>
+                </>
+              )}
+            </span>
           </div>
 
-          {/* Accuracy & Detailed Breakdown */}
-          <div className="grid grid-cols-3 gap-space-md">
-            <div className="p-space-md rounded-lg bg-status-success-bg border border-status-success/20 text-center">
-              <p className="font-caption text-caption text-status-success font-medium">Câu trả lời đúng</p>
-              <p className="font-headline-lg text-headline-lg font-bold text-status-success tabular-nums mt-1">
-                {correctAnswers}
-              </p>
-            </div>
-            <div className="p-space-md rounded-lg bg-status-error-bg border border-status-error/20 text-center">
-              <p className="font-caption text-caption text-status-error font-medium">Câu trả lời sai</p>
-              <p className="font-headline-lg text-headline-lg font-bold text-status-error tabular-nums mt-1">
-                {wrongAnswers}
-              </p>
-            </div>
-            <div className="p-space-md rounded-lg bg-surface-subtle border border-border-subtle text-center">
-              <p className="font-caption text-caption text-text-secondary font-medium">Câu chưa làm</p>
-              <p className="font-headline-lg text-headline-lg font-bold text-text-primary tabular-nums mt-1">
-                {skippedAnswers}
-              </p>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={togglePause}
+              className="px-2.5 py-1 rounded-md text-[11px] font-medium border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition-colors flex items-center gap-1"
+              title={isPaused ? 'Tiếp tục đếm ngược' : 'Tạm dừng đếm ngược'}
+            >
+              {isPaused ? <Play className="w-3 h-3 text-slate-600" /> : <Pause className="w-3 h-3 text-slate-600" />}
+              <span>{isPaused ? 'Tiếp tục' : 'Tạm dừng'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={redirectToTarget}
+              className="px-3 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium text-[11px] transition-colors flex items-center gap-1 shadow-2xs"
+            >
+              <span>Về danh sách ngay</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
           </div>
         </div>
 
-        {/* Modal Footer Actions */}
-        <div className="bg-surface-bright border-t border-border-subtle px-space-lg py-space-md flex flex-wrap items-center justify-between gap-space-md">
-          <Link
-            href="/"
-            className="px-space-md py-2 rounded-lg bg-surface border border-border-subtle hover:bg-surface-subtle font-label-md text-label-md text-text-primary font-medium transition-colors"
+        {/* Navigation Tabs */}
+        <div className="flex items-center border-b border-slate-200 bg-white px-6 text-xs font-semibold shrink-0 gap-1">
+          <button
+            type="button"
+            onClick={() => handleTabChange('summary')}
+            className={`py-3 px-3.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'summary'
+                ? 'border-slate-900 text-slate-900 -mb-px'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
           >
-            ← Quay lại danh sách đề thi
-          </Link>
-          <div className="flex items-center gap-space-sm">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-space-md py-2 rounded-lg bg-primary hover:bg-primary-container font-label-md text-label-md text-on-primary font-medium transition-colors shadow-sm"
-            >
-              Xem chi tiết từng câu trong bài
-            </button>
-          </div>
+            <Award className="w-3.5 h-3.5" />
+            <span>Tổng quan điểm số</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabChange('parts')}
+            className={`py-3 px-3.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'parts'
+                ? 'border-slate-900 text-slate-900 -mb-px'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Phân tích từng phần ({reviewData?.partSummaries?.length || 0} Parts)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTabChange('questions')}
+            className={`py-3 px-3.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+              activeTab === 'questions'
+                ? 'border-slate-900 text-slate-900 -mb-px'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            {canViewAnswers ? (
+              <FileText className="w-3.5 h-3.5" />
+            ) : (
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+            )}
+            <span>Xem lại câu hỏi & Lời giải ({resolvedTotal} câu)</span>
+            {!canViewAnswers && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                Khóa (&lt;80%)
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
+          {activeTab === 'summary' && (
+            <ScoreSummaryTab
+              examResult={examResult}
+              reviewData={reviewData}
+              maxTotalScore={maxTotalScore}
+              hasListening={hasListening}
+              hasReading={hasReading}
+              cefr={cefr}
+              actualAnswered={actualAnswered}
+              resolvedTotal={resolvedTotal}
+              accuracyPercentage={accuracyPercentage}
+              completionPercentage={completionPercentage}
+              correctAnswers={correctAnswers}
+              wrongAnswers={wrongAnswers}
+              skippedAnswers={skippedAnswers}
+              actualTimeSpentStr={actualTimeSpentStr}
+              canViewAnswers={canViewAnswers}
+              requiredQuestionsToUnlock={requiredQuestionsToUnlock}
+              onNavigateToParts={() => handleTabChange('parts')}
+            />
+          )}
+
+          {activeTab === 'parts' && (
+            <ScorePartsTab
+              reviewData={reviewData}
+              loadingReview={loadingReview}
+            />
+          )}
+
+          {activeTab === 'questions' && (
+            <ScoreQuestionsTab
+              canViewAnswers={canViewAnswers}
+              completionPercentage={completionPercentage}
+              requiredQuestionsToUnlock={requiredQuestionsToUnlock}
+              actualAnswered={actualAnswered}
+              resolvedTotal={resolvedTotal}
+              questionFilter={questionFilter}
+              setQuestionFilter={setQuestionFilter}
+              correctAnswers={correctAnswers}
+              wrongAnswers={wrongAnswers}
+              skippedAnswers={skippedAnswers}
+              loadingReview={loadingReview}
+              filteredQuestions={filteredQuestions}
+              expandedExplanation={expandedExplanation}
+              onToggleExplanation={toggleExplanation}
+              onViewDetailedReview={onViewDetailedReview}
+              onClose={onClose}
+              onNavigateToSummary={() => handleTabChange('summary')}
+            />
+          )}
         </div>
       </div>
     </div>

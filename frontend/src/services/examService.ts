@@ -144,7 +144,14 @@ export interface MyExamHistoryItem {
   attemptId: number;
   examId: number;
   examTitle: string;
+  listeningScore?: number;
+  readingScore?: number;
   totalScore: number;
+  correctAnswers?: number;
+  wrongAnswers?: number;
+  skippedAnswers?: number;
+  timeSpentSeconds?: number;
+  startedAt?: string;
   completedAt: string;
 }
 
@@ -161,6 +168,17 @@ export async function fetchMyExamHistory(): Promise<MyExamHistoryItem[]> {
     // Chưa đăng nhập hoặc offline
   }
   return [];
+}
+
+/**
+ * Hủy bỏ phiên thi đang làm dở khi người dùng chọn thoát không lưu (/api/exam-attempts/:id/cancel)
+ */
+export async function cancelExamAttemptInBackend(attemptId: number, token?: string): Promise<void> {
+  try {
+    await fetchApi(`/api/exam-attempts/${attemptId}/cancel`, { method: 'DELETE' }, token);
+  } catch (err) {
+    console.warn(`Failed to cancel exam attempt #${attemptId}:`, err);
+  }
 }
 
 /**

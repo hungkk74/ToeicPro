@@ -29,6 +29,10 @@ management:
       probability: 1.0 # report 100% of traces
 
 spring:
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
   devtools:
     restart:
       enabled: true

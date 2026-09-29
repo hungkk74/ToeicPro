@@ -28,13 +28,13 @@ public class ExamAttemptCleanupService {
         this.userAnswerRepository = userAnswerRepository;
     }
 
-    @Scheduled(cron = "0 0 2 * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     @Transactional
     public void cleanupAbandonedExamAttempts() {
-        LOG.info("Starting cleanup of abandoned IN_PROGRESS ExamAttempts...");
-        Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS);
+        LOG.info("Starting cleanup of abandoned IN_PROGRESS ExamAttempts older than 24 hours...");
+        Instant twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
 
-        List<Long> abandonedIds = examAttemptRepository.findIdsByStatusAndStartedAtBefore(AttemptStatus.IN_PROGRESS, sevenDaysAgo);
+        List<Long> abandonedIds = examAttemptRepository.findIdsByStatusAndStartedAtBefore(AttemptStatus.IN_PROGRESS, twentyFourHoursAgo);
 
         if (abandonedIds.isEmpty()) {
             LOG.info("No abandoned attempts found to clean up.");

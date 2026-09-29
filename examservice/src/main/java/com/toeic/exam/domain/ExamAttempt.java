@@ -33,17 +33,17 @@ public class ExamAttempt implements Serializable {
     @Column(name = "status", nullable = false)
     private AttemptStatus status;
 
-    @Min(value = 5)
+    @Min(value = 0)
     @Max(value = 495)
     @Column(name = "listening_score")
     private Integer listeningScore;
 
-    @Min(value = 5)
+    @Min(value = 0)
     @Max(value = 495)
     @Column(name = "reading_score")
     private Integer readingScore;
 
-    @Min(value = 10)
+    @Min(value = 0)
     @Max(value = 990)
     @Column(name = "total_score")
     private Integer totalScore;

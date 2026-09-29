@@ -1,4 +1,6 @@
 {
+  "/api/auth/login/route": "app/api/auth/login/route.js",
   "/page": "app/page.js",
-  "/icon.png/route": "app/icon.png/route.js"
+  "/api/auth/refresh/route": "app/api/auth/refresh/route.js",
+  "/exam/[id]/page": "app/exam/[id]/page.js"
 }

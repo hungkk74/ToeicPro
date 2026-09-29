@@ -72,7 +72,7 @@ export default function ExamExitDialog({
           </h2>
 
           <p className="text-xs text-slate-500 leading-relaxed">
-            Bạn có thể chọn lưu lại bài làm để lần sau tiếp tục, hoặc thoát và hủy bỏ toàn bộ câu trả lời hiện tại.
+            Bạn có thể lưu lại trạng thái bài làm (hệ thống sẽ lưu trữ trong 24 giờ). Nếu chọn thoát không lưu, kết quả lần thi này sẽ không được ghi nhận.
           </p>
 
           {/* Compact Stats */}
@@ -93,20 +93,26 @@ export default function ExamExitDialog({
           <button
             type="button"
             onClick={onSaveAndExit}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs"
+            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer flex flex-col items-center justify-center gap-0.5 shadow-xs"
           >
-            <Save className="w-4 h-4" />
-            <span>Lưu tiến trình &amp; Thoát</span>
+            <div className="flex items-center gap-1.5">
+              <Save className="w-4 h-4" />
+              <span>Lưu trạng thái &amp; Thoát</span>
+            </div>
+            <span className="text-[10px] text-blue-100 font-normal">Tiến trình được lưu trong 24h</span>
           </button>
 
           {/* Lựa chọn 2: Thoát không lưu */}
           <button
             type="button"
             onClick={onExitWithoutSaving}
-            className="w-full py-2.5 px-4 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-2 px-4 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer flex flex-col items-center justify-center gap-0.5"
           >
-            <Trash2 className="w-4 h-4" />
-            <span>Thoát và không lưu kết quả</span>
+            <div className="flex items-center gap-1.5">
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Thoát và không lưu</span>
+            </div>
+            <span className="text-[10px] text-rose-600/80 font-normal">Hủy bỏ lần thi, không lưu kết quả</span>
           </button>
 
           {/* Lựa chọn 3: Hủy, ở lại làm tiếp */}
@@ -116,7 +122,7 @@ export default function ExamExitDialog({
             className="w-full py-2 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5 mt-0.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Ở lại phòng thi</span>
+            <span>Tiếp tục làm bài</span>
           </button>
         </div>
       </div>

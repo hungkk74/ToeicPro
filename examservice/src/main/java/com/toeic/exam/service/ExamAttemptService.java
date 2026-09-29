@@ -32,6 +32,7 @@ public interface ExamAttemptService {
     ExamResultDTO submitExam(Long attemptId, ExamSubmissionDTO submissionDTO);
     ExamReviewDTO getExamReview(Long attemptId);
     List<ExamAttemptHistoryDTO> getMyExamHistory();
+    void cancelAttempt(Long attemptId);
 
     /**
      * Partially updates a examAttempt.

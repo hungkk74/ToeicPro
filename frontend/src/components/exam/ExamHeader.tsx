@@ -18,6 +18,9 @@ interface ExamHeaderProps {
   onTogglePlay?: () => void;
   playbackSpeed?: string;
   onChangeSpeed?: (speed: string) => void;
+  isReviewMode?: boolean;
+  onOpenScoreModal?: () => void;
+  reviewScore?: number;
 }
 
 export default function ExamHeader({
@@ -36,6 +39,9 @@ export default function ExamHeader({
   onTogglePlay: _onTogglePlay,
   playbackSpeed: _playbackSpeed,
   onChangeSpeed: _onChangeSpeed,
+  isReviewMode = false,
+  onOpenScoreModal,
+  reviewScore,
 }: ExamHeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-border-subtle shadow-sm">
@@ -68,64 +74,110 @@ export default function ExamHeader({
         {/* Center Spacer */}
         <div className="flex-1 min-w-0" />
 
-        {/* Right Toolbar: Timer, Flag, Submit */}
+        {/* Right Toolbar: Timer, Flag, Submit or Review Mode controls */}
         <div className="flex items-center justify-end gap-1.5 sm:gap-2 md:gap-space-md shrink-0 flex-nowrap">
-          <div className="flex items-center gap-1 sm:gap-space-xs text-text-primary bg-surface-subtle px-2 sm:px-2.5 py-1 rounded border border-border-subtle shrink-0">
-            <span className="material-symbols-outlined text-[16px] sm:text-[18px] text-text-secondary">timer</span>
-            <span className="font-numeric-timer text-xs sm:text-numeric-timer tabular-nums tracking-tight font-bold text-primary">
-              {formatTime(timeRemaining)}
-            </span>
-          </div>
+          {isReviewMode ? (
+            <>
+              {reviewScore !== undefined && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shrink-0">
+                  <span className="material-symbols-outlined text-[16px] text-emerald-600">award_star</span>
+                  <span>{reviewScore} điểm</span>
+                </div>
+              )}
 
-          {onResetExam && (
-            <button
-              className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-blue-600 hover:bg-blue-50/50 hover:border-blue-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
-              type="button"
-              onClick={onResetExam}
-              title="Làm lại bài thi từ đầu"
-            >
-              <span className="material-symbols-outlined text-[16px] sm:text-[18px]">restart_alt</span>
-              <span className="hidden md:inline">Làm lại</span>
-            </button>
+              {onOpenScoreModal && (
+                <button
+                  type="button"
+                  onClick={onOpenScoreModal}
+                  className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs sm:text-sm font-semibold transition-colors shrink-0"
+                >
+                  <span className="material-symbols-outlined text-[16px]">analytics</span>
+                  <span>Xem bảng điểm</span>
+                </button>
+              )}
+
+              {onResetExam && (
+                <button
+                  className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-blue-600 hover:bg-blue-50/50 hover:border-blue-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
+                  type="button"
+                  onClick={onResetExam}
+                  title="Làm lại bài thi từ đầu"
+                >
+                  <span className="material-symbols-outlined text-[16px] sm:text-[18px]">restart_alt</span>
+                  <span className="hidden md:inline">Thi lại</span>
+                </button>
+              )}
+
+              <button
+                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded bg-primary text-on-primary hover:bg-primary-container font-label-md text-xs sm:text-label-md transition-colors font-semibold cursor-pointer shrink-0 shadow-xs"
+                type="button"
+                onClick={onExit}
+                title="Về danh sách đề thi"
+              >
+                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <span>Danh sách đề</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-1 sm:gap-space-xs text-text-primary bg-surface-subtle px-2 sm:px-2.5 py-1 rounded border border-border-subtle shrink-0">
+                <span className="material-symbols-outlined text-[16px] sm:text-[18px] text-text-secondary">timer</span>
+                <span className="font-numeric-timer text-xs sm:text-numeric-timer tabular-nums tracking-tight font-bold text-primary">
+                  {formatTime(timeRemaining)}
+                </span>
+              </div>
+
+              {onResetExam && (
+                <button
+                  className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-blue-600 hover:bg-blue-50/50 hover:border-blue-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
+                  type="button"
+                  onClick={onResetExam}
+                  title="Làm lại bài thi từ đầu"
+                >
+                  <span className="material-symbols-outlined text-[16px] sm:text-[18px]">restart_alt</span>
+                  <span className="hidden md:inline">Làm lại</span>
+                </button>
+              )}
+
+              <button
+                className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-red-600 hover:bg-red-50/50 hover:border-red-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
+                type="button"
+                onClick={onExit}
+                title="Thoát phòng thi"
+              >
+                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">logout</span>
+                <span className="hidden md:inline">Thoát</span>
+              </button>
+
+              <button
+                className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0 ${
+                  isFlagged
+                    ? 'text-orange-700 bg-orange-50 border-orange-300 shadow-2xs font-semibold'
+                    : 'bg-surface text-text-secondary border-border-subtle hover:text-orange-600 hover:bg-orange-50/50'
+                }`}
+                type="button"
+                onClick={onToggleFlag}
+                title={isFlagged ? 'Đã đặt cờ (Click để bỏ)' : 'Đặt cờ câu này'}
+              >
+                <span
+                  className={`material-symbols-outlined text-[16px] sm:text-[18px] ${isFlagged ? 'text-orange-500' : ''}`}
+                  style={{ fontVariationSettings: isFlagged ? "'FILL' 1" : "'FILL' 0" }}
+                >
+                  flag
+                </span>
+                <span className="hidden md:inline">{isFlagged ? 'Đã đặt cờ' : 'Đặt cờ'}</span>
+              </button>
+
+              <button
+                className="bg-primary text-on-primary hover:bg-primary-container font-label-md text-xs sm:text-label-md px-2.5 sm:px-4 py-1.5 rounded transition-colors shadow-sm font-semibold disabled:opacity-60 cursor-pointer shrink-0"
+                disabled={isSubmitting}
+                type="button"
+                onClick={onSubmit}
+              >
+                {isSubmitting ? 'Đang nộp...' : 'Nộp bài'}
+              </button>
+            </>
           )}
-
-          <button
-            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border border-border-subtle bg-surface text-text-secondary hover:text-red-600 hover:bg-red-50/50 hover:border-red-200 transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0"
-            type="button"
-            onClick={onExit}
-            title="Thoát phòng thi"
-          >
-            <span className="material-symbols-outlined text-[16px] sm:text-[18px]">logout</span>
-            <span className="hidden md:inline">Thoát</span>
-          </button>
-
-          <button
-            className={`flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded border transition-colors text-xs sm:text-sm font-medium cursor-pointer shrink-0 ${
-              isFlagged
-                ? 'text-orange-700 bg-orange-50 border-orange-300 shadow-2xs font-semibold'
-                : 'bg-surface text-text-secondary border-border-subtle hover:text-orange-600 hover:bg-orange-50/50'
-            }`}
-            type="button"
-            onClick={onToggleFlag}
-            title={isFlagged ? 'Đã đặt cờ (Click để bỏ)' : 'Đặt cờ câu này'}
-          >
-            <span
-              className={`material-symbols-outlined text-[16px] sm:text-[18px] ${isFlagged ? 'text-orange-500' : ''}`}
-              style={{ fontVariationSettings: isFlagged ? "'FILL' 1" : "'FILL' 0" }}
-            >
-              flag
-            </span>
-            <span className="hidden md:inline">{isFlagged ? 'Đã đặt cờ' : 'Đặt cờ'}</span>
-          </button>
-
-          <button
-            className="bg-primary text-on-primary hover:bg-primary-container font-label-md text-xs sm:text-label-md px-2.5 sm:px-4 py-1.5 rounded transition-colors shadow-sm font-semibold disabled:opacity-60 cursor-pointer shrink-0"
-            disabled={isSubmitting}
-            type="button"
-            onClick={onSubmit}
-          >
-            {isSubmitting ? 'Đang nộp...' : 'Nộp bài'}
-          </button>
 
           <UserAccountMenu compact />
         </div>
