@@ -161,7 +161,7 @@ public class PartResource {
     public ResponseEntity<PartDTO> getPart(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Part : {}", id);
         Optional<PartDTO> partDTO = partService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(partDTO);
+        return ResponseEntity.of(partDTO);
     }
 
     /**

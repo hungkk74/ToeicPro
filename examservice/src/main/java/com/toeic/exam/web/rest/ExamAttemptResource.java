@@ -178,7 +178,7 @@ public class ExamAttemptResource {
     public ResponseEntity<ExamAttemptDTO> getExamAttempt(@PathVariable("id") Long id) {
         LOG.debug("REST request to get ExamAttempt : {}", id);
         Optional<ExamAttemptDTO> examAttemptDTO = examAttemptService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(examAttemptDTO);
+        return ResponseEntity.of(examAttemptDTO);
     }
 
     /**

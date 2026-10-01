@@ -164,7 +164,7 @@ public class QuestionGroupResource {
     public ResponseEntity<QuestionGroupDTO> getQuestionGroup(@PathVariable("id") Long id) {
         LOG.debug("REST request to get QuestionGroup : {}", id);
         Optional<QuestionGroupDTO> questionGroupDTO = questionGroupService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(questionGroupDTO);
+        return ResponseEntity.of(questionGroupDTO);
     }
 
     /**

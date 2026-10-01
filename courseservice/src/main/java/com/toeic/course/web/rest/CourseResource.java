@@ -164,7 +164,7 @@ public class CourseResource {
     public ResponseEntity<CourseDTO> getCourse(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Course : {}", id);
         Optional<CourseDTO> courseDTO = courseService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(courseDTO);
+        return ResponseEntity.of(courseDTO);
     }
 
     /**

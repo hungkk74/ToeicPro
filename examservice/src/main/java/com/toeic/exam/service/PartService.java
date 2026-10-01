@@ -1,63 +1,84 @@
 package com.toeic.exam.service;
 
+import com.toeic.exam.domain.Part;
+import com.toeic.exam.repository.PartRepository;
 import com.toeic.exam.service.dto.PartDTO;
+import com.toeic.exam.service.mapper.PartMapper;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Interface for managing {@link com.toeic.exam.domain.Part}.
+ * Service for managing {@link com.toeic.exam.domain.Part}.
  */
-public interface PartService {
-    /**
-     * Save a part.
-     *
-     * @param partDTO the entity to save.
-     * @return the persisted entity.
-     */
-    PartDTO save(PartDTO partDTO);
+@Service
+@Transactional
+public class PartService {
 
-    /**
-     * Updates a part.
-     *
-     * @param partDTO the entity to update.
-     * @return the persisted entity.
-     */
-    PartDTO update(PartDTO partDTO);
+    private static final Logger LOG = LoggerFactory.getLogger(PartService.class);
 
-    /**
-     * Partially updates a part.
-     *
-     * @param partDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    Optional<PartDTO> partialUpdate(PartDTO partDTO);
+    private final PartRepository partRepository;
+    private final PartMapper partMapper;
 
-    /**
-     * Get all the parts.
-     *
-     * @return the list of entities.
-     */
-    List<PartDTO> findAll();
+    public PartService(PartRepository partRepository, PartMapper partMapper) {
+        this.partRepository = partRepository;
+        this.partMapper = partMapper;
+    }
 
-    /**
-     * Get all the parts with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    List<PartDTO> findAllWithEagerRelationships();
+    public PartDTO save(PartDTO partDTO) {
+        LOG.debug("Request to save Part : {}", partDTO);
+        Part part = partMapper.toEntity(partDTO);
+        part = partRepository.save(part);
+        return partMapper.toDto(part);
+    }
 
-    /**
-     * Get the "id" part.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
-    Optional<PartDTO> findOne(Long id);
+    public PartDTO update(PartDTO partDTO) {
+        LOG.debug("Request to update Part : {}", partDTO);
+        Part part = partMapper.toEntity(partDTO);
+        part = partRepository.save(part);
+        return partMapper.toDto(part);
+    }
 
-    /**
-     * Delete the "id" part.
-     *
-     * @param id the id of the entity.
-     */
-    void delete(Long id);
+    public Optional<PartDTO> partialUpdate(PartDTO partDTO) {
+        LOG.debug("Request to partially update Part : {}", partDTO);
+
+        return partRepository
+            .findById(partDTO.getId())
+            .map(existingPart -> {
+                partMapper.partialUpdate(existingPart, partDTO);
+                return existingPart;
+            })
+            .map(partRepository::save)
+            .map(partMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PartDTO> findAll() {
+        LOG.debug("Request to get all Parts");
+        return partRepository.findAll().stream().map(partMapper::toDto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PartDTO> findAllWithEagerRelationships() {
+        LOG.debug("Request to get all Parts with eager relationships");
+        return partRepository
+            .findAllWithEagerRelationships()
+            .stream()
+            .map(partMapper::toDto)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PartDTO> findOne(Long id) {
+        LOG.debug("Request to get Part : {}", id);
+        return partRepository.findOneWithEagerRelationships(id).map(partMapper::toDto);
+    }
+
+    public void delete(Long id) {
+        LOG.debug("Request to delete Part : {}", id);
+        partRepository.deleteById(id);
+    }
 }

@@ -187,7 +187,7 @@ public class CourseEnrollmentResource {
                 throw new AccessDeniedException("You are not authorized to view this enrollment");
             }
         }
-        return ResponseUtil.wrapOrNotFound(courseEnrollmentDTO);
+        return ResponseEntity.of(courseEnrollmentDTO);
     }
 
     /**

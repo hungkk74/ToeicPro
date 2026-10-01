@@ -1,0 +1,252 @@
+{
+  "code": "ETS-2024-TEST-FULL",
+  "title": "ETS TOEIC 2024 Full Test (Standard 7 Parts)",
+  "category": "FULL_TEST",
+  "durationMinutes": 120,
+  "totalQuestions": 200,
+  "audioFullUrl": "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/ets2024_full_audio.mp3",
+  "isPublished": true,
+  "parts": [
+    {
+      "partNumber": 1,
+      "name": "Part 1: Photographs",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "imageUrl": "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/images/part1_sample.jpg",
+          "audioUrl": "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/part1_q1.mp3",
+          "questions": [
+            {
+              "questionNumber": 1,
+              "content": "Look at the photograph and select the statement that best describes what you see.",
+              "optionA": "A woman is typing on a keyboard.",
+              "optionB": "A woman is setting up a projector.",
+              "optionC": "A woman is filing documents in a cabinet.",
+              "optionD": "A woman is drinking water from a bottle.",
+              "correctOption": "A",
+              "explanation": "Trong tranh người phụ nữ đang ngồi trước máy tính và gõ phím."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 2,
+      "name": "Part 2: Question-Response",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "imageUrl": null,
+          "audioUrl": "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/part2_q7.mp3",
+          "questions": [
+            {
+              "questionNumber": 7,
+              "content": "Where did Mr. Henderson go for the client meeting?",
+              "optionA": "To the main conference room downtown.",
+              "optionB": "Yes, yesterday afternoon.",
+              "optionC": "Mr. Henderson is the director.",
+              "optionD": null,
+              "correctOption": "A",
+              "explanation": "Câu hỏi bắt đầu bằng 'Where', đáp án trả lời đúng địa điểm là A. Part 2 chỉ có 3 lựa chọn (A, B, C)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 3,
+      "name": "Part 3: Conversations",
+      "questionGroups": [
+        {
+          "passageText": "[Transcript - optional]\nMan: Hi Sarah, have you finished the quarterly sales summary yet? The board meeting is at 2 PM.\nWoman: Almost done. I am just waiting for the final numbers from the Tokyo branch.\nMan: Great. Once you have them, please print five copies for the directors.",
+          "imageUrl": null,
+          "audioUrl": "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/part3_q32_34.mp3",
+          "questions": [
+            {
+              "questionNumber": 32,
+              "content": "What are the speakers mainly discussing?",
+              "optionA": "A quarterly sales report",
+              "optionB": "A trip to Tokyo",
+              "optionC": "A job interview",
+              "optionD": "An office renovation",
+              "correctOption": "A",
+              "explanation": "Người đàn ông hỏi về 'quarterly sales summary'."
+            },
+            {
+              "questionNumber": 33,
+              "content": "Why is the woman delayed?",
+              "optionA": "The printer is broken",
+              "optionB": "She needs data from another office",
+              "optionC": "Her meeting was rescheduled",
+              "optionD": "She lost her notes",
+              "correctOption": "B",
+              "explanation": "Người phụ nữ nói 'waiting for the final numbers from the Tokyo branch'."
+            },
+            {
+              "questionNumber": 34,
+              "content": "What does the man ask the woman to do?",
+              "optionA": "Email the board members",
+              "optionB": "Call the Tokyo office",
+              "optionC": "Print copies of the document",
+              "optionD": "Prepare a presentation",
+              "correctOption": "C",
+              "explanation": "Người đàn ông nói 'please print five copies'."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 4,
+      "name": "Part 4: Short Talks",
+      "questionGroups": [
+        {
+          "passageText": "[Transcript - optional]\nGood morning passengers. This is the pre-boarding announcement for flight VN-452 bound for Da Nang. Due to adverse weather conditions at our destination, departure has been pushed back by 45 minutes. Refreshment vouchers are available at Gate 12.",
+          "imageUrl": null,
+          "audioUrl": "https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/part4_q71_73.mp3",
+          "questions": [
+            {
+              "questionNumber": 71,
+              "content": "Where is the announcement most likely taking place?",
+              "optionA": "At an airport",
+              "optionB": "At a train station",
+              "optionC": "At a bus terminal",
+              "optionD": "On a ferry",
+              "correctOption": "A",
+              "explanation": "Thông báo dành cho hành khách chuyến bay (flight VN-452, Gate 12)."
+            },
+            {
+              "questionNumber": 72,
+              "content": "What is the reason for the delay?",
+              "optionA": "Mechanical problems",
+              "optionB": "Bad weather",
+              "optionC": "Staff shortage",
+              "optionD": "Security inspection",
+              "correctOption": "B",
+              "explanation": "Người nói nhắc đến 'Due to adverse weather conditions'."
+            },
+            {
+              "questionNumber": 73,
+              "content": "What can passengers receive at Gate 12?",
+              "optionA": "Luggage tags",
+              "optionB": "Free Wi-Fi passwords",
+              "optionC": "Food and drink vouchers",
+              "optionD": "Seat upgrade certificates",
+              "correctOption": "C",
+              "explanation": "Thông báo nhắc: 'Refreshment vouchers are available at Gate 12'."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 5,
+      "name": "Part 5: Incomplete Sentences",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "imageUrl": null,
+          "audioUrl": null,
+          "questions": [
+            {
+              "questionNumber": 101,
+              "content": "Ms. Johnson requested that the sales team submit _______ weekly reports by Friday afternoon.",
+              "optionA": "they",
+              "optionB": "them",
+              "optionC": "their",
+              "optionD": "theirs",
+              "correctOption": "C",
+              "explanation": "Trước cụm danh từ 'weekly reports' cần tính từ sở hữu 'their'."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 6,
+      "name": "Part 6: Text Completion",
+      "questionGroups": [
+        {
+          "passageText": "To: All Employees\nFrom: Facilities Management\nSubject: Office Air Conditioning Maintenance\n\nPlease be advised that the central ventilation system will be serviced this Saturday, October 15. The maintenance team will begin work at 8:00 AM and expects to finish by 2:00 PM. ----[131]----. During this period, temperatures inside the building may fluctuate significantly. For this reason, we strongly ----[132]---- employees from working in the office over the weekend. All network servers and electrical outlets will remain ----[133]----, so remote access will not be disrupted. We apologize for any ----[134]---- this scheduled maintenance may cause.",
+          "imageUrl": null,
+          "audioUrl": null,
+          "questions": [
+            {
+              "questionNumber": 131,
+              "content": "Select the best phrase for blank [131]",
+              "optionA": "Power will be shut off entirely.",
+              "optionB": "This work is routine seasonal maintenance.",
+              "optionC": "New air filters have already been installed.",
+              "optionD": "Visitors must register at the reception desk.",
+              "correctOption": "B",
+              "explanation": "Câu giải thích mục đích bảo trì định kỳ phù hợp với ngữ cảnh."
+            },
+            {
+              "questionNumber": 132,
+              "content": "Select the best word for blank [132]",
+              "optionA": "discourage",
+              "optionB": "encourage",
+              "optionC": "allow",
+              "optionD": "require",
+              "correctOption": "A",
+              "explanation": "'discourage employees from working' khuyên nhân viên không nên đến văn phòng vì nhiệt độ dao động."
+            },
+            {
+              "questionNumber": 133,
+              "content": "Select the best word for blank [133]",
+              "optionA": "operate",
+              "optionB": "operational",
+              "optionC": "operationally",
+              "optionD": "operations",
+              "correctOption": "B",
+              "explanation": "Sau động từ liên kết 'remain' cần tính từ 'operational'."
+            },
+            {
+              "questionNumber": 134,
+              "content": "Select the best word for blank [134]",
+              "optionA": "convenience",
+              "optionB": "inconvenience",
+              "optionC": "production",
+              "optionD": "satisfaction",
+              "correctOption": "B",
+              "explanation": "Cụm quen thuộc trong thư thông báo: 'apologize for any inconvenience'."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 7,
+      "name": "Part 7: Reading Comprehension",
+      "questionGroups": [
+        {
+          "passageText": "AURORA LOGISTICS - CUSTOMER SERVICE POLICY UPDATE\nEffective November 1, Aurora Logistics will implement a new tracking system for all international freight shipments. Customers will now receive automated SMS alerts at three key milestones: cargo departure, customs clearance, and final delivery dispatch.\n\nAdditionally, standard insurance coverage will increase from $1,000 to $2,500 per shipment at no extra charge. Inquiries regarding enterprise bulk shipping contracts should be directed to enterprise@auroralogistics.com.",
+          "imageUrl": null,
+          "audioUrl": null,
+          "questions": [
+            {
+              "questionNumber": 147,
+              "content": "What is the announcement mainly about?",
+              "optionA": "A change in service procedures and coverage",
+              "optionB": "An increase in shipping rates",
+              "optionC": "A merger with another shipping company",
+              "optionD": "A delay in international delivery schedules",
+              "correctOption": "A",
+              "explanation": "Thông báo về việc triển khai hệ thống tracking mới và tăng mức bảo hiểm tiêu chuẩn."
+            },
+            {
+              "questionNumber": 148,
+              "content": "According to the passage, what is offered without additional fee?",
+              "optionA": "Same-day courier service",
+              "optionB": "Higher insurance coverage",
+              "optionC": "Packaging materials",
+              "optionD": "Custom clearance handling",
+              "correctOption": "B",
+              "explanation": "Đoạn văn nêu rõ: 'standard insurance coverage will increase from $1,000 to $2,500 per shipment at no extra charge'."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

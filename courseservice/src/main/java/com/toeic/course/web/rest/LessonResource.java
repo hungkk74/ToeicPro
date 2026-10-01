@@ -173,7 +173,7 @@ public class LessonResource {
     public ResponseEntity<LessonDTO> getLesson(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Lesson : {}", id);
         Optional<LessonDTO> lessonDTO = lessonService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(lessonDTO);
+        return ResponseEntity.of(lessonDTO);
     }
 
     /**

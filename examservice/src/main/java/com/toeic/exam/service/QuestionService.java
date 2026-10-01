@@ -1,66 +1,81 @@
 package com.toeic.exam.service;
 
+import com.toeic.exam.domain.Question;
+import com.toeic.exam.repository.QuestionRepository;
 import com.toeic.exam.service.dto.QuestionDTO;
+import com.toeic.exam.service.mapper.QuestionMapper;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Interface for managing {@link com.toeic.exam.domain.Question}.
+ * Service for managing {@link com.toeic.exam.domain.Question}.
  */
-public interface QuestionService {
-    /**
-     * Save a question.
-     *
-     * @param questionDTO the entity to save.
-     * @return the persisted entity.
-     */
-    QuestionDTO save(QuestionDTO questionDTO);
+@Service
+@Transactional
+public class QuestionService {
 
-    /**
-     * Updates a question.
-     *
-     * @param questionDTO the entity to update.
-     * @return the persisted entity.
-     */
-    QuestionDTO update(QuestionDTO questionDTO);
+    private static final Logger LOG = LoggerFactory.getLogger(QuestionService.class);
 
-    /**
-     * Partially updates a question.
-     *
-     * @param questionDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    Optional<QuestionDTO> partialUpdate(QuestionDTO questionDTO);
+    private final QuestionRepository questionRepository;
+    private final QuestionMapper questionMapper;
 
-    /**
-     * Get all the questions.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    Page<QuestionDTO> findAll(Pageable pageable);
+    public QuestionService(QuestionRepository questionRepository, QuestionMapper questionMapper) {
+        this.questionRepository = questionRepository;
+        this.questionMapper = questionMapper;
+    }
 
-    /**
-     * Get all the questions with eager load of many-to-many relationships.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
-    Page<QuestionDTO> findAllWithEagerRelationships(Pageable pageable);
+    public QuestionDTO save(QuestionDTO questionDTO) {
+        LOG.debug("Request to save Question : {}", questionDTO);
+        Question question = questionMapper.toEntity(questionDTO);
+        question = questionRepository.save(question);
+        return questionMapper.toDto(question);
+    }
 
-    /**
-     * Get the "id" question.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
-    Optional<QuestionDTO> findOne(Long id);
+    public QuestionDTO update(QuestionDTO questionDTO) {
+        LOG.debug("Request to update Question : {}", questionDTO);
+        Question question = questionMapper.toEntity(questionDTO);
+        question = questionRepository.save(question);
+        return questionMapper.toDto(question);
+    }
 
-    /**
-     * Delete the "id" question.
-     *
-     * @param id the id of the entity.
-     */
-    void delete(Long id);
+    public Optional<QuestionDTO> partialUpdate(QuestionDTO questionDTO) {
+        LOG.debug("Request to partially update Question : {}", questionDTO);
+
+        return questionRepository
+            .findById(questionDTO.getId())
+            .map(existingQuestion -> {
+                questionMapper.partialUpdate(existingQuestion, questionDTO);
+                return existingQuestion;
+            })
+            .map(questionRepository::save)
+            .map(questionMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<QuestionDTO> findAll(Pageable pageable) {
+        LOG.debug("Request to get all Questions");
+        return questionRepository.findAll(pageable).map(questionMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<QuestionDTO> findAllWithEagerRelationships(Pageable pageable) {
+        LOG.debug("Request to get all Questions with eager relationships");
+        return questionRepository.findAllWithEagerRelationships(pageable).map(questionMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<QuestionDTO> findOne(Long id) {
+        LOG.debug("Request to get Question : {}", id);
+        return questionRepository.findOneWithEagerRelationships(id).map(questionMapper::toDto);
+    }
+
+    public void delete(Long id) {
+        LOG.debug("Request to delete Question : {}", id);
+        questionRepository.deleteById(id);
+    }
 }

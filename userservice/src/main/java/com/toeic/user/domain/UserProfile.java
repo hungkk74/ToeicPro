@@ -4,20 +4,12 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "user_profile")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-@Getter
-@Setter
-@NoArgsConstructor
-@ToString
 public class UserProfile implements Serializable {
 
     @Serial
@@ -46,9 +38,27 @@ public class UserProfile implements Serializable {
     @Column(name = "address")
     private String address;
 
+    public UserProfile() {}
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public UserProfile id(Long id) {
         this.id = id;
         return this;
+    }
+
+    public String getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public UserProfile userId(String userId) {
@@ -56,9 +66,25 @@ public class UserProfile implements Serializable {
         return this;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public UserProfile name(String name) {
         this.name = name;
         return this;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public UserProfile email(String email) {
@@ -66,9 +92,25 @@ public class UserProfile implements Serializable {
         return this;
     }
 
+    public String getPhone() {
+        return this.phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public UserProfile phone(String phone) {
         this.phone = phone;
         return this;
+    }
+
+    public String getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public UserProfile address(String address) {
@@ -86,5 +128,17 @@ public class UserProfile implements Serializable {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "UserProfile{" +
+            "id=" + getId() +
+            ", userId='" + getUserId() + "'" +
+            ", name='" + getName() + "'" +
+            ", email='" + getEmail() + "'" +
+            ", phone='" + getPhone() + "'" +
+            ", address='" + getAddress() + "'" +
+            "}";
     }
 }

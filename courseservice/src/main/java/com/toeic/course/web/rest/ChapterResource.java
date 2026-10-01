@@ -173,7 +173,7 @@ public class ChapterResource {
     public ResponseEntity<ChapterDTO> getChapter(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Chapter : {}", id);
         Optional<ChapterDTO> chapterDTO = chapterService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(chapterDTO);
+        return ResponseEntity.of(chapterDTO);
     }
 
     /**

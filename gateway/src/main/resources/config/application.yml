@@ -310,7 +310,7 @@ jhipster:
     license: unlicensed
     license-url:
   security:
-    content-security-policy: "default-src 'self'; frame-src 'self' data: http://localhost:9080 http://127.0.0.1:9080; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' http://localhost:9080 http://127.0.0.1:9080 http://localhost:8080 http://127.0.0.1:8080 http://localhost:8081 http://127.0.0.1:8081 http://localhost:9000 http://127.0.0.1:9000 http://localhost:8500 http://127.0.0.1:8500 https://storage.googleapis.com;"
+    content-security-policy: "default-src 'self'; frame-src 'self' data: http://localhost:9080 http://127.0.0.1:9080; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:9080 http://127.0.0.1:9080 http://localhost:8080 http://127.0.0.1:8080 http://localhost:8081 http://127.0.0.1:8081 http://localhost:9000 http://127.0.0.1:9000 http://localhost:8500 http://127.0.0.1:8500 https://storage.googleapis.com;"
     oauth2:
       audience:
         - account

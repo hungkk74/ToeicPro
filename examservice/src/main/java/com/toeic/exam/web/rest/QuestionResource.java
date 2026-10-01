@@ -173,7 +173,7 @@ public class QuestionResource {
     public ResponseEntity<QuestionDTO> getQuestion(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Question : {}", id);
         Optional<QuestionDTO> questionDTO = questionService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(questionDTO);
+        return ResponseEntity.of(questionDTO);
     }
 
     /**

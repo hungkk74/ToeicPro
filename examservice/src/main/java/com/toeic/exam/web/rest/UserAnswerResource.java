@@ -171,7 +171,7 @@ public class UserAnswerResource {
     public ResponseEntity<UserAnswerDTO> getUserAnswer(@PathVariable("id") Long id) {
         LOG.debug("REST request to get UserAnswer : {}", id);
         Optional<UserAnswerDTO> userAnswerDTO = userAnswerService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(userAnswerDTO);
+        return ResponseEntity.of(userAnswerDTO);
     }
 
     /**

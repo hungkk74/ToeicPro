@@ -169,7 +169,7 @@ public class LessonProgressResource {
     public ResponseEntity<LessonProgressDTO> getLessonProgress(@PathVariable("id") Long id) {
         LOG.debug("REST request to get LessonProgress : {}", id);
         Optional<LessonProgressDTO> lessonProgressDTO = lessonProgressService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(lessonProgressDTO);
+        return ResponseEntity.of(lessonProgressDTO);
     }
 
     /**

@@ -53,7 +53,7 @@ const FALLBACK_EXAM_TAKE: ExamTakeDTO = {
  */
 export async function fetchExamsFromBackend(): Promise<ExamDTO[]> {
   try {
-    const data = await fetchApi<ExamDTO[]>('/api/exams?page=0&size=20', { skipAuth: true });
+    const data = await fetchApi<ExamDTO[]>('/api/exams?pageP=0&size=50&sort=id,desc', { skipAuth: true });
     if (Array.isArray(data) && data.length > 0) {
       return data;
     }

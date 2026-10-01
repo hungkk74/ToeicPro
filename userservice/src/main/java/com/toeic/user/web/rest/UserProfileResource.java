@@ -189,7 +189,7 @@ public class UserProfileResource {
         String currentUser = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
         Optional<UserProfileDTO> userProfileDTO = userProfileService.findByUserId(currentUser);
-        return ResponseUtil.wrapOrNotFound(userProfileDTO);
+        return ResponseEntity.of(userProfileDTO);
     }
 
     /**
@@ -209,7 +209,7 @@ public class UserProfileResource {
                 throw new AccessDeniedException("You are not authorized to view this profile");
             }
         }
-        return ResponseUtil.wrapOrNotFound(userProfileDTO);
+        return ResponseEntity.of(userProfileDTO);
     }
 
     /**

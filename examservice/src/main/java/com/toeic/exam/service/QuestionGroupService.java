@@ -1,63 +1,84 @@
 package com.toeic.exam.service;
 
+import com.toeic.exam.domain.QuestionGroup;
+import com.toeic.exam.repository.QuestionGroupRepository;
 import com.toeic.exam.service.dto.QuestionGroupDTO;
+import com.toeic.exam.service.mapper.QuestionGroupMapper;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service Interface for managing {@link com.toeic.exam.domain.QuestionGroup}.
+ * Service for managing {@link com.toeic.exam.domain.QuestionGroup}.
  */
-public interface QuestionGroupService {
-    /**
-     * Save a questionGroup.
-     *
-     * @param questionGroupDTO the entity to save.
-     * @return the persisted entity.
-     */
-    QuestionGroupDTO save(QuestionGroupDTO questionGroupDTO);
+@Service
+@Transactional
+public class QuestionGroupService {
 
-    /**
-     * Updates a questionGroup.
-     *
-     * @param questionGroupDTO the entity to update.
-     * @return the persisted entity.
-     */
-    QuestionGroupDTO update(QuestionGroupDTO questionGroupDTO);
+    private static final Logger LOG = LoggerFactory.getLogger(QuestionGroupService.class);
 
-    /**
-     * Partially updates a questionGroup.
-     *
-     * @param questionGroupDTO the entity to update partially.
-     * @return the persisted entity.
-     */
-    Optional<QuestionGroupDTO> partialUpdate(QuestionGroupDTO questionGroupDTO);
+    private final QuestionGroupRepository questionGroupRepository;
+    private final QuestionGroupMapper questionGroupMapper;
 
-    /**
-     * Get all the questionGroups.
-     *
-     * @return the list of entities.
-     */
-    List<QuestionGroupDTO> findAll();
+    public QuestionGroupService(QuestionGroupRepository questionGroupRepository, QuestionGroupMapper questionGroupMapper) {
+        this.questionGroupRepository = questionGroupRepository;
+        this.questionGroupMapper = questionGroupMapper;
+    }
 
-    /**
-     * Get all the questionGroups with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
-    List<QuestionGroupDTO> findAllWithEagerRelationships();
+    public QuestionGroupDTO save(QuestionGroupDTO questionGroupDTO) {
+        LOG.debug("Request to save QuestionGroup : {}", questionGroupDTO);
+        QuestionGroup questionGroup = questionGroupMapper.toEntity(questionGroupDTO);
+        questionGroup = questionGroupRepository.save(questionGroup);
+        return questionGroupMapper.toDto(questionGroup);
+    }
 
-    /**
-     * Get the "id" questionGroup.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
-    Optional<QuestionGroupDTO> findOne(Long id);
+    public QuestionGroupDTO update(QuestionGroupDTO questionGroupDTO) {
+        LOG.debug("Request to update QuestionGroup : {}", questionGroupDTO);
+        QuestionGroup questionGroup = questionGroupMapper.toEntity(questionGroupDTO);
+        questionGroup = questionGroupRepository.save(questionGroup);
+        return questionGroupMapper.toDto(questionGroup);
+    }
 
-    /**
-     * Delete the "id" questionGroup.
-     *
-     * @param id the id of the entity.
-     */
-    void delete(Long id);
+    public Optional<QuestionGroupDTO> partialUpdate(QuestionGroupDTO questionGroupDTO) {
+        LOG.debug("Request to partially update QuestionGroup : {}", questionGroupDTO);
+
+        return questionGroupRepository
+            .findById(questionGroupDTO.getId())
+            .map(existingQuestionGroup -> {
+                questionGroupMapper.partialUpdate(existingQuestionGroup, questionGroupDTO);
+                return existingQuestionGroup;
+            })
+            .map(questionGroupRepository::save)
+            .map(questionGroupMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestionGroupDTO> findAll() {
+        LOG.debug("Request to get all QuestionGroups");
+        return questionGroupRepository.findAll().stream().map(questionGroupMapper::toDto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestionGroupDTO> findAllWithEagerRelationships() {
+        LOG.debug("Request to get all QuestionGroups with eager relationships");
+        return questionGroupRepository
+            .findAllWithEagerRelationships()
+            .stream()
+            .map(questionGroupMapper::toDto)
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<QuestionGroupDTO> findOne(Long id) {
+        LOG.debug("Request to get QuestionGroup : {}", id);
+        return questionGroupRepository.findOneWithEagerRelationships(id).map(questionGroupMapper::toDto);
+    }
+
+    public void delete(Long id) {
+        LOG.debug("Request to delete QuestionGroup : {}", id);
+        questionGroupRepository.deleteById(id);
+    }
 }

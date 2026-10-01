@@ -193,7 +193,7 @@ public class ExamResource {
     public ResponseEntity<ExamDTO> getExam(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Exam : {}", id);
         Optional<ExamDTO> examDTO = examService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(examDTO);
+        return ResponseEntity.of(examDTO);
     }
 
     /**

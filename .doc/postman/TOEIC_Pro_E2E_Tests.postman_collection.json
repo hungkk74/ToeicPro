@@ -893,6 +893,147 @@
           }
         },
         {
+          "name": "5.1b Bulk Import Full Exam (7 Parts)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('bulk_exam_code', 'ETS_BULK_' + ts);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.test('Exam ID returned', () => pm.expect(json.id).to.be.a('number'));",
+                  "pm.collectionVariables.set('exam_id', json.id);",
+                  "console.log('✅ Bulk Imported Exam ID:', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"{{bulk_exam_code}}\",\n  \"title\": \"ETS TOEIC 2024 Full Test (Bulk Imported)\",\n  \"category\": \"FULL_TEST\",\n  \"durationMinutes\": 120,\n  \"totalQuestions\": 200,\n  \"audioFullUrl\": \"https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/ets2024_full.mp3\",\n  \"isPublished\": true,\n  \"parts\": [\n    {\n      \"partNumber\": 1,\n      \"name\": \"Part 1: Photographs\",\n      \"questionGroups\": [\n        {\n          \"passageText\": null,\n          \"imageUrl\": \"https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/images/p1_q1.jpg\",\n          \"audioUrl\": \"https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/p1_q1.mp3\",\n          \"questions\": [\n            {\n              \"questionNumber\": 1,\n              \"content\": \"Look at the photo and choose best option.\",\n              \"optionA\": \"She is working on a laptop.\",\n              \"optionB\": \"She is setting up a projector.\",\n              \"optionC\": \"She is filing documents.\",\n              \"optionD\": \"She is drinking coffee.\",\n              \"correctOption\": \"A\",\n              \"explanation\": \"Người phụ nữ đang ngồi trước máy tính gõ bàn phím.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"partNumber\": 2,\n      \"name\": \"Part 2: Question-Response\",\n      \"questionGroups\": [\n        {\n          \"passageText\": null,\n          \"imageUrl\": null,\n          \"audioUrl\": \"https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/p2_q7.mp3\",\n          \"questions\": [\n            {\n              \"questionNumber\": 7,\n              \"content\": \"Where did Mr. Henderson go for the client meeting?\",\n              \"optionA\": \"To the downtown branch office.\",\n              \"optionB\": \"Yes, yesterday afternoon.\",\n              \"optionC\": \"Mr. Henderson is the director.\",\n              \"optionD\": null,\n              \"correctOption\": \"A\",\n              \"explanation\": \"Hỏi Where -> trả lời địa điểm. Part 2 chỉ có 3 lựa chọn A, B, C (optionD là null).\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"partNumber\": 3,\n      \"name\": \"Part 3: Conversations\",\n      \"questionGroups\": [\n        {\n          \"passageText\": \"Man: Have you finished the quarterly sales summary?\\nWoman: Almost done, waiting for Tokyo data.\",\n          \"imageUrl\": null,\n          \"audioUrl\": \"https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/p3_q32_34.mp3\",\n          \"questions\": [\n            {\n              \"questionNumber\": 32,\n              \"content\": \"What are the speakers discussing?\",\n              \"optionA\": \"A quarterly sales report\",\n              \"optionB\": \"A business trip to Tokyo\",\n              \"optionC\": \"A job interview\",\n              \"optionD\": \"An office budget\",\n              \"correctOption\": \"A\",\n              \"explanation\": \"Người nói nhắc về báo cáo doanh số hàng quý.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"partNumber\": 4,\n      \"name\": \"Part 4: Short Talks\",\n      \"questionGroups\": [\n        {\n          \"passageText\": \"Attention passengers, flight VN-452 departure has been rescheduled.\",\n          \"imageUrl\": null,\n          \"audioUrl\": \"https://pub-dd6330b7b23f4753bcc79c10b120c352.r2.dev/audio/p4_q71_73.mp3\",\n          \"questions\": [\n            {\n              \"questionNumber\": 71,\n              \"content\": \"Where is the announcement taking place?\",\n              \"optionA\": \"At an airport\",\n              \"optionB\": \"At a train station\",\n              \"optionC\": \"At a ferry terminal\",\n              \"optionD\": \"At a hotel lobby\",\n              \"correctOption\": \"A\",\n              \"explanation\": \"Thông báo chuyến bay tại sân bay.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"partNumber\": 5,\n      \"name\": \"Part 5: Incomplete Sentences\",\n      \"questionGroups\": [\n        {\n          \"passageText\": null,\n          \"imageUrl\": null,\n          \"audioUrl\": null,\n          \"questions\": [\n            {\n              \"questionNumber\": 101,\n              \"content\": \"Ms. Johnson requested that the team submit _______ weekly reports by Friday.\",\n              \"optionA\": \"they\",\n              \"optionB\": \"them\",\n              \"optionC\": \"their\",\n              \"optionD\": \"theirs\",\n              \"correctOption\": \"C\",\n              \"explanation\": \"Trước cụm danh từ cần tính từ sở hữu 'their'.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"partNumber\": 6,\n      \"name\": \"Part 6: Text Completion\",\n      \"questionGroups\": [\n        {\n          \"passageText\": \"Central ventilation will be serviced this Saturday. We strongly ----[131]---- employees from working at the office.\",\n          \"imageUrl\": null,\n          \"audioUrl\": null,\n          \"questions\": [\n            {\n              \"questionNumber\": 131,\n              \"content\": \"Select best word for blank [131]\",\n              \"optionA\": \"discourage\",\n              \"optionB\": \"encourage\",\n              \"optionC\": \"permit\",\n              \"optionD\": \"require\",\n              \"correctOption\": \"A\",\n              \"explanation\": \"Khuyên nhân viên không nên đến văn phòng: 'discourage from'.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"partNumber\": 7,\n      \"name\": \"Part 7: Reading Comprehension\",\n      \"questionGroups\": [\n        {\n          \"passageText\": \"AURORA LOGISTICS: Effective November 1, insurance coverage increases from $1,000 to $2,500 at no extra charge.\",\n          \"imageUrl\": null,\n          \"audioUrl\": null,\n          \"questions\": [\n            {\n              \"questionNumber\": 147,\n              \"content\": \"What is offered without additional fee?\",\n              \"optionA\": \"Same-day delivery\",\n              \"optionB\": \"Higher insurance coverage\",\n              \"optionC\": \"Free packaging\",\n              \"optionD\": \"Customs consultation\",\n              \"correctOption\": \"B\",\n              \"explanation\": \"Mức bảo hiểm cao hơn không tính phí phụ trội.\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{gateway_url}}/api/exams/bulk",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "bulk"
+              ]
+            },
+            "description": "Bulk import đề thi trọn gói đầy đủ 7 Part (Part 1 -> Part 7), Part 2 chuẩn 3 lựa chọn (optionD: null)."
+          }
+        },
+        {
+          "name": "5.1c Get Exam by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Matches exam_id', () => pm.expect(json.id).to.eql(pm.collectionVariables.get('exam_id')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exams/{{exam_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{exam_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.1d Search Exams (Keyword Filter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Response is array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exams?search=ETS&page=0&size=10",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "ETS"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "5.2 List Exams",
           "event": [
             {
@@ -1733,6 +1874,40 @@
                 "api",
                 "plans",
                 "{{plan_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "8.4 Delete Exam",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{gateway_url}}/api/exams/{{exam_id}}",
+              "host": [
+                "{{gateway_url}}"
+              ],
+              "path": [
+                "api",
+                "exams",
+                "{{exam_id}}"
               ]
             }
           }
