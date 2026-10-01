@@ -3,6 +3,8 @@ package com.toeic.subscription.web.rest;
 import com.toeic.subscription.repository.SubscriptionRepository;
 import com.toeic.subscription.service.SubscriptionService;
 import com.toeic.subscription.service.dto.SubscriptionDTO;
+import com.toeic.subscription.security.AuthoritiesConstants;
+import com.toeic.subscription.security.SecurityUtils;
 import com.toeic.subscription.web.rest.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -55,6 +59,7 @@ public class SubscriptionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<SubscriptionDTO> createSubscription(@Valid @RequestBody SubscriptionDTO subscriptionDTO)
         throws URISyntaxException {
         LOG.debug("REST request to save Subscription : {}", subscriptionDTO);
@@ -78,6 +83,7 @@ public class SubscriptionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<SubscriptionDTO> updateSubscription(
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody SubscriptionDTO subscriptionDTO
@@ -112,6 +118,7 @@ public class SubscriptionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<SubscriptionDTO> partialUpdateSubscription(
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody SubscriptionDTO subscriptionDTO
@@ -144,6 +151,7 @@ public class SubscriptionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of Subscriptions in body.
      */
     @GetMapping("")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<SubscriptionDTO>> getAllSubscriptions(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable,
         @RequestParam(name = "eagerload", required = false, defaultValue = "true") boolean eagerload
@@ -166,6 +174,7 @@ public class SubscriptionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the subscriptionDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<SubscriptionDTO> getSubscription(@PathVariable("id") Long id) {
         LOG.debug("REST request to get Subscription : {}", id);
         Optional<SubscriptionDTO> subscriptionDTO = subscriptionService.findOne(id);
@@ -179,6 +188,7 @@ public class SubscriptionResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteSubscription(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Subscription : {}", id);
         subscriptionService.delete(id);
@@ -189,6 +199,12 @@ public class SubscriptionResource {
     @GetMapping("/user/{userId}/active")
     public ResponseEntity<Boolean> isUserHasActiveSubscription(@PathVariable("userId") String userId) {
         LOG.debug("REST request to check if user has active subscription: {}", userId);
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
+            if (currentUser == null || !currentUser.equals(userId)) {
+                throw new AccessDeniedException("You can only check your own subscription status");
+            }
+        }
         return ResponseEntity.ok().body(subscriptionService.hasActiveSubscription(userId));
     }
 

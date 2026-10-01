@@ -1,6 +1,5 @@
 package com.toeic.exam.service;
 
-import com.toeic.exam.domain.ExamAttempt;
 import com.toeic.exam.domain.enumeration.AttemptStatus;
 import com.toeic.exam.repository.ExamAttemptRepository;
 import com.toeic.exam.repository.UserAnswerRepository;
@@ -11,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 
 @Service
@@ -22,21 +21,28 @@ public class ExamAttemptCleanupService {
 
     private final ExamAttemptRepository examAttemptRepository;
     private final UserAnswerRepository userAnswerRepository;
+    private final TransactionTemplate transactionTemplate;
 
-    public ExamAttemptCleanupService(ExamAttemptRepository examAttemptRepository, UserAnswerRepository userAnswerRepository) {
+    public ExamAttemptCleanupService(
+        ExamAttemptRepository examAttemptRepository,
+        UserAnswerRepository userAnswerRepository,
+        TransactionTemplate transactionTemplate
+    ) {
         this.examAttemptRepository = examAttemptRepository;
         this.userAnswerRepository = userAnswerRepository;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Scheduled(cron = "0 0 * * * ?")
-    @Transactional
     public void cleanupAbandonedExamAttempts() {
         LOG.info("Starting cleanup of abandoned IN_PROGRESS ExamAttempts older than 24 hours...");
         Instant twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
 
-        List<Long> abandonedIds = examAttemptRepository.findIdsByStatusAndStartedAtBefore(AttemptStatus.IN_PROGRESS, twentyFourHoursAgo);
+        List<Long> abandonedIds = transactionTemplate.execute(status ->
+            examAttemptRepository.findIdsByStatusAndStartedAtBefore(AttemptStatus.IN_PROGRESS, twentyFourHoursAgo)
+        );
 
-        if (abandonedIds.isEmpty()) {
+        if (abandonedIds == null || abandonedIds.isEmpty()) {
             LOG.info("No abandoned attempts found to clean up.");
             return;
         }
@@ -45,10 +51,13 @@ public class ExamAttemptCleanupService {
 
         for (int i = 0; i < abandonedIds.size(); i += BATCH_SIZE) {
             List<Long> batch = abandonedIds.subList(i, Math.min(i + BATCH_SIZE, abandonedIds.size()));
-            userAnswerRepository.deleteByExamAttemptIdIn(batch);
-            examAttemptRepository.deleteAllByIdIn(batch);
+            transactionTemplate.executeWithoutResult(status -> {
+                userAnswerRepository.deleteByExamAttemptIdIn(batch);
+                examAttemptRepository.deleteAllByIdIn(batch);
+            });
         }
 
         LOG.info("Cleanup of abandoned ExamAttempts completed.");
     }
 }
+

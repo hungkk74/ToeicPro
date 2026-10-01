@@ -10,20 +10,25 @@ import com.toeic.exam.repository.QuestionGroupRepository;
 import com.toeic.exam.repository.QuestionRepository;
 import com.toeic.exam.service.ExamBulkImportService;
 import com.toeic.exam.service.ExamService;
+import com.toeic.exam.service.FileStorageService;
 import com.toeic.exam.service.dto.ExamDTO;
 import com.toeic.exam.service.dto.create.FullExamCreateDTO;
 import com.toeic.exam.service.dto.take.ExamTakeDTO;
 import com.toeic.exam.service.mapper.ExamMapper;
 import com.toeic.exam.service.util.ExamTakeDtoBuilder;
 import jakarta.persistence.EntityManager;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Service Implementation điều phối quản lý {@link com.toeic.exam.domain.Exam}.
@@ -42,6 +47,7 @@ public class ExamServiceImpl implements ExamService {
     private final ExamBulkImportService examBulkImportService;
     private final ExamTakeDtoBuilder examTakeDtoBuilder;
     private final EntityManager entityManager;
+    private final FileStorageService fileStorageService;
 
     public ExamServiceImpl(
         ExamRepository examRepository,
@@ -51,7 +57,8 @@ public class ExamServiceImpl implements ExamService {
         QuestionRepository questionRepository,
         ExamBulkImportService examBulkImportService,
         ExamTakeDtoBuilder examTakeDtoBuilder,
-        EntityManager entityManager
+        EntityManager entityManager,
+        FileStorageService fileStorageService
     ) {
         this.examRepository = examRepository;
         this.examMapper = examMapper;
@@ -61,6 +68,7 @@ public class ExamServiceImpl implements ExamService {
         this.examBulkImportService = examBulkImportService;
         this.examTakeDtoBuilder = examTakeDtoBuilder;
         this.entityManager = entityManager;
+        this.fileStorageService = fileStorageService;
     }
 
     @Override
@@ -126,6 +134,40 @@ public class ExamServiceImpl implements ExamService {
     public void delete(Long id) {
         LOG.debug("Request to delete Exam : {}", id);
 
+        // 1. Thu thập danh sách file URLs/keys trên R2 trước khi xóa dữ liệu DB
+        Set<String> filesToDelete = new HashSet<>();
+
+        List<String> examAudios = entityManager.createQuery(
+            "SELECT e.audioFullUrl FROM Exam e WHERE e.id = :examId AND e.audioFullUrl IS NOT NULL",
+            String.class
+        ).setParameter("examId", id).getResultList();
+        filesToDelete.addAll(examAudios);
+
+        List<String> groupAudios = entityManager.createQuery(
+            "SELECT g.audioUrl FROM QuestionGroup g WHERE g.part.exam.id = :examId AND g.audioUrl IS NOT NULL",
+            String.class
+        ).setParameter("examId", id).getResultList();
+        filesToDelete.addAll(groupAudios);
+
+        List<String> groupImages = entityManager.createQuery(
+            "SELECT g.imageUrl FROM QuestionGroup g WHERE g.part.exam.id = :examId AND g.imageUrl IS NOT NULL",
+            String.class
+        ).setParameter("examId", id).getResultList();
+        filesToDelete.addAll(groupImages);
+
+        List<String> questionAudios = entityManager.createQuery(
+            "SELECT q.audioUrl FROM Question q WHERE q.part.exam.id = :examId AND q.audioUrl IS NOT NULL",
+            String.class
+        ).setParameter("examId", id).getResultList();
+        filesToDelete.addAll(questionAudios);
+
+        List<String> questionImages = entityManager.createQuery(
+            "SELECT q.imageUrl FROM Question q WHERE q.part.exam.id = :examId AND q.imageUrl IS NOT NULL",
+            String.class
+        ).setParameter("examId", id).getResultList();
+        filesToDelete.addAll(questionImages);
+
+        // 2. Xóa các thực thể con theo thứ tự khóa ngoại trong DB
         entityManager.createQuery("DELETE FROM UserAnswer u WHERE u.examAttempt.id IN (SELECT a.id FROM ExamAttempt a WHERE a.exam.id = :examId)")
             .setParameter("examId", id)
             .executeUpdate();
@@ -147,6 +189,20 @@ public class ExamServiceImpl implements ExamService {
             .executeUpdate();
 
         examRepository.deleteById(id);
+
+        // 3. Sau khi commit DB thành công, kích hoạt async xóa file trên R2 (không block và không gọi HTTP trong transaction)
+        if (!filesToDelete.isEmpty()) {
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        fileStorageService.deleteFilesAsync(filesToDelete);
+                    }
+                });
+            } else {
+                fileStorageService.deleteFilesAsync(filesToDelete);
+            }
+        }
     }
 
     @Override

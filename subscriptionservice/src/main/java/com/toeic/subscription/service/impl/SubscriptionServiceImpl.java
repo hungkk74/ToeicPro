@@ -85,6 +85,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionRepository.findAll(pageable).map(subscriptionMapper::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public Page<SubscriptionDTO> findAllWithEagerRelationships(Pageable pageable) {
         return subscriptionRepository.findAllWithEagerRelationships(pageable).map(subscriptionMapper::toDto);
     }
@@ -143,10 +145,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             LOG.warn("PaymentCompletedEvent or orderCode is null, skipping");
             return;
         }
-        if (paymentTransactionRepository.existsByOrderCode(event.orderCode())) {
-            LOG.warn("Duplicate PaymentCompletedEvent received for orderCode: {}. Skipping activation to ensure idempotency.", event.orderCode());
-            return;
-        }
         if (event.subscriptionId() == null) {
             LOG.warn("PaymentCompletedEvent has null subscriptionId for orderCode: {}", event.orderCode());
             return;
@@ -157,6 +155,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             .ifPresentOrElse(
                 subscription -> {
                     Instant now = Instant.now();
+
                     PaymentTransaction tx = new PaymentTransaction();
                     tx.setOrderCode(event.orderCode());
                     tx.setGatewayTransId(event.orderCode());

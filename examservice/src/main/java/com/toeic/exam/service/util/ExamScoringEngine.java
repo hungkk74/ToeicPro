@@ -59,7 +59,7 @@ public class ExamScoringEngine {
 
             QuestionAnswerSubmissionDTO ans = submittedMap.get(q.getId());
             boolean hasAnswer = ans != null && ans.selectedOption() != null;
-            boolean isCorrect = hasAnswer && ans != null && ans.selectedOption() == q.getCorrectOption();
+            boolean isCorrect = hasAnswer && ans.selectedOption() == q.getCorrectOption();
 
             if (!hasAnswer) {
                 totalSkipped++;

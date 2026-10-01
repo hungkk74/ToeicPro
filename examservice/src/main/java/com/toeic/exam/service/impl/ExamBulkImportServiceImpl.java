@@ -118,8 +118,12 @@ public class ExamBulkImportServiceImpl implements ExamBulkImportService {
                         try {
                             question.setCorrectOption(AnswerOption.valueOf(qDto.getCorrectOption().toUpperCase()));
                         } catch (IllegalArgumentException e) {
-                            LOG.warn("Invalid AnswerOption: {}", qDto.getCorrectOption());
+                            throw new IllegalArgumentException(
+                                "Invalid AnswerOption '" + qDto.getCorrectOption() + "' for question #" + qDto.getQuestionNumber());
                         }
+                    } else {
+                        throw new IllegalArgumentException(
+                            "correctOption is required for question #" + qDto.getQuestionNumber());
                     }
                     question.setExplanation(qDto.getExplanation());
                     question.setQuestionGroup(group);

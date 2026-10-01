@@ -36,12 +36,10 @@ public class Subscription implements Serializable {
     @Column(name = "status", nullable = false)
     private SubscriptionStatus status;
 
-    @NotNull
-    @Column(name = "starts_at", nullable = false)
+    @Column(name = "starts_at")
     private Instant startsAt;
 
-    @NotNull
-    @Column(name = "expires_at", nullable = false)
+    @Column(name = "expires_at")
     private Instant expiresAt;
 
     @Column(name = "created_at")

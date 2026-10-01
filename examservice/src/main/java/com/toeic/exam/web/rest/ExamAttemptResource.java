@@ -201,8 +201,8 @@ public class ExamAttemptResource {
         @PathVariable Long id,
         @Valid @RequestBody ExamSubmissionDTO submissionDTO
     ) {
-       LOG.debug("REST request to submit ExamAttempt : {}, {}", id, 
-       submissionDTO.getAnswers().size());
+       LOG.debug("REST request to submit ExamAttempt : {}, answers={}", id,
+           submissionDTO.getAnswers() != null ? submissionDTO.getAnswers().size() : 0);
        ExamResultDTO result = examAttemptService.submitExam(id, submissionDTO);
        return ResponseEntity.ok(result);
     }

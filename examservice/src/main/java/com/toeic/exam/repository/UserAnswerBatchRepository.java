@@ -47,6 +47,9 @@ public class UserAnswerBatchRepository {
                     }
                     ps.setInt(3, ua.getTimeSpentSeconds() != null ? ua.getTimeSpentSeconds() : 0);
                     ps.setLong(4, attemptId);
+                    if (ua.getQuestion() == null || ua.getQuestion().getId() == null) {
+                        throw new IllegalStateException("UserAnswer has null question or question ID at batch index " + i);
+                    }
                     ps.setLong(5, ua.getQuestion().getId());
                 }
 

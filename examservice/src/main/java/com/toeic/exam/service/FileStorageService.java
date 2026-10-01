@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
@@ -17,7 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 /**
@@ -179,7 +184,8 @@ public class FileStorageService {
         }
     }
 
-    public void deleteFile(String fileKey) {
+    public void deleteFile(String fileKeyOrUrl) {
+        String fileKey = extractFileKey(fileKeyOrUrl);
         if (fileKey == null || fileKey.isBlank()) {
             return;
         }
@@ -197,6 +203,89 @@ public class FileStorageService {
             LOG.error("Failed to delete file from Cloudflare R2: {}", fileKey, e);
             throw new RuntimeException("Lỗi khi xóa file trên Cloudflare R2: " + e.getMessage(), e);
         }
+    }
+
+    public void deleteFiles(Collection<String> fileKeysOrUrls) {
+        if (fileKeysOrUrls == null || fileKeysOrUrls.isEmpty()) {
+            return;
+        }
+
+        List<ObjectIdentifier> objectsToDelete = fileKeysOrUrls.stream()
+            .map(this::extractFileKey)
+            .filter(key -> key != null && !key.isBlank())
+            .distinct()
+            .map(key -> ObjectIdentifier.builder().key(key).build())
+            .toList();
+
+        if (objectsToDelete.isEmpty()) {
+            return;
+        }
+
+        LOG.info("Batch deleting {} files from Cloudflare R2 - Bucket: {}", objectsToDelete.size(), properties.getBucketName());
+
+        final int batchSize = 1000;
+        for (int i = 0; i < objectsToDelete.size(); i += batchSize) {
+            List<ObjectIdentifier> batch = objectsToDelete.subList(i, Math.min(i + batchSize, objectsToDelete.size()));
+            try {
+                DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
+                    .bucket(properties.getBucketName())
+                    .delete(Delete.builder().objects(batch).quiet(true).build())
+                    .build();
+
+                s3Client.deleteObjects(deleteRequest);
+                LOG.info("Successfully batch deleted {} files from Cloudflare R2", batch.size());
+            } catch (Exception e) {
+                LOG.error("Failed to batch delete files from Cloudflare R2", e);
+            }
+        }
+    }
+
+    @Async("fileProcessingExecutor")
+    public CompletableFuture<Void> deleteFilesAsync(Collection<String> fileKeysOrUrls) {
+        try {
+            deleteFiles(fileKeysOrUrls);
+        } catch (Exception e) {
+            LOG.error("Async batch deletion from Cloudflare R2 failed", e);
+        }
+        return CompletableFuture.completedFuture(null);
+    }
+
+    public String extractFileKey(String fileUrlOrKey) {
+        if (fileUrlOrKey == null || fileUrlOrKey.isBlank()) {
+            return null;
+        }
+        String trimmed = fileUrlOrKey.trim();
+
+        if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+            return trimmed.replaceFirst("^/+", "");
+        }
+
+        String publicUrl = properties.getPublicUrl();
+        if (publicUrl != null && !publicUrl.isBlank()) {
+            String cleanPublic = publicUrl.replaceAll("/+$", "");
+            if (trimmed.startsWith(cleanPublic)) {
+                String sub = trimmed.substring(cleanPublic.length()).replaceFirst("^/+", "");
+                int queryIdx = sub.indexOf('?');
+                return queryIdx != -1 ? sub.substring(0, queryIdx) : sub;
+            }
+        }
+
+        try {
+            java.net.URI uri = java.net.URI.create(trimmed);
+            String path = uri.getPath();
+            if (path != null) {
+                path = path.replaceFirst("^/+", "");
+                String bucket = properties.getBucketName();
+                if (bucket != null && !bucket.isBlank() && path.startsWith(bucket + "/")) {
+                    path = path.substring(bucket.length() + 1);
+                }
+                return path;
+            }
+        } catch (Exception ignored) {
+            // URI parsing fallback
+        }
+
+        return trimmed;
     }
 
     private void validateFile(MultipartFile file, String expectedTypePrefix) {

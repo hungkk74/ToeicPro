@@ -3,6 +3,7 @@ package com.toeic.exam.web.rest;
 import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.FileStorageService;
 import com.toeic.exam.service.dto.FileUploadResponse;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +49,22 @@ public class StorageResource {
     }
 
     /**
-     * DELETE /api/storage/file : Xóa file theo fileKey.
+     * DELETE /api/storage/file : Xóa file theo fileKey hoặc URL.
      */
     @DeleteMapping("/file")
     public ResponseEntity<Void> deleteFile(@RequestParam("fileKey") String fileKey) {
         LOG.debug("REST request to delete file with key: {}", fileKey);
         fileStorageService.deleteFile(fileKey);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * DELETE /api/storage/files : Xóa nhiều file theo danh sách fileKey hoặc URL.
+     */
+    @DeleteMapping("/files")
+    public ResponseEntity<Void> deleteFiles(@RequestBody List<String> fileKeys) {
+        LOG.debug("REST request to delete files: {}", fileKeys);
+        fileStorageService.deleteFiles(fileKeys);
         return ResponseEntity.noContent().build();
     }
 }
