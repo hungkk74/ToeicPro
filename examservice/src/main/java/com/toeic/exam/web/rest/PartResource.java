@@ -26,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @RestController
 @RequestMapping("/api/parts")
+@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class PartResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(PartResource.class);

@@ -29,7 +29,7 @@ services:
     networks:
       - toeic-network
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: "123456"
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
@@ -50,7 +50,7 @@ services:
     networks:
       - toeic-network
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis-data:/data
 
@@ -61,9 +61,9 @@ services:
     networks:
       - toeic-network
     ports:
-      - "8300:8300"
-      - "8500:8500"
-      - "8600:8600"
+      - "127.0.0.1:8300:8300"
+      - "127.0.0.1:8500:8500"
+      - "127.0.0.1:8600:8600"
     command: consul agent -dev -ui -client 0.0.0.0 -log-level=INFO
 
   consul-config-loader:
@@ -116,7 +116,7 @@ services:
     networks:
       - toeic-network
     ports:
-      - "9092:9092"
+      - "127.0.0.1:9092:9092"
     volumes:
       - kafka-data:/var/lib/kafka/data
     environment:
@@ -140,7 +140,7 @@ services:
     networks:
       - toeic-network
     ports:
-      - "8989:8080"
+      - "127.0.0.1:8989:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: toeic-cluster

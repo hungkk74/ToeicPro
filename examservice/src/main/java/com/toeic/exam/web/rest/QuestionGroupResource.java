@@ -26,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @RestController
 @RequestMapping("/api/question-groups")
+@PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class QuestionGroupResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(QuestionGroupResource.class);
