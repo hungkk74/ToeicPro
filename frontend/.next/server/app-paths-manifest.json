@@ -1,10 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
   "/exam/[id]/page": "app/exam/[id]/page.js",
   "/de-thi/page": "app/de-thi/page.js",
   "/khoa-hoc/page": "app/khoa-hoc/page.js",
-  "/api/auth/refresh/route": "app/api/auth/refresh/route.js",
-  "/admin/page": "app/admin/page.js",
-  "/icon.png/route": "app/icon.png/route.js"
+  "/api/auth/refresh/route": "app/api/auth/refresh/route.js"
 }
