@@ -84,6 +84,10 @@ public class UserProfileResource {
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             userProfileDTO.setUserId(currentUser);
         }
+        String effectiveUserId = userProfileDTO.getUserId();
+        if (effectiveUserId != null && userProfileService.findByUserId(effectiveUserId).isPresent()) {
+            throw new BadRequestAlertException("Profile đã tồn tại cho user này", ENTITY_NAME, "profileexists");
+        }
         userProfileDTO = userProfileService.save(userProfileDTO);
         return ResponseEntity.created(new URI("/api/user-profiles/" + userProfileDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, userProfileDTO.getId().toString()))

@@ -135,10 +135,6 @@ public class UserProfile implements Serializable {
         return "UserProfile{" +
             "id=" + getId() +
             ", userId='" + getUserId() + "'" +
-            ", name='" + getName() + "'" +
-            ", email='" + getEmail() + "'" +
-            ", phone='" + getPhone() + "'" +
-            ", address='" + getAddress() + "'" +
             "}";
     }
 }

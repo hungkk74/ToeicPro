@@ -66,8 +66,8 @@ public class SecurityConfiguration {
     // See https://github.com/jhipster/generator-jhipster/issues/18868
     // We don't use a distributed cache or the user selected cache implementation here on purpose
     private final Cache<String, Mono<Jwt>> users = Caffeine.newBuilder()
-        .maximumSize(10_000)
-        .expireAfterWrite(Duration.ofHours(1))
+        .maximumSize(2_000)
+        .expireAfterWrite(Duration.ofMinutes(5))
         .recordStats()
         .build();
 
@@ -109,7 +109,8 @@ public class SecurityConfiguration {
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/exams/**").permitAll()
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/plans/**").permitAll()
-                    .pathMatchers("/api/payment-webhook-logs/**").permitAll()
+                    .pathMatchers(org.springframework.http.HttpMethod.POST, "/api/payment-webhook-logs/**").permitAll()
+                    .pathMatchers("/api/payment-webhook-logs/**").hasAuthority(AuthoritiesConstants.ADMIN)
                     .pathMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
                     .pathMatchers("/api/**").authenticated()
                     .pathMatchers("/services/*/management/health/readiness").permitAll()

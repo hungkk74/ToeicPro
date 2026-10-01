@@ -6,6 +6,8 @@ import com.toeic.exam.service.dto.PartDTO;
 import com.toeic.exam.service.mapper.PartMapper;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,12 @@ public class PartService {
     }
 
     @Transactional(readOnly = true)
+    public Page<PartDTO> findAll(Pageable pageable) {
+        LOG.debug("Request to get a page of Parts");
+        return partRepository.findAll(pageable).map(partMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
     public List<PartDTO> findAllWithEagerRelationships() {
         LOG.debug("Request to get all Parts with eager relationships");
         return partRepository
@@ -69,6 +77,12 @@ public class PartService {
             .stream()
             .map(partMapper::toDto)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PartDTO> findAllWithEagerRelationships(Pageable pageable) {
+        LOG.debug("Request to get a page of Parts with eager relationships");
+        return partRepository.findAllWithEagerRelationships(pageable).map(partMapper::toDto);
     }
 
     @Transactional(readOnly = true)

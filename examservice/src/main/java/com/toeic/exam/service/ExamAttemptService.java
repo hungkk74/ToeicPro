@@ -176,12 +176,11 @@ public class ExamAttemptService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExamAttemptHistoryDTO> getMyExamHistory() {
+    public Page<ExamAttemptHistoryDTO> getMyExamHistory(Pageable pageable) {
         String currentUserId = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccessDeniedException("User not authenticated"));
 
-        return examAttemptRepository.findCompletedByUserId(currentUserId)
-            .stream()
+        return examAttemptRepository.findCompletedByUserId(currentUserId, pageable)
             .map(a -> new ExamAttemptHistoryDTO(
                 a.getId(),
                 a.getExam() != null ? a.getExam().getId() : null,
@@ -195,8 +194,7 @@ public class ExamAttemptService {
                 a.getTimeSpentSeconds(),
                 a.getStartedAt(),
                 a.getCompletedAt()
-            ))
-            .toList();
+            ));
     }
 
     public void cancelAttempt(Long attemptId) {

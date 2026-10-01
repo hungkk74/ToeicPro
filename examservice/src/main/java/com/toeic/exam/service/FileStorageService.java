@@ -288,6 +288,9 @@ public class FileStorageService {
         return trimmed;
     }
 
+    private static final long MAX_IMAGE_SIZE = 10L * 1024 * 1024; // 10MB
+    private static final long MAX_AUDIO_SIZE = 30L * 1024 * 1024; // 30MB
+
     private void validateFile(MultipartFile file, String expectedTypePrefix) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File không được để trống");
@@ -297,6 +300,13 @@ public class FileStorageService {
             throw new IllegalArgumentException(
                 "Định dạng file không hợp lệ. Kỳ vọng loại '%s', nhưng nhận được: '%s'".formatted(
                     expectedTypePrefix, contentType)
+            );
+        }
+        long maxSize = expectedTypePrefix.startsWith("image") ? MAX_IMAGE_SIZE : MAX_AUDIO_SIZE;
+        if (file.getSize() > maxSize) {
+            throw new IllegalArgumentException(
+                "Kích thước file vượt quá giới hạn cho phép (%d MB). File hiện tại: %d MB".formatted(
+                    maxSize / (1024 * 1024), file.getSize() / (1024 * 1024))
             );
         }
     }

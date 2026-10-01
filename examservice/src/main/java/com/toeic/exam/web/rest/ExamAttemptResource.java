@@ -223,13 +223,17 @@ public class ExamAttemptResource {
     /**
      * {@code GET  /exam-attempts/my-history} : get completed exam attempts history for the current user.
      *
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of attempt history.
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the paginated list of attempt history.
      */
     @GetMapping("/my-history")
-    public ResponseEntity<List<ExamAttemptHistoryDTO>> getMyExamHistory() {
+    public ResponseEntity<List<ExamAttemptHistoryDTO>> getMyExamHistory(
+        @org.springdoc.core.annotations.ParameterObject Pageable pageable
+    ) {
         LOG.debug("REST request to get exam attempt history for current user");
-        List<ExamAttemptHistoryDTO> result = examAttemptService.getMyExamHistory();
-        return ResponseEntity.ok(result);
+        Page<ExamAttemptHistoryDTO> page = examAttemptService.getMyExamHistory(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     /**

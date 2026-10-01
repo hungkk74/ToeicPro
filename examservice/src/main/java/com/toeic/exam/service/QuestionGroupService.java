@@ -6,6 +6,8 @@ import com.toeic.exam.service.dto.QuestionGroupDTO;
 import com.toeic.exam.service.mapper.QuestionGroupMapper;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,12 @@ public class QuestionGroupService {
     }
 
     @Transactional(readOnly = true)
+    public Page<QuestionGroupDTO> findAll(Pageable pageable) {
+        LOG.debug("Request to get a page of QuestionGroups");
+        return questionGroupRepository.findAll(pageable).map(questionGroupMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
     public List<QuestionGroupDTO> findAllWithEagerRelationships() {
         LOG.debug("Request to get all QuestionGroups with eager relationships");
         return questionGroupRepository
@@ -69,6 +77,12 @@ public class QuestionGroupService {
             .stream()
             .map(questionGroupMapper::toDto)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<QuestionGroupDTO> findAllWithEagerRelationships(Pageable pageable) {
+        LOG.debug("Request to get a page of QuestionGroups with eager relationships");
+        return questionGroupRepository.findAllWithEagerRelationships(pageable).map(questionGroupMapper::toDto);
     }
 
     @Transactional(readOnly = true)

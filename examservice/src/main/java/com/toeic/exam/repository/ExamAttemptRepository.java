@@ -38,8 +38,11 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     @Query("select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.exam where examAttempt.id =:id")
     Optional<ExamAttempt> findOneWithToOneRelationships(@Param("id") Long id);
 
-    @Query("select a from ExamAttempt a left join fetch a.exam where a.userId = :userId and a.status = com.toeic.exam.domain.enumeration.AttemptStatus.COMPLETED order by a.completedAt desc")
-    List<ExamAttempt> findCompletedByUserId(@Param("userId") String userId);
+    @Query(
+        value = "select a from ExamAttempt a left join fetch a.exam where a.userId = :userId and a.status = com.toeic.exam.domain.enumeration.AttemptStatus.COMPLETED order by a.completedAt desc",
+        countQuery = "select count(a) from ExamAttempt a where a.userId = :userId and a.status = com.toeic.exam.domain.enumeration.AttemptStatus.COMPLETED"
+    )
+    Page<ExamAttempt> findCompletedByUserId(@Param("userId") String userId, Pageable pageable);
 
     List<ExamAttempt> findByStatusAndStartedAtBefore(com.toeic.exam.domain.enumeration.AttemptStatus status, java.time.Instant startedAt);
 
