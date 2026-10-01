@@ -322,7 +322,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
         </section>
       ) : (
         /* Empty State */
-        <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-slate-200 space-y-3">
+        <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-slate-200/80 shadow-sm space-y-3">
           <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
             <HelpCircle className="w-6 h-6" />
           </div>
@@ -335,7 +335,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
           <button
             type="button"
             onClick={handleResetFilters}
-            className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow hover:shadow-md active:translate-y-0 text-white rounded-lg text-sm font-medium transition-all"
           >
             Đặt lại bộ lọc
           </button>

@@ -68,7 +68,7 @@ function ExamCard({ card }: ExamCardProps) {
   };
 
   return (
-    <article className="flex flex-col justify-between h-full bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-[border-color,box-shadow] duration-200 p-5 group">
+    <article className="flex flex-col justify-between h-full bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-blue-300 hover:-translate-y-1 transition-all duration-200 p-5 group">
       <div className="space-y-4">
         {/* Badges/Tags & Status Indicator Bar */}
         <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -224,7 +224,7 @@ function ExamCard({ card }: ExamCardProps) {
       <div className="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100">
         <Link
           href={`/exam/${card.id}`}
-          className={`flex-1 min-w-0 text-white font-medium py-2.5 px-3 sm:px-4 rounded-lg shadow-none text-center text-sm transition-colors flex items-center justify-center gap-1.5 group/btn ${
+          className={`flex-1 min-w-0 text-white font-medium py-2.5 px-3 sm:px-4 rounded-lg shadow hover:shadow-md active:translate-y-0 text-center text-sm transition-all flex items-center justify-center gap-1.5 group/btn ${
             card.status === 'in_progress'
               ? 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800'
               : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
@@ -245,7 +245,7 @@ function ExamCard({ card }: ExamCardProps) {
               ? `/exam/${card.id}?review=${card.latestAttempt.attemptId}`
               : `/exam/${card.id}`
           }
-          className="shrink-0 px-3 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-medium rounded-lg text-center text-sm transition-colors cursor-pointer"
+          className="shrink-0 px-3 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-700 font-medium rounded-lg text-center text-sm shadow-sm hover:shadow active:translate-y-0 transition-all cursor-pointer"
         >
           {card.status === 'completed' ? 'Xem lại' : 'Chi tiết'}
         </Link>

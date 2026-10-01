@@ -82,7 +82,7 @@ export default function FilterSection({
   return (
     <div
       ref={containerRef}
-      className="relative z-20 bg-white rounded-xl p-4 sm:p-5 border border-slate-200 space-y-4"
+      className="relative z-20 bg-white rounded-xl p-4 sm:p-5 border border-slate-200/80 shadow-sm space-y-4"
     >
       {/* Search Bar */}
       <div className="relative">

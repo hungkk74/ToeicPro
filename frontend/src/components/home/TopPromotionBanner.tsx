@@ -19,7 +19,7 @@ export default function TopPromotionBanner({ onExploreClick }: TopPromotionBanne
   };
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-xl px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="bg-blue-50/50 border border-blue-100 shadow-sm rounded-xl px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       {/* Left Message without icon */}
       <div className="text-sm leading-snug">
         <span className="font-bold text-blue-950 mr-1.5">Mục tiêu 750+ trong 30 ngày?</span>
@@ -33,7 +33,7 @@ export default function TopPromotionBanner({ onExploreClick }: TopPromotionBanne
         <button
           type="button"
           onClick={handleClick}
-          className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+          className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow hover:shadow-md active:translate-y-0 text-white font-medium text-xs px-4 py-2 rounded-lg transition-all flex items-center gap-1.5"
         >
           <span>Xem khóa học</span>
           <ArrowRight className="w-3.5 h-3.5" />
