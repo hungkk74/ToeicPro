@@ -13,6 +13,7 @@ import ExamCard from './ExamCard';
 import TopPromotionBanner from './TopPromotionBanner';
 import FilterSection from './FilterSection';
 import CourseCatalog from './CourseCatalog';
+import BackendUnavailableNotice from '@/components/common/BackendUnavailableNotice';
 
 interface ExamListPageProps {
   initialExams: ExamItem[];
@@ -294,54 +295,57 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
     <div className="space-y-6">
       {/* Header Banner Phân Cấp Thị Giác Rõ Ràng */}
       <div className="pb-4 border-b border-slate-200">
-
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Danh Sách Đề Thi Thử TOEIC
         </h1>
-
       </div>
 
-      {/* Dải Banner Khuyến Mãi Ngay Trên Khu Vực Bộ Lọc */}
-      <TopPromotionBanner />
-
-      {/* Thanh Bộ Lọc Phân Cấp (Filter Section) */}
-      <FilterSection
-        filterState={filterState}
-        onFilterChange={handleFilterChange}
-        onResetFilters={handleResetFilters}
-        totalFiltered={filteredExams.length}
-        totalAll={exams.length}
-      />
-
-      {/* Lưới Hiển Thị Đề Thi (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}
-      {filteredExams.length > 0 ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredExams.map((exam) => (
-            <ExamCard key={`exam-${exam.id}`} card={exam} />
-          ))}
-        </section>
+      {exams.length === 0 ? (
+        <BackendUnavailableNotice />
       ) : (
-        /* Empty State */
-        <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-slate-200/80 shadow-sm space-y-3">
-          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-            <HelpCircle className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-semibold text-slate-900">
-            Không tìm thấy đề thi phù hợp
-          </h3>
-          <p className="text-sm text-slate-500 max-w-md">
-            Hiện tại không có đề thi nào thỏa mãn các tiêu chí lọc được chọn. Vui lòng thử lại với bộ lọc khác.
-          </p>
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow hover:shadow-md active:translate-y-0 text-white rounded-lg text-sm font-medium transition-all"
-          >
-            Đặt lại bộ lọc
-          </button>
-        </div>
-      )}
+        <>
+          {/* Dải Banner Khuyến Mãi Ngay Trên Khu Vực Bộ Lọc */}
+          <TopPromotionBanner />
 
+          {/* Thanh Bộ Lọc Phân Cấp (Filter Section) */}
+          <FilterSection
+            filterState={filterState}
+            onFilterChange={handleFilterChange}
+            onResetFilters={handleResetFilters}
+            totalFiltered={filteredExams.length}
+            totalAll={exams.length}
+          />
+
+          {/* Lưới Hiển Thị Đề Thi (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}
+          {filteredExams.length > 0 ? (
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredExams.map((exam) => (
+                <ExamCard key={`exam-${exam.id}`} card={exam} />
+              ))}
+            </section>
+          ) : (
+            /* Empty State */
+            <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-slate-200/80 shadow-sm space-y-3">
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                <HelpCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900">
+                Không tìm thấy đề thi phù hợp
+              </h3>
+              <p className="text-sm text-slate-500 max-w-md">
+                Hiện tại không có đề thi nào thỏa mãn các tiêu chí lọc được chọn. Vui lòng thử lại với bộ lọc khác.
+              </p>
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow hover:shadow-md active:translate-y-0 text-white rounded-lg text-sm font-medium transition-all"
+              >
+                Đặt lại bộ lọc
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -6,7 +6,6 @@ import CourseCatalog from '@/components/home/CourseCatalog';
 import { fetchExamsFromBackend } from '@/services/examService';
 import { fetchCoursesFromBackend } from '@/services/courseService';
 import { Suspense } from 'react';
-import { FALLBACK_EXAM_CARDS } from '@/constants/mockExams';
 import { CourseItem } from '@/constants/mockCourses';
 import { ExamItem } from '@/types/examList';
 
@@ -65,7 +64,7 @@ export default async function HomePage() {
           readingQuestions: isListening ? 0 : (e.totalQuestions || 100),
         };
       })
-      : FALLBACK_EXAM_CARDS;
+      : [];
 
   const courses: CourseItem[] =
     backendCourses && backendCourses.length > 0

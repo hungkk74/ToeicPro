@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookOpen, ShieldCheck, Mail, MapPin, Phone } from 'lucide-react';
+import { BookOpen, ShieldCheck, Mail, MapPin, Phone, User } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -24,7 +24,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/tac-gia" className="hover:text-blue-400 transition-colors flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-slate-500" /> Về Đội Ngũ Tác Giả
+                  <User className="w-4 h-4 text-slate-500" /> Tác Giả
                 </Link>
               </li>
               <li>

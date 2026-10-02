@@ -3,7 +3,6 @@ import Footer from '@/components/layout/Footer';
 import ExamListPage from '@/components/home/ExamListPage';
 import { fetchExamsFromBackend } from '@/services/examService';
 import { Suspense } from 'react';
-import { FALLBACK_EXAM_CARDS } from '@/constants/mockExams';
 import { ExamItem } from '@/types/examList';
 
 export const revalidate = 60;
@@ -26,7 +25,7 @@ export default async function ExamsPage() {
           const isReading = cat === 'reading';
           const isListening = cat === 'listening';
           const titleLower = e.title?.toLowerCase() || '';
-          
+
           let examSource = 'ETS Authentic';
           if (titleLower.includes('economy')) examSource = 'Economy';
           else if (titleLower.includes('hackers')) examSource = 'Hackers';
@@ -58,7 +57,7 @@ export default async function ExamsPage() {
             readingQuestions: isListening ? 0 : (e.totalQuestions || 100),
           };
         })
-      : FALLBACK_EXAM_CARDS;
+      : [];
 
   return (
     <div className="bg-slate-50 font-body-default text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-700">

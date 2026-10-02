@@ -8,6 +8,7 @@ import { ExamWorkspace } from '@/components/exam/ExamWorkspace';
 import { ExamModalsContainer } from '@/components/exam/ExamModalsContainer';
 import { useExamRunner } from '@/hooks/useExamRunner';
 import { useExamAudio } from '@/hooks/useExamAudio';
+import BackendUnavailableNotice from '@/components/common/BackendUnavailableNotice';
 
 export default function ExamRoomPage() {
   const params = useParams();
@@ -26,6 +27,14 @@ export default function ExamRoomPage() {
         <span className="text-sm font-semibold text-text-secondary">
           Đang tải đề thi và câu hỏi từ hệ thống...
         </span>
+      </div>
+    );
+  }
+
+  if (!runner.examData) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <BackendUnavailableNotice showBackHome={true} />
       </div>
     );
   }
