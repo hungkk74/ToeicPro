@@ -122,6 +122,11 @@ public class UserProfileResource {
         }
 
         checkAccess(id);
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            String currentUser = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            userProfileDTO.setUserId(currentUser);
+        }
 
         userProfileDTO = userProfileService.update(userProfileDTO);
         return ResponseEntity.ok()
@@ -158,6 +163,11 @@ public class UserProfileResource {
         }
 
         checkAccess(id);
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            String currentUser = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            userProfileDTO.setUserId(currentUser);
+        }
 
         Optional<UserProfileDTO> result = userProfileService.partialUpdate(userProfileDTO);
 

@@ -106,6 +106,7 @@ public class SecurityConfiguration {
                     ).permitAll()
                     .pathMatchers("/api/authenticate").permitAll()
                     .pathMatchers("/api/auth-info").permitAll()
+                    .pathMatchers("/api/auth/**").permitAll()
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/exams/**").permitAll()
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
                     .pathMatchers(org.springframework.http.HttpMethod.GET, "/api/plans/**").permitAll()

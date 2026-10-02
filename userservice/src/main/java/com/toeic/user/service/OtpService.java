@@ -12,8 +12,10 @@ public class OtpService {
 
     private static final Logger LOG = LoggerFactory.getLogger(OtpService.class);
     private static final String OTP_PREFIX = "otp:";
+    private static final String OTP_COOLDOWN_PREFIX = "otp_cooldown:";
     private static final String OTP_ATTEMPT_PREFIX = "otp_attempt:";
     private static final Duration OTP_TTL = Duration.ofMinutes(5);
+    private static final Duration COOLDOWN_TTL = Duration.ofSeconds(60);
     private static final int MAX_VERIFY_ATTEMPTS = 5;
 
     private final StringRedisTemplate redisTemplate;
@@ -24,23 +26,28 @@ public class OtpService {
 
     /**
      * Sinh mã OTP ngẫu nhiên 6 chữ số và lưu vào Redis kèm TTL.
-     * Từ chối nếu OTP trước đó chưa hết hạn (chống spam).
+     * Áp dụng cooldown 60s giữa các lần gửi lại mã.
      */
     public String generateAndSaveOtp(String email) {
-        String redisKey = OTP_PREFIX + email.trim().toLowerCase();
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email không được để trống");
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+        String cooldownKey = OTP_COOLDOWN_PREFIX + normalizedEmail;
 
-        String existingOtp = redisTemplate.opsForValue().get(redisKey);
-        if (existingOtp != null) {
-            Long remainingTtl = redisTemplate.getExpire(redisKey);
-            LOG.warn("OTP vẫn còn hiệu lực cho email: {}, TTL còn: {}s", email, remainingTtl);
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey))) {
+            Long remainingTtl = redisTemplate.getExpire(cooldownKey);
+            LOG.warn("OTP cooldown vẫn còn hiệu lực cho email: {}, còn: {}s", normalizedEmail, remainingTtl);
             throw new IllegalStateException(
-                "Mã OTP trước đó vẫn còn hiệu lực. Vui lòng chờ hết hạn trước khi yêu cầu mã mới."
+                "Vui lòng chờ %d giây trước khi yêu cầu mã OTP mới.".formatted(remainingTtl != null ? remainingTtl : 60)
             );
         }
 
         String otp = String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
+        String redisKey = OTP_PREFIX + normalizedEmail;
         redisTemplate.opsForValue().set(redisKey, otp, OTP_TTL);
-        redisTemplate.delete(OTP_ATTEMPT_PREFIX + email.trim().toLowerCase());
+        redisTemplate.opsForValue().set(cooldownKey, "1", COOLDOWN_TTL);
+        redisTemplate.delete(OTP_ATTEMPT_PREFIX + normalizedEmail);
 
         return otp;
     }
@@ -51,7 +58,7 @@ public class OtpService {
      * Chặn brute-force sau 5 lần nhập sai.
      */
     public boolean validateOtp(String email, String inputOtp) {
-        if (email == null || inputOtp == null) {
+        if (email == null || email.isBlank() || inputOtp == null || inputOtp.isBlank()) {
             return false;
         }
 
@@ -65,7 +72,6 @@ public class OtpService {
         }
         if (attempts != null && attempts > MAX_VERIFY_ATTEMPTS) {
             redisTemplate.delete(redisKey);
-            redisTemplate.delete(attemptKey);
             LOG.warn("Quá {} lần nhập OTP sai cho email: {}, OTP đã bị hủy", MAX_VERIFY_ATTEMPTS, normalizedEmail);
             return false;
         }
@@ -74,6 +80,7 @@ public class OtpService {
         if (cachedOtp != null && cachedOtp.equals(inputOtp.trim())) {
             redisTemplate.delete(redisKey);
             redisTemplate.delete(attemptKey);
+            redisTemplate.delete(OTP_COOLDOWN_PREFIX + normalizedEmail);
             return true;
         }
         return false;
@@ -83,8 +90,13 @@ public class OtpService {
      * Xóa mã OTP thủ công (dùng cho cleanup khi cần)
      */
     public void deleteOtp(String email) {
-        String redisKey = OTP_PREFIX + email.trim().toLowerCase();
-        redisTemplate.delete(redisKey);
+        if (email == null || email.isBlank()) {
+            return;
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+        redisTemplate.delete(OTP_PREFIX + normalizedEmail);
+        redisTemplate.delete(OTP_COOLDOWN_PREFIX + normalizedEmail);
+        redisTemplate.delete(OTP_ATTEMPT_PREFIX + normalizedEmail);
     }
 }
 

@@ -37,4 +37,10 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
 
     @Query("select lessonProgress from LessonProgress lessonProgress left join fetch lessonProgress.lesson where lessonProgress.id =:id")
     Optional<LessonProgress> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Query(
+        value = "select lessonProgress from LessonProgress lessonProgress left join fetch lessonProgress.lesson where lessonProgress.userId = :userId",
+        countQuery = "select count(lessonProgress) from LessonProgress lessonProgress where lessonProgress.userId = :userId"
+    )
+    Page<LessonProgress> findByUserIdWithToOneRelationships(@Param("userId") String userId, Pageable pageable);
 }

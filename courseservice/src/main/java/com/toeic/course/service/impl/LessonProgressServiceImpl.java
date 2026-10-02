@@ -75,6 +75,13 @@ public class LessonProgressServiceImpl implements LessonProgressService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<LessonProgressDTO> findByUserId(String userId, Pageable pageable) {
+        LOG.debug("Request to get LessonProgresses for user : {}", userId);
+        return lessonProgressRepository.findByUserIdWithToOneRelationships(userId, pageable).map(lessonProgressMapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<LessonProgressDTO> findOne(Long id) {
         LOG.debug("Request to get LessonProgress : {}", id);
         return lessonProgressRepository.findOneWithEagerRelationships(id).map(lessonProgressMapper::toDto);

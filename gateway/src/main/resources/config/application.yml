@@ -129,7 +129,7 @@ spring:
             - id: userservice-route
               uri: lb://userservice
               predicates:
-                - Path=/api/user-profiles/**
+                - Path=/api/user-profiles/**, /api/auth/**, /api/users/**
               filters:
                 - name: CircuitBreaker
                   args:

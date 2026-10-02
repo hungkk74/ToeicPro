@@ -43,16 +43,26 @@ public class LogoutResource {
         return session
             .invalidate()
             .then(
-                registrationRepository
-                    .findByRegistrationId(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId())
-                    .map(oidc -> prepareLogoutUri(request, oidc, oidcUser.getIdToken()))
+                Mono.defer(() -> {
+                    if (oAuth2AuthenticationToken == null || oidcUser == null) {
+                        return Mono.just(Map.of("logoutUrl", "/"));
+                    }
+                    return registrationRepository
+                        .findByRegistrationId(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId())
+                        .map(oidc -> prepareLogoutUri(request, oidc, oidcUser.getIdToken()))
+                        .defaultIfEmpty(Map.of("logoutUrl", "/"));
+                })
             );
     }
 
     private Map<String, String> prepareLogoutUri(ServerHttpRequest request, ClientRegistration clientRegistration, OidcIdToken idToken) {
-        StringBuilder logoutUrl = new StringBuilder();
+        Object endSessionEndpoint = clientRegistration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint");
+        if (endSessionEndpoint == null) {
+            return Map.of("logoutUrl", "/");
+        }
 
-        logoutUrl.append(clientRegistration.getProviderDetails().getConfigurationMetadata().get("end_session_endpoint").toString());
+        StringBuilder logoutUrl = new StringBuilder();
+        logoutUrl.append(endSessionEndpoint.toString());
 
         String originUrl = request.getHeaders().getOrigin();
         if (originUrl == null) {

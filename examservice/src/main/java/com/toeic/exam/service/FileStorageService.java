@@ -12,9 +12,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -37,17 +38,20 @@ public class FileStorageService {
     private final CloudflareR2Properties properties;
     private final AudioCompressionService audioCompressionService;
     private final ImageCompressionService imageCompressionService;
+    private final Executor fileProcessingExecutor;
 
     public FileStorageService(
         S3Client s3Client,
         CloudflareR2Properties properties,
         AudioCompressionService audioCompressionService,
-        ImageCompressionService imageCompressionService
+        ImageCompressionService imageCompressionService,
+        @Qualifier("fileProcessingExecutor") Executor fileProcessingExecutor
     ) {
         this.s3Client = s3Client;
         this.properties = properties;
         this.audioCompressionService = audioCompressionService;
         this.imageCompressionService = imageCompressionService;
+        this.fileProcessingExecutor = fileProcessingExecutor;
     }
 
     public FileUploadResponse uploadAudio(MultipartFile file) {
@@ -72,47 +76,43 @@ public class FileStorageService {
         }
     }
 
-    @Async("fileProcessingExecutor")
     public CompletableFuture<FileUploadResponse> uploadAudioAsync(File tempInput, String originalFilename, long originalSize) {
-        File tempOutput = null;
+        return CompletableFuture.supplyAsync(() -> {
+            File tempOutput = null;
+            try {
+                tempOutput = audioCompressionService.compressToMp3(tempInput);
 
-        try {
-            tempOutput = audioCompressionService.compressToMp3(tempInput);
+                String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
+                String contentType = "audio/mpeg";
+                long optimizedSize = tempOutput.length();
 
-            String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
-            String contentType = "audio/mpeg";
-            long optimizedSize = tempOutput.length();
+                LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
+                    properties.getBucketName(), fileKey, originalSize, optimizedSize);
 
-            LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
-                properties.getBucketName(), fileKey, originalSize, optimizedSize);
+                PutObjectRequest putRequest = PutObjectRequest.builder()
+                    .bucket(properties.getBucketName())
+                    .key(fileKey)
+                    .contentType(contentType)
+                    .build();
 
-            PutObjectRequest putRequest = PutObjectRequest.builder()
-                .bucket(properties.getBucketName())
-                .key(fileKey)
-                .contentType(contentType)
-                .build();
+                s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
 
-            s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
+                String fileUrl = buildPublicUrl(fileKey);
+                LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
 
-            String fileUrl = buildPublicUrl(fileKey);
-            LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
-
-            return CompletableFuture.completedFuture(
-                new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType)
-            );
-        } catch (Exception e) {
-            LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
-            CompletableFuture<FileUploadResponse> failed = new CompletableFuture<>();
-            failed.completeExceptionally(new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e));
-            return failed;
-        } finally {
-            if (tempInput != null && tempInput.exists()) {
-                tempInput.delete();
+                return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
+            } catch (Exception e) {
+                LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
+                throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
+            } finally {
+                if (tempInput != null && tempInput.exists()) {
+                    tempInput.delete();
+                }
+                if (tempOutput != null && tempOutput.exists()) {
+                    tempOutput.delete();
+                }
             }
-            if (tempOutput != null && tempOutput.exists()) {
-                tempOutput.delete();
-            }
-        }
+        }, fileProcessingExecutor);
     }
 
     public FileUploadResponse uploadImage(MultipartFile file) {
@@ -240,14 +240,14 @@ public class FileStorageService {
         }
     }
 
-    @Async("fileProcessingExecutor")
     public CompletableFuture<Void> deleteFilesAsync(Collection<String> fileKeysOrUrls) {
-        try {
-            deleteFiles(fileKeysOrUrls);
-        } catch (Exception e) {
-            LOG.error("Async batch deletion from Cloudflare R2 failed", e);
-        }
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.runAsync(() -> {
+            try {
+                deleteFiles(fileKeysOrUrls);
+            } catch (Exception e) {
+                LOG.error("Async batch deletion from Cloudflare R2 failed", e);
+            }
+        }, fileProcessingExecutor);
     }
 
     public String extractFileKey(String fileUrlOrKey) {

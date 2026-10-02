@@ -156,10 +156,12 @@ public class UserService {
                     Instant idpModifiedDate;
                     if (details.get("updated_at") instanceof Instant instant) {
                         idpModifiedDate = instant;
+                    } else if (details.get("updated_at") instanceof Number number) {
+                        idpModifiedDate = Instant.ofEpochSecond(number.longValue());
                     } else {
-                        idpModifiedDate = Instant.ofEpochSecond((Integer) details.get("updated_at"));
+                        idpModifiedDate = Instant.EPOCH;
                     }
-                    if (idpModifiedDate.isAfter(dbModifiedDate)) {
+                    if (dbModifiedDate == null || idpModifiedDate.isAfter(dbModifiedDate)) {
                         LOG.debug("Updating user '{}' in local database", user.getLogin());
                         return updateUser(user.getFirstName(), user.getLastName(), user.getEmail(), user.getLangKey(), user.getImageUrl());
                     }

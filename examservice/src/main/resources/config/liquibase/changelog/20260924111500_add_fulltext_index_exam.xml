@@ -6,7 +6,7 @@
 
     <changeSet id="20260924111500-1" author="antigravity">
         <sql dbms="mysql">
-            ALTER TABLE exam ADD FULLTEXT INDEX idx_exam_title_desc (title, description);
+            ALTER TABLE exam ADD FULLTEXT INDEX idx_exam_title (title);
         </sql>
     </changeSet>
 </databaseChangeLog>

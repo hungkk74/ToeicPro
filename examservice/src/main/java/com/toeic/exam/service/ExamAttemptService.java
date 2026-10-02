@@ -1,9 +1,11 @@
 package com.toeic.exam.service;
 
+import com.toeic.exam.domain.Exam;
 import com.toeic.exam.domain.ExamAttempt;
 import com.toeic.exam.domain.Question;
 import com.toeic.exam.domain.enumeration.AttemptStatus;
 import com.toeic.exam.repository.ExamAttemptRepository;
+import com.toeic.exam.repository.ExamRepository;
 import com.toeic.exam.repository.QuestionRepository;
 import com.toeic.exam.repository.UserAnswerBatchRepository;
 import com.toeic.exam.repository.UserAnswerRepository;
@@ -42,6 +44,7 @@ public class ExamAttemptService {
 
     private final ExamAttemptRepository examAttemptRepository;
     private final ExamAttemptMapper examAttemptMapper;
+    private final ExamRepository examRepository;
     private final QuestionRepository questionRepository;
     private final UserAnswerRepository userAnswerRepository;
     private final UserAnswerBatchRepository userAnswerBatchRepository;
@@ -51,6 +54,7 @@ public class ExamAttemptService {
     public ExamAttemptService(
         ExamAttemptRepository examAttemptRepository,
         ExamAttemptMapper examAttemptMapper,
+        ExamRepository examRepository,
         QuestionRepository questionRepository,
         UserAnswerRepository userAnswerRepository,
         UserAnswerBatchRepository userAnswerBatchRepository,
@@ -59,6 +63,7 @@ public class ExamAttemptService {
     ) {
         this.examAttemptRepository = examAttemptRepository;
         this.examAttemptMapper = examAttemptMapper;
+        this.examRepository = examRepository;
         this.questionRepository = questionRepository;
         this.userAnswerRepository = userAnswerRepository;
         this.userAnswerBatchRepository = userAnswerBatchRepository;
@@ -71,12 +76,26 @@ public class ExamAttemptService {
         String currentUser = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccessDeniedException("Yêu cầu đăng nhập để bắt đầu bài thi!"));
         examAttemptDTO.setUserId(currentUser);
-        if (examAttemptDTO.getStatus() == null) {
-            examAttemptDTO.setStatus(AttemptStatus.IN_PROGRESS);
+
+        if (examAttemptDTO.getExam() == null || examAttemptDTO.getExam().getId() == null) {
+            throw new IllegalArgumentException("Đề thi không hợp lệ");
         }
-        if (examAttemptDTO.getStartedAt() == null) {
-            examAttemptDTO.setStartedAt(Instant.now());
+        Exam exam = examRepository.findById(examAttemptDTO.getExam().getId())
+            .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examAttemptDTO.getExam().getId()));
+        if (!Boolean.TRUE.equals(exam.getIsPublished())) {
+            throw new IllegalStateException("Đề thi chưa được công bố!");
         }
+
+        examAttemptDTO.setStatus(AttemptStatus.IN_PROGRESS);
+        examAttemptDTO.setListeningScore(null);
+        examAttemptDTO.setReadingScore(null);
+        examAttemptDTO.setTotalScore(null);
+        examAttemptDTO.setCorrectAnswers(0);
+        examAttemptDTO.setWrongAnswers(0);
+        examAttemptDTO.setSkippedAnswers(0);
+        examAttemptDTO.setStartedAt(Instant.now());
+        examAttemptDTO.setCompletedAt(null);
+
         ExamAttempt examAttempt = examAttemptMapper.toEntity(examAttemptDTO);
         examAttempt = examAttemptRepository.save(examAttempt);
         return examAttemptMapper.toDto(examAttempt);
@@ -128,7 +147,7 @@ public class ExamAttemptService {
     public ExamResultDTO submitExam(Long attemptId, ExamSubmissionDTO dto) {
         LOG.debug("Request to submit ExamAttempt : {}", attemptId);
 
-        ExamAttempt attempt = examAttemptRepository.findOneWithToOneRelationships(attemptId)
+        ExamAttempt attempt = examAttemptRepository.findOneForUpdate(attemptId)
             .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + attemptId));
         if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
             throw new IllegalStateException("Bài thi đã được nộp trước đó");

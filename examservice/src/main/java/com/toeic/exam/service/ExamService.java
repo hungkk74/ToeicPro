@@ -8,6 +8,8 @@ import com.toeic.exam.repository.ExamRepository;
 import com.toeic.exam.repository.PartRepository;
 import com.toeic.exam.repository.QuestionGroupRepository;
 import com.toeic.exam.repository.QuestionRepository;
+import com.toeic.exam.security.AuthoritiesConstants;
+import com.toeic.exam.security.SecurityUtils;
 import com.toeic.exam.service.dto.ExamDTO;
 import com.toeic.exam.service.dto.create.FullExamCreateDTO;
 import com.toeic.exam.service.dto.take.ExamTakeDTO;
@@ -102,7 +104,10 @@ public class ExamService {
     @Transactional(readOnly = true)
     public Page<ExamDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get all Exams");
-        return examRepository.findAll(pageable).map(examMapper::toDto);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return examRepository.findAll(pageable).map(examMapper::toDto);
+        }
+        return examRepository.findByIsPublishedTrue(pageable).map(examMapper::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -111,13 +116,23 @@ public class ExamService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return findAll(pageable);
         }
-        return examRepository.searchExamsFullText(keyword, pageable).map(examMapper::toDto);
+        String cleanKeyword = keyword.replaceAll("[+\\-*~\"()<>]", " ").trim();
+        if (cleanKeyword.isEmpty()) {
+            return findAll(pageable);
+        }
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return examRepository.searchExamsFullText(cleanKeyword + "*", pageable).map(examMapper::toDto);
+        }
+        return examRepository.searchExamsFullTextPublished(cleanKeyword + "*", pageable).map(examMapper::toDto);
     }
 
     @Transactional(readOnly = true)
     public Optional<ExamDTO> findOne(Long id) {
         LOG.debug("Request to get Exam : {}", id);
-        return examRepository.findById(id).map(examMapper::toDto);
+        return examRepository
+            .findById(id)
+            .filter(exam -> SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) || Boolean.TRUE.equals(exam.getIsPublished()))
+            .map(examMapper::toDto);
     }
 
     public void delete(Long id) {

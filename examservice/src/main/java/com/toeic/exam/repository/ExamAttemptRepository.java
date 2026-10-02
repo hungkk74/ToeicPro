@@ -1,6 +1,7 @@
 package com.toeic.exam.repository;
 
 import com.toeic.exam.domain.ExamAttempt;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,10 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
 
     @Query("select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.exam where examAttempt.id =:id")
     Optional<ExamAttempt> findOneWithToOneRelationships(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select examAttempt from ExamAttempt examAttempt left join fetch examAttempt.exam where examAttempt.id =:id")
+    Optional<ExamAttempt> findOneForUpdate(@Param("id") Long id);
 
     @Query(
         value = "select a from ExamAttempt a left join fetch a.exam where a.userId = :userId and a.status = com.toeic.exam.domain.enumeration.AttemptStatus.COMPLETED order by a.completedAt desc",

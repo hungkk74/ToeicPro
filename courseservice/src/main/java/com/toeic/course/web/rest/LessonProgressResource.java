@@ -18,8 +18,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import com.toeic.course.security.AuthoritiesConstants;
+import com.toeic.course.security.SecurityUtils;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -47,6 +50,19 @@ public class LessonProgressResource {
         this.lessonProgressRepository = lessonProgressRepository;
     }
 
+    private void checkOwnership(Long id) {
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return;
+        }
+        String currentUser = SecurityUtils.getCurrentUserLogin()
+            .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+        LessonProgressDTO existing = lessonProgressService.findOne(id)
+            .orElseThrow(() -> new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound"));
+        if (!currentUser.equals(existing.getUserId())) {
+            throw new AccessDeniedException("You are not authorized to access this lesson progress");
+        }
+    }
+
     /**
      * {@code POST  /lesson-progresses} : Create a new lessonProgress.
      *
@@ -60,6 +76,11 @@ public class LessonProgressResource {
         LOG.debug("REST request to save LessonProgress : {}", lessonProgressDTO);
         if (lessonProgressDTO.getId() != null) {
             throw new BadRequestAlertException("A new lessonProgress cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            String currentUser = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            lessonProgressDTO.setUserId(currentUser);
         }
         lessonProgressDTO = lessonProgressService.save(lessonProgressDTO);
         return ResponseEntity.created(new URI("/api/lesson-progresses/" + lessonProgressDTO.getId()))
@@ -92,6 +113,13 @@ public class LessonProgressResource {
 
         if (!lessonProgressRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        }
+
+        checkOwnership(id);
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            String currentUser = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            lessonProgressDTO.setUserId(currentUser);
         }
 
         lessonProgressDTO = lessonProgressService.update(lessonProgressDTO);
@@ -128,6 +156,13 @@ public class LessonProgressResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
+        checkOwnership(id);
+        if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            String currentUser = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            lessonProgressDTO.setUserId(currentUser);
+        }
+
         Optional<LessonProgressDTO> result = lessonProgressService.partialUpdate(lessonProgressDTO);
 
         return ResponseUtil.wrapOrNotFound(
@@ -150,10 +185,16 @@ public class LessonProgressResource {
     ) {
         LOG.debug("REST request to get a page of LessonProgresses");
         Page<LessonProgressDTO> page;
-        if (eagerload) {
-            page = lessonProgressService.findAllWithEagerRelationships(pageable);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            if (eagerload) {
+                page = lessonProgressService.findAllWithEagerRelationships(pageable);
+            } else {
+                page = lessonProgressService.findAll(pageable);
+            }
         } else {
-            page = lessonProgressService.findAll(pageable);
+            String currentUser = SecurityUtils.getCurrentUserLogin()
+                .orElseThrow(() -> new AccessDeniedException("User is not authenticated"));
+            page = lessonProgressService.findByUserId(currentUser, pageable);
         }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -168,6 +209,7 @@ public class LessonProgressResource {
     @GetMapping("/{id}")
     public ResponseEntity<LessonProgressDTO> getLessonProgress(@PathVariable("id") Long id) {
         LOG.debug("REST request to get LessonProgress : {}", id);
+        checkOwnership(id);
         Optional<LessonProgressDTO> lessonProgressDTO = lessonProgressService.findOne(id);
         return ResponseEntity.of(lessonProgressDTO);
     }
@@ -181,6 +223,7 @@ public class LessonProgressResource {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLessonProgress(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete LessonProgress : {}", id);
+        checkOwnership(id);
         lessonProgressService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

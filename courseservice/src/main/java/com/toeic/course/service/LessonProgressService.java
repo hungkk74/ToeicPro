@@ -50,6 +50,15 @@ public interface LessonProgressService {
     Page<LessonProgressDTO> findAllWithEagerRelationships(Pageable pageable);
 
     /**
+     * Get all the lessonProgresses for a specific user.
+     *
+     * @param userId the user id.
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<LessonProgressDTO> findByUserId(String userId, Pageable pageable);
+
+    /**
      * Get the "id" lessonProgress.
      *
      * @param id the id of the entity.
