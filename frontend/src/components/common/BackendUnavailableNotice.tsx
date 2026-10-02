@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, MouseEvent } from 'react';
 import Link from 'next/link';
-import { Wrench, RefreshCw, Sparkles, ArrowLeft } from 'lucide-react';
+import { Wrench, RefreshCw, ArrowLeft } from 'lucide-react';
 
 interface Props {
   className?: string;
@@ -88,7 +88,7 @@ export default function BackendUnavailableNotice({ className = '', showBackHome 
           >
             {/* 3D Icon */}
             <div
-              className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 mb-5 transition-transform duration-300"
+              className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 text-white flex items-center justify-center shadow-lg shadow-amber-500/30 mb-6 transition-transform duration-300"
               style={{
                 transform: `translateZ(65px) ${isHovered ? 'scale(1.12) rotate(8deg)' : 'scale(1)'}`,
               }}
@@ -96,30 +96,13 @@ export default function BackendUnavailableNotice({ className = '', showBackHome 
               <Wrench className="w-8 h-8 animate-pulse" />
             </div>
 
-            {/* Badge */}
-            <div
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/80 mb-4 shadow-sm"
-              style={{ transform: 'translateZ(35px)' }}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>Chưa kết nối Backend</span>
-            </div>
-
             {/* Main Message */}
             <h2
-              className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-snug mb-3"
+              className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-snug mb-6"
               style={{ transform: 'translateZ(55px)' }}
             >
               xin lỗi bạn, tác giả đang bận đi làm nên chưa kịp fix
             </h2>
-
-            {/* Subtitle */}
-            <p
-              className="text-sm text-slate-500 max-w-sm mb-6 leading-relaxed"
-              style={{ transform: 'translateZ(25px)' }}
-            >
-              Dữ liệu đề thi từ Backend Microservices chưa sẵn sàng. Vui lòng thử lại sau khi hệ thống hoàn tất khởi chạy!
-            </p>
 
             {/* 3D Actions */}
             <div
