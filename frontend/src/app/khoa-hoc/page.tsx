@@ -1,6 +1,7 @@
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CourseCatalog from '@/components/home/CourseCatalog';
+import CourseCarousel from '@/components/course/CourseCarousel';
 import { fetchCoursesFromBackend } from '@/services/courseService';
 import { CourseItem } from '@/constants/mockCourses';
 import TargetScoreForm from '@/components/course/TargetScoreForm';
@@ -29,22 +30,20 @@ export default async function CoursesPage() {
       <Navbar />
 
       <main className="w-full pt-20 pb-16 flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center py-12">
-            <h1 className="text-4xl font-extrabold text-slate-900 mb-4">Lộ Trình Khóa Học TOEIC</h1>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              Hệ thống các khóa học được thiết kế chuyên biệt, sát với đề thi thật ETS. Cung cấp phương pháp giải đề tối ưu và tiết kiệm thời gian nhất.
-            </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          {/* Hero Banner Carousel */}
+          <CourseCarousel />
+
+          <div id="target-score-section">
+            <TargetScoreForm />
           </div>
 
-          <TargetScoreForm />
-
           {courses.length > 0 ? (
-            <div className="mt-12">
+            <div id="course-catalog-section" className="pt-6">
               <CourseCatalog courses={courses} />
             </div>
           ) : (
-            <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-slate-200 mt-12">
+            <div className="text-center py-12 bg-white rounded-2xl shadow-sm border border-slate-200 mt-6">
               <p className="text-slate-500">Hiện tại chưa có khóa học nào. Vui lòng quay lại sau!</p>
             </div>
           )}

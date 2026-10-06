@@ -11,25 +11,15 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/de-thi/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/de-thi/page.js"
-    ],
     "/khoa-hoc/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/khoa-hoc/page.js"
     ],
-    "/exam/[id]/page": [
+    "/de-thi/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/exam/[id]/page.js"
-    ],
-    "/tac-gia/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/tac-gia/page.js"
+      "static/chunks/app/de-thi/page.js"
     ]
   }
 }
