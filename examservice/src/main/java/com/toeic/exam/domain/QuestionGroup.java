@@ -9,7 +9,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Nhóm câu hỏi (Dùng cho Part 3, 4, 6, 7 dùng chung bài đọc / audio hội thoại)
+// Nhóm câu hỏi (Dùng cho Part 3, 4, 6, 7 dùng chung bài đọc / audio hội thoại)
  */
 @Entity
 @Table(name = "question_group")
@@ -37,7 +37,7 @@ public class QuestionGroup implements Serializable {
     @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "exam" }, allowSetters = true)
     private Part part;

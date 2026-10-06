@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
- * Lịch sử lần làm bài thi của học viên
+// Lịch sử lần làm bài thi của học viên
  */
 @Entity
 @Table(name = "exam_attempt")
@@ -67,7 +67,7 @@ public class ExamAttempt implements Serializable {
     @Column(name = "completed_at")
     private Instant completedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     private Exam exam;
 

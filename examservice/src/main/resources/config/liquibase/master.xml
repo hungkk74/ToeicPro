@@ -29,5 +29,6 @@
     <include file="config/liquibase/changelog/20260924111500_add_fulltext_index_exam.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260928150000_add_version_to_exam_attempt.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260928160000_add_performance_indexes.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261006120000_add_performance_indexes_v2.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

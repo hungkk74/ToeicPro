@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data JPA repository for the Question entity.
+// Spring Data JPA repository for the Question entity.
  */
 @Repository
 public interface QuestionRepository extends JpaRepository<Question, Long> {
@@ -43,7 +43,10 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("SELECT q FROM Question q LEFT JOIN FETCH q.part WHERE q.id IN :ids")
     List<Question> findAllByIdInWithPart(@Param("ids") Collection<Long> ids);
 
-    @Query("SELECT q FROM Question q LEFT JOIN FETCH q.part LEFT JOIN FETCH q.questionGroup WHERE q.part.exam.id = :examId ORDER BY q.questionNumber ASC")
-List<Question> findByExamIdOrderByQuestionNumberAsc(@Param("examId") Long examId);
+    @Query("SELECT q FROM Question q JOIN FETCH q.part p LEFT JOIN FETCH q.questionGroup WHERE p.exam.id = :examId ORDER BY q.questionNumber ASC")
+    List<Question> findByExamIdOrderByQuestionNumberAsc(@Param("examId") Long examId);
+
+    @Query("SELECT q FROM Question q JOIN FETCH q.part p WHERE p.exam.id = :examId ORDER BY q.questionNumber ASC")
+    List<Question> findByExamIdForScoring(@Param("examId") Long examId);
 
 }

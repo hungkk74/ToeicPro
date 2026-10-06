@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * Service điều phối quản lý {@link com.toeic.exam.domain.Exam}.
+// Service điều phối quản lý {@link com.toeic.exam.domain.Exam}.
  */
 @Service
 @Transactional
@@ -81,6 +83,7 @@ public class ExamService {
         return examBulkImportService.createFullExam(request);
     }
 
+    @CacheEvict(cacheNames = "examTake", key = "#examDTO.id")
     public ExamDTO update(ExamDTO examDTO) {
         LOG.debug("Request to update Exam : {}", examDTO);
         Exam exam = examMapper.toEntity(examDTO);
@@ -88,6 +91,7 @@ public class ExamService {
         return examMapper.toDto(exam);
     }
 
+    @CacheEvict(cacheNames = "examTake", key = "#examDTO.id")
     public Optional<ExamDTO> partialUpdate(ExamDTO examDTO) {
         LOG.debug("Request to partially update Exam : {}", examDTO);
 
@@ -135,6 +139,7 @@ public class ExamService {
             .map(examMapper::toDto);
     }
 
+    @CacheEvict(cacheNames = "examTake", key = "#id")
     public void delete(Long id) {
         LOG.debug("Request to delete Exam : {}", id);
 
@@ -209,6 +214,7 @@ public class ExamService {
         }
     }
 
+    @Cacheable(cacheNames = "examTake", key = "#examId")
     @Transactional(readOnly = true)
     public ExamTakeDTO getExamForTaking(Long examId) {
         LOG.debug("Request to get exam for taking: {}", examId);

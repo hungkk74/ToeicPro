@@ -69,7 +69,7 @@ public class Question implements Serializable {
     @Column(name = "explanation")
     private String explanation;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "exam" }, allowSetters = true)
     private Part part;

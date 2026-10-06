@@ -157,7 +157,7 @@ public class ExamAttemptService {
 
         List<Question> allQuestions;
         if (attempt.getExam() != null && attempt.getExam().getId() != null) {
-            allQuestions = questionRepository.findByExamIdOrderByQuestionNumberAsc(attempt.getExam().getId());
+            allQuestions = questionRepository.findByExamIdForScoring(attempt.getExam().getId());
         } else {
             Set<Long> qIds = dto.getAnswers() != null
                 ? dto.getAnswers().stream().map(QuestionAnswerSubmissionDTO::questionId).collect(Collectors.toSet())

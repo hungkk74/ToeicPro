@@ -1,6 +1,6 @@
 {
   "/page": "app/page.js",
-  "/khoa-hoc/page": "app/khoa-hoc/page.js",
   "/de-thi/page": "app/de-thi/page.js",
-  "/icon.png/route": "app/icon.png/route.js"
+  "/khoa-hoc/page": "app/khoa-hoc/page.js",
+  "/quy-che-khao-thi/page": "app/quy-che-khao-thi/page.js"
 }

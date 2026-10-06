@@ -8,7 +8,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * 7 Phần thi TOEIC (Part 1 -> Part 7)
+// 7 Phần thi TOEIC (Part 1 -> Part 7)
  */
 @Entity
 @Table(name = "part")
@@ -39,7 +39,7 @@ public class Part implements Serializable {
     @Column(name = "total_questions", nullable = false)
     private Integer totalQuestions;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     private Exam exam;
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="20261006120000-1" author="toeicpro">
+        <createIndex indexName="idx_exam_published" tableName="exam">
+            <column name="is_published"/>
+        </createIndex>
+        <createIndex indexName="idx_exam_attempt_cleanup" tableName="exam_attempt">
+            <column name="status"/>
+            <column name="started_at"/>
+        </createIndex>
+        <createIndex indexName="idx_exam_attempt_history" tableName="exam_attempt">
+            <column name="user_id"/>
+            <column name="status"/>
+            <column name="completed_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

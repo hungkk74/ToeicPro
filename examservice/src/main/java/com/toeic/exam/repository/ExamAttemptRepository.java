@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
- * Spring Data JPA repository for the ExamAttempt entity.
+// Spring Data JPA repository for the ExamAttempt entity.
  */
 @Repository
 public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> {
@@ -54,7 +54,8 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
     @Query("SELECT a.id FROM ExamAttempt a WHERE a.status = :status AND a.startedAt < :startedAt")
     List<Long> findIdsByStatusAndStartedAtBefore(
         @Param("status") com.toeic.exam.domain.enumeration.AttemptStatus status,
-        @Param("startedAt") java.time.Instant startedAt
+        @Param("startedAt") java.time.Instant startedAt,
+        Pageable pageable
     );
 
     @Modifying

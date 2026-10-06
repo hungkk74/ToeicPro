@@ -8,7 +8,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * Chi tiết đáp án học viên chọn cho từng câu hỏi
+// Chi tiết đáp án học viên chọn cho từng câu hỏi
  */
 @Entity
 @Table(name = "user_answer")
@@ -33,12 +33,12 @@ public class UserAnswer implements Serializable {
     @Column(name = "time_spent_seconds")
     private Integer timeSpentSeconds;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "exam" }, allowSetters = true)
     private ExamAttempt examAttempt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "part", "questionGroup" }, allowSetters = true)
     private Question question;
