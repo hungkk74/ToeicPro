@@ -6,7 +6,20 @@ import { UserAccountDTO } from '@/types/backend';
  */
 export async function checkIsAuthenticated(): Promise<boolean> {
   const token = getStoredToken();
-  if (token) return true;
+  if (token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length >= 2) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          return false;
+        }
+      }
+    } catch {
+      return false;
+    }
+    return true;
+  }
 
   try {
     const baseUrl = getBaseApiUrl();

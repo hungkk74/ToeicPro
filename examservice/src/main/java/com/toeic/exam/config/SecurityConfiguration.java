@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                 authz
                     .requestMatchers("/api/authenticate").permitAll()
                     .requestMatchers("/api/auth-info").permitAll()
-                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/exams/**").permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/exams", "/api/exams/**").permitAll()
                     .requestMatchers("/api/admin/**").hasAuthority(AuthoritiesConstants.ADMIN)
                     .requestMatchers("/api/**").authenticated()
                     .requestMatchers("/v3/api-docs/**").hasAuthority(AuthoritiesConstants.ADMIN)

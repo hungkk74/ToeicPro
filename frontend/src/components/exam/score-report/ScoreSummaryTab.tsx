@@ -44,15 +44,15 @@ export function ScoreSummaryTab({
   onNavigateToParts,
 }: ScoreSummaryTabProps) {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 font-sans">
       {/* Main Score Banner */}
-      <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xs">
         <div className="text-center sm:text-left space-y-1">
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-200/80 text-slate-700">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/80">
             Tổng Điểm TOEIC
           </span>
           <div className="flex items-baseline justify-center sm:justify-start gap-1.5 pt-1">
-            <span className="text-4xl sm:text-5xl font-extrabold text-slate-900 tabular-nums tracking-tight">
+            <span className="text-4xl sm:text-5xl font-serif font-bold text-slate-950 tabular-nums tracking-tight">
               {examResult.totalScore}
             </span>
             <span className="text-sm font-semibold text-slate-400">/ {maxTotalScore}</span>
@@ -63,14 +63,14 @@ export function ScoreSummaryTab({
         </div>
 
         {/* Subscores: Listening & Reading */}
-        <div className="w-full sm:w-auto flex items-center justify-center gap-6 border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-6">
+        <div className="w-full sm:w-auto flex items-center justify-center gap-8 border-t sm:border-t-0 sm:border-l border-slate-200 pt-4 sm:pt-0 sm:pl-8">
           {hasListening && (
             <div className="text-center px-2">
               <span className="text-xs text-slate-500 font-medium block">Listening</span>
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
+              <span className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tabular-nums">
                 {examResult.listeningScore}
               </span>
-              <span className="text-[11px] text-slate-400 block">/ 495</span>
+              <span className="text-[11px] text-slate-400 block font-mono">/ 495</span>
             </div>
           )}
 
@@ -79,43 +79,43 @@ export function ScoreSummaryTab({
           {hasReading && (
             <div className="text-center px-2">
               <span className="text-xs text-slate-500 font-medium block">Reading</span>
-              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tabular-nums">
+              <span className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 tabular-nums">
                 {examResult.readingScore}
               </span>
-              <span className="text-[11px] text-slate-400 block">/ 495</span>
+              <span className="text-[11px] text-slate-400 block font-mono">/ 495</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Progress & Performance Metrics */}
-      <div className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+      <div className="space-y-3.5 p-5 rounded-xl bg-slate-50 border border-slate-200 shadow-xs">
         <div className="flex items-center justify-between text-xs sm:text-sm font-medium">
           <span className="text-slate-700">
             Tiến độ hoàn thành:{' '}
-            <strong className="text-slate-900 font-bold">
+            <strong className="text-slate-900 font-semibold tabular-nums">
               {actualAnswered}/{resolvedTotal} câu
             </strong>
           </span>
           <div className="flex items-center gap-3">
-            <span className="text-slate-900 font-bold tabular-nums">
+            <span className="text-slate-900 font-semibold tabular-nums">
               Chính xác: {accuracyPercentage}%
             </span>
-            <span className="text-slate-600 font-medium tabular-nums">
+            <span className="text-slate-500 font-medium tabular-nums">
               {completionPercentage}% hoàn thành
             </span>
           </div>
         </div>
 
         {/* Multi-segmented Progress Track */}
-        <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden flex">
+        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
           <div
-            className="bg-emerald-500 h-full transition-all duration-500"
+            className="bg-emerald-600 h-full transition-all duration-500"
             style={{ width: `${(correctAnswers / resolvedTotal) * 100}%` }}
             title={`Đúng: ${correctAnswers} câu`}
           />
           <div
-            className="bg-rose-500 h-full transition-all duration-500"
+            className="bg-rose-600 h-full transition-all duration-500"
             style={{ width: `${(wrongAnswers / resolvedTotal) * 100}%` }}
             title={`Sai: ${wrongAnswers} câu`}
           />
@@ -127,23 +127,23 @@ export function ScoreSummaryTab({
         </div>
 
         {/* Metrics Pill Boxes */}
-        <div className="grid grid-cols-4 gap-2 pt-1 text-center">
+        <div className="grid grid-cols-4 gap-2.5 pt-1 text-center">
           <div className="py-2.5 px-2 rounded-lg bg-white border border-slate-200">
             <div className="flex items-center justify-center gap-1.5 text-slate-600 text-xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0" />
               <span>Đúng</span>
             </div>
-            <span className="text-base sm:text-lg font-bold text-slate-900 tabular-nums block mt-0.5">
+            <span className="text-base sm:text-lg font-serif font-bold text-slate-900 tabular-nums block mt-0.5">
               {correctAnswers}
             </span>
           </div>
 
           <div className="py-2.5 px-2 rounded-lg bg-white border border-slate-200">
             <div className="flex items-center justify-center gap-1.5 text-slate-600 text-xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+              <span className="w-2 h-2 rounded-full bg-rose-600 shrink-0" />
               <span>Sai</span>
             </div>
-            <span className="text-base sm:text-lg font-bold text-slate-900 tabular-nums block mt-0.5">
+            <span className="text-base sm:text-lg font-serif font-bold text-slate-900 tabular-nums block mt-0.5">
               {wrongAnswers}
             </span>
           </div>
@@ -153,7 +153,7 @@ export function ScoreSummaryTab({
               <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
               <span>Chưa làm</span>
             </div>
-            <span className="text-base sm:text-lg font-bold text-slate-900 tabular-nums block mt-0.5">
+            <span className="text-base sm:text-lg font-serif font-bold text-slate-900 tabular-nums block mt-0.5">
               {skippedAnswers}
             </span>
           </div>
@@ -163,7 +163,7 @@ export function ScoreSummaryTab({
               <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span>Thời gian</span>
             </div>
-            <span className="text-xs sm:text-sm font-bold text-slate-900 tabular-nums block mt-1 truncate px-1">
+            <span className="text-xs sm:text-sm font-semibold text-slate-900 tabular-nums block mt-1 truncate px-1">
               {actualTimeSpentStr}
             </span>
           </div>
@@ -172,12 +172,12 @@ export function ScoreSummaryTab({
 
       {/* Notice when < 80% */}
       {!canViewAnswers && (
-        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-start gap-3">
-          <div className="w-6 h-6 rounded-md bg-slate-200/80 text-slate-700 flex items-center justify-center shrink-0 mt-0.5">
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-start gap-3">
+          <div className="w-6 h-6 rounded-lg bg-slate-200/80 text-slate-700 flex items-center justify-center shrink-0 mt-0.5">
             <Lock className="w-3.5 h-3.5" />
           </div>
           <div className="space-y-0.5 flex-1 min-w-0">
-            <strong className="font-semibold text-slate-900 block text-xs sm:text-sm">
+            <strong className="font-semibold text-slate-900 block text-xs sm:text-sm font-serif">
               Chưa mở khóa đáp án và lời giải chi tiết
             </strong>
             <p className="text-slate-600 leading-relaxed text-[11px] sm:text-xs">
@@ -191,31 +191,31 @@ export function ScoreSummaryTab({
       {/* Quick Part Overview Snippet if available */}
       {reviewData?.partSummaries && reviewData.partSummaries.length > 0 && (
         <div className="space-y-2 pt-1">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+          <div className="flex items-center justify-between text-xs font-medium text-slate-700">
             <span>Kết quả sơ bộ từng Part</span>
             <button
               type="button"
               onClick={onNavigateToParts}
-              className="text-slate-700 hover:text-slate-900 text-xs font-semibold inline-flex items-center gap-0.5"
+              className="text-blue-600 hover:text-blue-700 text-xs font-semibold inline-flex items-center gap-0.5 cursor-pointer"
             >
-              <span>Xem đầy đủ</span>
+              <span>Xem chi tiết</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {reviewData.partSummaries.slice(0, 4).map((p) => {
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {reviewData.partSummaries.map((p) => {
               const correct = p.correctCount ?? p.correctQuestions ?? 0;
               const total = p.totalCount ?? p.totalQuestions ?? 1;
               const pct = Math.round((correct / total) * 100);
               return (
                 <div
                   key={p.partNumber}
-                  className="p-2.5 rounded-lg border border-slate-200 bg-white flex items-center justify-between text-xs"
+                  className="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50"
                 >
-                  <span className="font-medium text-slate-800 truncate mr-2">{p.partName}</span>
-                  <span className="tabular-nums font-bold text-slate-700 shrink-0">
+                  <div className="text-[11px] text-slate-500 font-medium">Part {p.partNumber}</div>
+                  <div className="text-xs font-semibold text-slate-900 mt-0.5">
                     {correct}/{total} ({pct}%)
-                  </span>
+                  </div>
                 </div>
               );
             })}

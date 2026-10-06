@@ -18,7 +18,9 @@ export function useExamAudio(
       url &&
         (url.startsWith('http://') ||
           url.startsWith('https://') ||
-          url.startsWith('/audio/'))
+          url.startsWith('/audio/') ||
+          url.startsWith('blob:') ||
+          url.startsWith('data:'))
     );
 
   const specificAudio = isValidAudio(currentQData?.audioUrl)

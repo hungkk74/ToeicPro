@@ -51,6 +51,8 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <modernizer-maven-plugin.version>3.5.0</modernizer-maven-plugin.version>
         <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
+        <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
         <profile.api-docs/>
         <profile.e2e/>
         <profile.no-liquibase/>

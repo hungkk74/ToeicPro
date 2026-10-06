@@ -62,7 +62,7 @@ public class FileStorageService {
         validateFile(file, "audio");
         File tempInput = null;
         try {
-            tempInput = File.createTempFile("audio_input_", ".tmp");
+            tempInput = Files.createTempFile("audio_input_", ".tmp").toFile();
             Files.copy(file.getInputStream(), tempInput.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return uploadAudioAsync(tempInput, file.getOriginalFilename(), file.getSize());
         } catch (IOException e) {
@@ -77,42 +77,51 @@ public class FileStorageService {
     }
 
     public CompletableFuture<FileUploadResponse> uploadAudioAsync(File tempInput, String originalFilename, long originalSize) {
-        return CompletableFuture.supplyAsync(() -> {
-            File tempOutput = null;
-            try {
-                tempOutput = audioCompressionService.compressToMp3(tempInput);
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                File tempOutput = null;
+                try {
+                    tempOutput = audioCompressionService.compressToMp3(tempInput);
 
-                String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
-                String contentType = "audio/mpeg";
-                long optimizedSize = tempOutput.length();
+                    String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
+                    String contentType = "audio/mpeg";
+                    long optimizedSize = tempOutput.length();
 
-                LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
-                    properties.getBucketName(), fileKey, originalSize, optimizedSize);
+                    LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
+                        properties.getBucketName(), fileKey, originalSize, optimizedSize);
 
-                PutObjectRequest putRequest = PutObjectRequest.builder()
-                    .bucket(properties.getBucketName())
-                    .key(fileKey)
-                    .contentType(contentType)
-                    .build();
+                    PutObjectRequest putRequest = PutObjectRequest.builder()
+                        .bucket(properties.getBucketName())
+                        .key(fileKey)
+                        .contentType(contentType)
+                        .build();
 
-                s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
+                    s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
 
-                String fileUrl = buildPublicUrl(fileKey);
-                LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
+                    String fileUrl = buildPublicUrl(fileKey);
+                    LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
 
-                return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
-            } catch (Exception e) {
-                LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
-                throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
-            } finally {
-                if (tempInput != null && tempInput.exists()) {
-                    tempInput.delete();
+                    return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
+                } catch (Exception e) {
+                    LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
+                    throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
+                } finally {
+                    if (tempInput != null && tempInput.exists()) {
+                        tempInput.delete();
+                    }
+                    if (tempOutput != null && tempOutput.exists()) {
+                        tempOutput.delete();
+                    }
                 }
-                if (tempOutput != null && tempOutput.exists()) {
-                    tempOutput.delete();
-                }
+            }, fileProcessingExecutor);
+        } catch (Throwable t) {
+            if (tempInput != null && tempInput.exists()) {
+                tempInput.delete();
             }
-        }, fileProcessingExecutor);
+            CompletableFuture<FileUploadResponse> failed = new CompletableFuture<>();
+            failed.completeExceptionally(t);
+            return failed;
+        }
     }
 
     public FileUploadResponse uploadImage(MultipartFile file) {

@@ -109,8 +109,8 @@ export default function RegisterModal({
 
     // Tách Họ và Tên
     const nameParts = fullName.trim().split(/\s+/);
-    const firstName = nameParts.slice(0, -1).join(' ') || nameParts[0] || '';
-    const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+    const firstName = nameParts[nameParts.length - 1] || nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(0, -1).join(' ') : '';
 
     setIsLoading(true);
 

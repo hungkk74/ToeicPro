@@ -80,25 +80,23 @@ export default async function HomePage() {
         originalPrice: '2.500.000₫',
       }))
       : []; return (
-        <div className="bg-slate-50 font-body-default text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-700">
+        <div className="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-950">
           <Navbar />
 
-          <main className="w-full pt-20 pb-16 flex-1">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <main className="w-full pt-20 pb-20 flex-1">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
               {/* Welcome Banner Carousel */}
               <HomeCarousel />
 
-              <Suspense fallback={<div className="p-12 text-center text-slate-500">Đang tải danh sách đề thi...</div>}>
+              <Suspense fallback={<div className="p-12 text-center text-slate-500 font-serif">Đang tải danh sách đề thi...</div>}>
                 <ExamListPage initialExams={examCards} />
               </Suspense>
 
               {courses.length > 0 && (
-                <div className="mt-16 pt-12 border-t border-slate-200">
-
+                <div className="pt-10 border-t border-slate-200/80">
                   <CourseCatalog courses={courses} />
                 </div>
               )}
-
             </div>
           </main>
 

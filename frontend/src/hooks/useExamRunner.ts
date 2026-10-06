@@ -19,6 +19,7 @@ import {
 } from '@/types/backend';
 import { MatrixPartItem } from '@/components/exam/QuestionMatrix';
 import { FlattenedQuestion, ReviewMapItem } from '@/types/examTaking';
+import { isToeicPart2 } from '@/lib/questionUtils';
 
 export function useExamRunner(examId: string, reviewAttemptIdParam: string | null) {
   const router = useRouter();
@@ -31,6 +32,10 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
   const [loading, setLoading] = useState(true);
   const [backendAttemptId, setBackendAttemptId] = useState<number | null>(null);
   const pendingAttemptPromiseRef = useRef<Promise<{ id: number } | null> | null>(null);
+  const autoSubmitTriggeredRef = useRef(false);
+  const attemptCreationRetriesRef = useRef(0);
+  const userLoadedRef = useRef(false);
+  const saveProgressRef = useRef<() => void>(() => {});
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Record<number, boolean>>({});
@@ -66,6 +71,8 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
 
     setBackendAttemptId(null);
     pendingAttemptPromiseRef.current = null;
+    autoSubmitTriggeredRef.current = false;
+    attemptCreationRetriesRef.current = 0;
     setShowResetDialog(false);
   }, [examData, progressKey, examId]);
 
@@ -80,6 +87,7 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
         const user = await getCurrentUser();
         if (!isMounted) return;
         setCurrentUser(user);
+        userLoadedRef.current = true;
 
         const scope = user?.login ? `user_${user.login}` : 'guest';
         const activeKey = `exam_progress_${scope}_${examId}`;
@@ -261,7 +269,14 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
       }
     });
 
-    return list.sort((a, b) => a.questionNumber - b.questionNumber);
+    list.sort((a, b) => a.questionNumber - b.questionNumber);
+    // Deduplicate questions by questionNumber
+    const seenNumbers = new Set<number>();
+    return list.filter((q) => {
+      if (seenNumbers.has(q.questionNumber)) return false;
+      seenNumbers.add(q.questionNumber);
+      return true;
+    });
   }, [examData]);
 
   // Question Matrix Parts
@@ -277,11 +292,10 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
           g.questions?.forEach((q) => qNums.push(q.questionNumber));
         });
       }
-      qNums.sort((a, b) => a - b);
       return {
         partNumber: p.partNumber,
         name: p.name,
-        questions: qNums,
+        questions: Array.from(new Set(qNums)).sort((a, b) => a - b),
       };
     });
   }, [examData]);
@@ -294,6 +308,22 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
     }, 1000);
     return () => clearInterval(interval);
   }, [examResult, isReviewMode]);
+
+  // Auto-submit when time expires
+  useEffect(() => {
+    if (
+      timeRemaining === 0 &&
+      !examResult &&
+      !isReviewMode &&
+      !isSubmitting &&
+      !autoSubmitTriggeredRef.current &&
+      flattenedQuestions.length > 0
+    ) {
+      autoSubmitTriggeredRef.current = true;
+      handleSubmitExam();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRemaining, examResult, isReviewMode, isSubmitting]);
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -310,7 +340,8 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
   const handleSelectAnswer = (qNum: number, answer: string) => {
     if (isReviewMode || examResult) return;
     setSelectedAnswers((prev) => ({ ...prev, [qNum]: answer }));
-    if (!backendAttemptId && !pendingAttemptPromiseRef.current) {
+    if (!backendAttemptId && !pendingAttemptPromiseRef.current && attemptCreationRetriesRef.current < 3) {
+      attemptCreationRetriesRef.current += 1;
       pendingAttemptPromiseRef.current = createExamAttemptInBackend(Number(examId))
         .then((attempt) => {
           if (attempt?.id) {
@@ -328,9 +359,10 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
 
   const handleSubmitExam = async () => {
     setIsSubmitting(true);
+    const questionMap = new Map(flattenedQuestions.map((q) => [q.questionNumber, q]));
     const answersList: QuestionAnswerSubmissionDTO[] = Object.entries(selectedAnswers).map(
       ([qNum, ans]) => {
-        const qItem = flattenedQuestions.find((q) => q.questionNumber === Number(qNum));
+        const qItem = questionMap.get(Number(qNum));
         return {
           questionId: qItem ? qItem.id : Number(qNum),
           selectedOption: ans as 'A' | 'B' | 'C' | 'D',
@@ -431,7 +463,7 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
   const totalQuestions = flattenedQuestions.length > 0 ? flattenedQuestions.length : (examData?.totalQuestions || 100);
 
   const saveProgress = useCallback(() => {
-    if (examResult) return;
+    if (examResult || !userLoadedRef.current) return;
     try {
       const answered = Object.keys(selectedAnswers).length;
       const progress = {
@@ -452,6 +484,28 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
       // noop
     }
   }, [selectedAnswers, flaggedQuestions, currentQuestion, timeRemaining, backendAttemptId, progressKey, examResult, totalQuestions]);
+
+  saveProgressRef.current = saveProgress;
+
+  // Auto-save progress every 30 seconds + warn on page close
+  useEffect(() => {
+    if (examResult || isReviewMode) return;
+
+    const autoSaveInterval = setInterval(() => {
+      saveProgressRef.current();
+    }, 30_000);
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      saveProgressRef.current();
+      e.preventDefault();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      clearInterval(autoSaveInterval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [examResult, isReviewMode]);
 
   const handleExitWithoutSaving = useCallback(async () => {
     if (backendAttemptId) {
@@ -509,12 +563,14 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
     (q) => q.questionNumber === currentQuestion
   );
 
+  const isPart2 = isToeicPart2(currentQData?.partNumber, currentQuestion);
+
   const currentOptions = currentQData
     ? [
         { key: 'A', text: currentQData.optionA },
         { key: 'B', text: currentQData.optionB },
         { key: 'C', text: currentQData.optionC },
-        { key: 'D', text: currentQData.optionD },
+        ...(isPart2 ? [] : [{ key: 'D', text: currentQData.optionD }]),
       ]
     : undefined;
 

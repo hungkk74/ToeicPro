@@ -1,20 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
-  Clock,
   Award,
-  Pause,
-  Play,
   Layers,
   FileText,
   Lock,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import { ExamResultDTO, ExamReviewDTO, QuestionReviewDTO } from '@/types/backend';
 import { fetchExamReviewFromBackend } from '@/services/examService';
-import { useScoreCountdown } from '@/hooks/useScoreCountdown';
 import { getCefrBadge, formatTimeSpent } from './score-report/scoreReportUtils';
 import { ScoreSummaryTab } from './score-report/ScoreSummaryTab';
 import { ScorePartsTab } from './score-report/ScorePartsTab';
@@ -39,16 +37,16 @@ export default function ScoreReportModal({
   totalQuestions,
   onViewDetailedReview,
 }: ScoreReportModalProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'summary' | 'parts' | 'questions'>('summary');
   const [reviewData, setReviewData] = useState<ExamReviewDTO | null>(null);
   const [loadingReview, setLoadingReview] = useState(false);
   const [questionFilter, setQuestionFilter] = useState<'all' | 'wrong' | 'correct' | 'skipped'>('all');
   const [expandedExplanation, setExpandedExplanation] = useState<Record<number, boolean>>({});
 
-  const { countdown, isPaused, togglePause, pause, redirectToTarget } = useScoreCountdown({
-    isOpen,
-    activeTab,
-  });
+  const redirectToTarget = () => {
+    router.push('/de-thi');
+  };
 
   useEffect(() => {
     if (!isOpen || !examResult?.attemptId) return;
@@ -72,13 +70,6 @@ export default function ScoreReportModal({
       isMounted = false;
     };
   }, [isOpen, examResult?.attemptId]);
-
-  const handleTabChange = (tab: 'summary' | 'parts' | 'questions') => {
-    setActiveTab(tab);
-    if (tab !== 'summary') {
-      pause();
-    }
-  };
 
   if (!isOpen) return null;
 
@@ -149,92 +140,68 @@ export default function ScoreReportModal({
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200 font-sans"
       role="dialog"
       aria-modal="true"
     >
-      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-6 flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden my-6 flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
 
         {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-              Nộp bài thành công!
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {examResult.examTitle || 'Đề thi TOEIC'} — Kết quả làm bài
+            <div className="flex items-center gap-2">
+              <h2 className="font-serif text-base sm:text-lg font-semibold text-slate-950 tracking-tight">
+                Nộp bài thành công
+              </h2>
+              <span className="text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full">
+                Hoàn thành
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5 font-sans">
+              {examResult.examTitle || 'Đề thi TOEIC'} — Kết quả chi tiết
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-            aria-label="Đóng"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Auto Redirect Countdown Bar */}
-        <div className="bg-slate-50 border-b border-slate-200 px-6 py-2.5 flex items-center justify-between text-xs text-slate-600 shrink-0">
-          <div className="flex items-center gap-2 font-medium">
-            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span>
-              {isPaused || activeTab !== 'summary' ? (
-                <span>Đã tạm dừng tự động chuyển trang</span>
-              ) : (
-                <>
-                  Tự động quay về danh sách đề thi sau{' '}
-                  <strong className="text-slate-900 font-bold tabular-nums font-mono text-sm">
-                    {countdown}s
-                  </strong>
-                </>
-              )}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={togglePause}
-              className="px-2.5 py-1 rounded-md text-[11px] font-medium border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition-colors flex items-center gap-1"
-              title={isPaused ? 'Tiếp tục đếm ngược' : 'Tạm dừng đếm ngược'}
-            >
-              {isPaused ? <Play className="w-3 h-3 text-slate-600" /> : <Pause className="w-3 h-3 text-slate-600" />}
-              <span>{isPaused ? 'Tiếp tục' : 'Tạm dừng'}</span>
-            </button>
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={redirectToTarget}
-              className="px-3 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-white font-medium text-[11px] transition-colors flex items-center gap-1 shadow-2xs"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors"
             >
-              <span>Về danh sách ngay</span>
-              <ArrowRight className="w-3 h-3" />
+              <span>Về danh sách đề</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              aria-label="Đóng"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center border-b border-slate-200 bg-white px-6 text-xs font-semibold shrink-0 gap-1">
+        <div className="flex items-center border-b border-slate-200 bg-slate-50/60 px-6 text-xs font-medium shrink-0 gap-2 overflow-x-auto">
           <button
             type="button"
-            onClick={() => handleTabChange('summary')}
-            className={`py-3 px-3.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            onClick={() => setActiveTab('summary')}
+            className={`py-3 px-3 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'summary'
-                ? 'border-slate-900 text-slate-900 -mb-px'
+                ? 'border-blue-600 text-blue-600 font-bold -mb-px'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
             <Award className="w-3.5 h-3.5" />
-            <span>Tổng quan điểm số</span>
+            <span>Tổng quan điểm</span>
           </button>
           <button
             type="button"
-            onClick={() => handleTabChange('parts')}
-            className={`py-3 px-3.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            onClick={() => setActiveTab('parts')}
+            className={`py-3 px-3 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'parts'
-                ? 'border-slate-900 text-slate-900 -mb-px'
+                ? 'border-blue-600 text-blue-600 font-bold -mb-px'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -243,10 +210,10 @@ export default function ScoreReportModal({
           </button>
           <button
             type="button"
-            onClick={() => handleTabChange('questions')}
-            className={`py-3 px-3.5 border-b-2 transition-colors flex items-center gap-1.5 ${
+            onClick={() => setActiveTab('questions')}
+            className={`py-3 px-3 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeTab === 'questions'
-                ? 'border-slate-900 text-slate-900 -mb-px'
+                ? 'border-blue-600 text-blue-600 font-bold -mb-px'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -255,9 +222,9 @@ export default function ScoreReportModal({
             ) : (
               <Lock className="w-3.5 h-3.5 text-slate-400" />
             )}
-            <span>Xem lại câu hỏi & Lời giải ({resolvedTotal} câu)</span>
+            <span>Xem lại đáp án ({resolvedTotal} câu)</span>
             {!canViewAnswers && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+              <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-200/70 text-slate-600 border border-slate-300">
                 Khóa (&lt;80%)
               </span>
             )}
@@ -284,7 +251,7 @@ export default function ScoreReportModal({
               actualTimeSpentStr={actualTimeSpentStr}
               canViewAnswers={canViewAnswers}
               requiredQuestionsToUnlock={requiredQuestionsToUnlock}
-              onNavigateToParts={() => handleTabChange('parts')}
+              onNavigateToParts={() => setActiveTab('parts')}
             />
           )}
 
@@ -313,9 +280,43 @@ export default function ScoreReportModal({
               onToggleExplanation={toggleExplanation}
               onViewDetailedReview={onViewDetailedReview}
               onClose={onClose}
-              onNavigateToSummary={() => handleTabChange('summary')}
+              onNavigateToSummary={() => setActiveTab('summary')}
             />
           )}
+        </div>
+
+        {/* Footer Actions */}
+        <div className="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={redirectToTarget}
+            className="text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            Quay lại danh sách đề thi
+          </button>
+
+          <div className="flex items-center gap-2">
+            {canViewAnswers && onViewDetailedReview && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onViewDetailedReview();
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg text-xs font-medium transition-colors cursor-pointer shadow-xs"
+              >
+                <span>Xem giải thích chi tiết</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+            >
+              Đóng
+            </button>
+          </div>
         </div>
       </div>
     </div>

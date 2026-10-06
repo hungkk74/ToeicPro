@@ -50,6 +50,8 @@ export default function LoginModal({
     if (isOpen) {
       setErrorMessage(null);
       setIsLoading(false);
+    } else {
+      setPassword('');
     }
   }, [isOpen]);
 

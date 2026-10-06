@@ -60,12 +60,12 @@ export default async function ExamsPage() {
       : [];
 
   return (
-    <div className="bg-slate-50 font-body-default text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-700">
+    <div className="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-950 font-sans">
       <Navbar />
 
       <main className="w-full pt-20 pb-16 flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Suspense fallback={<div className="p-12 text-center text-slate-500">Đang tải danh sách đề thi...</div>}>
+          <Suspense fallback={<div className="p-12 text-center text-slate-500 font-serif">Đang tải danh sách đề thi...</div>}>
             <ExamListPage initialExams={examCards} />
           </Suspense>
         </div>

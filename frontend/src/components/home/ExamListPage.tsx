@@ -5,14 +5,12 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { HelpCircle } from 'lucide-react';
 import { ExamItem, FilterState } from '@/types/examList';
 
-import { CourseItem } from '@/constants/mockCourses';
 import { getCurrentUser } from '@/services/authService';
 import { fetchMyExamHistory } from '@/services/examService';
 import ExamCard from './ExamCard';
 
 import TopPromotionBanner from './TopPromotionBanner';
 import FilterSection from './FilterSection';
-import CourseCatalog from './CourseCatalog';
 import BackendUnavailableNotice from '@/components/common/BackendUnavailableNotice';
 
 interface ExamListPageProps {
@@ -56,7 +54,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
   // Đồng bộ FilterState lên URL params (Debounced bởi next/navigation mặc định cho router.replace)
   useEffect(() => {
     const params = new URLSearchParams();
-    
+
     const setOrDelete = (key: string, value: string, defaultVal: string) => {
       if (value !== defaultVal && value !== '') params.set(key, value);
       else params.delete(key);
@@ -115,7 +113,6 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
           history.forEach((item) => {
             if (item.examId != null) {
               const strId = String(item.examId);
-              // Backend trả về mảng đã sắp xếp completedAt desc, nên phần tử đầu tiên cho mỗi examId chính là lần thi gần nhất
               if (!latestHistoryMap[strId]) {
                 latestHistoryMap[strId] = item;
               }
@@ -133,7 +130,6 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
           const examIdStr = String(exam.id);
           let latest = latestHistoryMap[examIdStr];
 
-          // Nếu chưa có từ API backend (hoặc vừa nộp xong), lấy ngay từ cache localStorage
           if (!latest) {
             try {
               const cached =
@@ -147,7 +143,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
             }
           }
 
-          // 1. Kiểm tra tiến độ đang làm dở (in_progress) của tài khoản này
+          // 1. Kiểm tra tiến độ đang làm dở (in_progress)
           try {
             const saved = localStorage.getItem(`exam_progress_${userScope}_${exam.id}`);
             if (saved) {
@@ -155,7 +151,6 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
               const isExpired = !progress.savedAt || (Date.now() - progress.savedAt >= 24 * 60 * 60 * 1000);
 
               if (!isExpired) {
-                // Đang làm dở và chưa quá 24h: hiển thị trạng thái 'in_progress'
                 const answeredCount = progress.selectedAnswers
                   ? Object.keys(progress.selectedAnswers).length
                   : (progress.answeredCount || 0);
@@ -178,7 +173,6 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
                   } : undefined,
                 };
               } else {
-                // Quá 24 giờ: Xóa sạch tiến trình đang làm
                 localStorage.removeItem(`exam_progress_${userScope}_${exam.id}`);
               }
             }
@@ -186,8 +180,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
             // localStorage unavailable
           }
 
-          // 2. Nếu không có tiến trình dở dang (hoặc đã xóa sau 24h / thoát không lưu):
-          // Kiểm tra kết quả lần thi gần nhất
+          // 2. Kết quả lần thi gần nhất
           if (latest) {
             return {
               ...exam,
@@ -207,7 +200,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
             };
           }
 
-          // 3. Nếu chưa từng làm: untaken
+          // 3. Chưa từng làm: untaken
           return {
             ...exam,
             status: 'untaken' as const,
@@ -221,7 +214,6 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
 
     hydrate();
 
-    // Tự động cập nhật lại giao diện ngay lập tức khi đăng nhập / đăng xuất hoặc đổi tiến trình bài thi
     const handleUpdate = () => {
       hydrate();
     };
@@ -248,27 +240,21 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
     setFilterState(DEFAULT_FILTER_STATE);
   };
 
-  // Logic lọc và sắp xếp trực quan theo thời gian thực
   const filteredExams = useMemo(() => {
     return exams
       .filter((exam) => {
-        // Lọc theo Category
         if (filterState.category !== 'all' && exam.category !== filterState.category) {
           return false;
         }
-        // Lọc theo Source
         if (filterState.source !== 'all' && exam.source !== filterState.source) {
           return false;
         }
-        // Lọc theo Target Score
         if (filterState.targetScore !== 'all' && exam.targetScore !== filterState.targetScore) {
           return false;
         }
-        // Lọc theo Status
         if (filterState.status !== 'all' && exam.status !== filterState.status) {
           return false;
         }
-        // Lọc theo Search Query
         if (filterState.searchQuery.trim()) {
           const query = filterState.searchQuery.toLowerCase();
           const matchTitle = exam.title.toLowerCase().includes(query);
@@ -284,30 +270,30 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
         if (filterState.sortBy === 'hardest') {
           return a.averageScore - b.averageScore;
         }
-        // 'recent' mặc định theo ID
         return Number(b.id) - Number(a.id);
       });
   }, [exams, filterState]);
 
-
-
   return (
     <div className="space-y-6">
-      {/* Header Banner Phân Cấp Thị Giác Rõ Ràng */}
-      <div className="pb-4 border-b border-slate-200">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+      {/* Header Banner */}
+      <div className="pb-4 border-b border-slate-200/80">
+        <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-slate-950 tracking-tight">
           Danh Sách Đề Thi Thử TOEIC
-        </h1>
+        </h2>
+        <p className="text-xs sm:text-sm text-slate-600 mt-1">
+          Hệ thống đề thi chuẩn định dạng ETS với giải thích chi tiết từng câu hỏi.
+        </p>
       </div>
 
       {exams.length === 0 ? (
         <BackendUnavailableNotice />
       ) : (
         <>
-          {/* Dải Banner Khuyến Mãi Ngay Trên Khu Vực Bộ Lọc */}
+          {/* Top Promotion Banner */}
           <TopPromotionBanner />
 
-          {/* Thanh Bộ Lọc Phân Cấp (Filter Section) */}
+          {/* Filter Section */}
           <FilterSection
             filterState={filterState}
             onFilterChange={handleFilterChange}
@@ -316,29 +302,29 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
             totalAll={exams.length}
           />
 
-          {/* Lưới Hiển Thị Đề Thi (Responsive: 1-col mobile, 2-col tablet, 3-col desktop) */}
+          {/* Exam Grid */}
           {filteredExams.length > 0 ? (
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {filteredExams.map((exam) => (
                 <ExamCard key={`exam-${exam.id}`} card={exam} />
               ))}
             </section>
           ) : (
             /* Empty State */
-            <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-slate-200/80 shadow-sm space-y-3">
-              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                <HelpCircle className="w-6 h-6" />
+            <div className="flex flex-col items-center justify-center p-12 text-center bg-white rounded-xl border border-slate-200/90 space-y-3">
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 border border-slate-200">
+                <HelpCircle className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-semibold text-slate-900">
+              <h3 className="font-serif text-base font-semibold text-slate-900">
                 Không tìm thấy đề thi phù hợp
               </h3>
-              <p className="text-sm text-slate-500 max-w-md">
-                Hiện tại không có đề thi nào thỏa mãn các tiêu chí lọc được chọn. Vui lòng thử lại với bộ lọc khác.
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md">
+                Hiện tại không có đề thi nào thỏa mãn tiêu chí lọc. Vui lòng thử lại với bộ lọc khác.
               </p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow hover:shadow-md active:translate-y-0 text-white rounded-lg text-sm font-medium transition-all"
+                className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer shadow-xs"
               >
                 Đặt lại bộ lọc
               </button>

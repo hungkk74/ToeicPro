@@ -19,12 +19,14 @@ export default function TopPromotionBanner({ onExploreClick }: TopPromotionBanne
   };
 
   return (
-    <div className="bg-blue-50/50 border border-blue-100 shadow-sm rounded-xl px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      {/* Left Message without icon */}
-      <div className="text-sm leading-snug">
-        <span className="font-bold text-blue-950 mr-1.5">Mục tiêu 750+ trong 30 ngày?</span>
-        <span className="text-blue-700">
-          Xem ngay lộ trình luyện đề thực chiến có mentor hướng dẫn.
+    <div className="bg-slate-100/70 border border-slate-200/90 rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Left Message */}
+      <div className="text-xs sm:text-sm leading-relaxed">
+        <span className="font-serif font-semibold text-slate-900 mr-2">
+          Mục tiêu 750+ TOEIC?
+        </span>
+        <span className="text-slate-600">
+          Lộ trình luyện đề chuẩn ETS với bảng phân tích chi tiết từng dạng câu hỏi và kỹ năng còn yếu.
         </span>
       </div>
 
@@ -33,9 +35,9 @@ export default function TopPromotionBanner({ onExploreClick }: TopPromotionBanne
         <button
           type="button"
           onClick={handleClick}
-          className="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow hover:shadow-md active:translate-y-0 text-white font-medium text-xs px-4 py-2 rounded-lg transition-all flex items-center gap-1.5"
+          className="bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-medium text-xs px-3.5 py-1.5 rounded-md transition-colors flex items-center gap-1.5 cursor-pointer"
         >
-          <span>Xem khóa học</span>
+          <span>Khóa học trọng tâm</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>

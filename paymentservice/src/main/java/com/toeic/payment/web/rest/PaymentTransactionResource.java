@@ -178,7 +178,7 @@ public class PaymentTransactionResource {
         LOG.debug("REST request to get PaymentTransaction : {}", id);
         Optional<PaymentTransactionDTO> paymentTransactionDTO = paymentTransactionService.findOne(id);
         if (paymentTransactionDTO.isPresent()) {
-            PaymentTransactionDTO dto = paymentTransactionDTO.get();
+            PaymentTransactionDTO dto = paymentTransactionDTO.orElseThrow();
             if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
                 String currentLogin = SecurityUtils.getCurrentUserLogin().orElse(null);
                 boolean matches = Objects.equals(currentLogin, dto.getUserId());

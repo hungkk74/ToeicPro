@@ -22,9 +22,9 @@ export default function ExamRoomPage() {
 
   if (runner.loading) {
     return (
-      <div className="min-h-screen bg-canvas flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-        <span className="text-sm font-semibold text-text-secondary">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-3 font-sans">
+        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <span className="text-sm font-medium text-slate-600">
           Đang tải đề thi và câu hỏi từ hệ thống...
         </span>
       </div>
@@ -33,7 +33,7 @@ export default function ExamRoomPage() {
 
   if (!runner.examData) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans">
         <BackendUnavailableNotice showBackHome={true} />
       </div>
     );
@@ -57,7 +57,7 @@ export default function ExamRoomPage() {
   );
 
   return (
-    <div className="bg-canvas font-body-default text-text-body antialiased min-h-screen">
+    <div className="bg-slate-50 text-slate-900 antialiased min-h-screen selection:bg-blue-100 selection:text-blue-950 font-sans">
       <ExamHeader
         timeRemaining={runner.timeRemaining}
         formatTime={runner.formatTime}
@@ -96,7 +96,7 @@ export default function ExamRoomPage() {
       <main
         className={`w-full ${
           audio.isListeningPart && audio.activeAudioUrl ? 'pt-36 sm:pt-28' : 'pt-20'
-        } bg-canvas min-h-screen`}
+        } bg-slate-50 min-h-screen`}
       >
         <ExamWorkspace
           examId={examId}

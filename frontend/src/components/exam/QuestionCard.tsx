@@ -1,6 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import {
+  Flag,
+  BookOpen,
+  Headphones,
+  Lock,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  XCircle,
+  Lightbulb,
+} from 'lucide-react';
+import {
+  parseQuestionContent,
+  cleanOptionText,
+  isToeicPart2,
+  isToeicAudioOnlyPart,
+  formatOptionDisplay,
+} from '@/lib/questionUtils';
 
 export interface QuestionOptionItem {
   key: string;
@@ -46,7 +64,7 @@ export default function QuestionCard({
   content,
   passageText,
   imageUrl,
-  audioUrl,
+  audioUrl: _audioUrl,
   options = DEFAULT_EMPTY_OPTIONS,
   isFlagged,
   onToggleFlag,
@@ -62,198 +80,225 @@ export default function QuestionCard({
   transcript,
 }: QuestionCardProps) {
   const [showTranscript, setShowTranscript] = useState(false);
-  const displayOptions = options && options.length > 0 ? options : DEFAULT_EMPTY_OPTIONS;
+  const isPart2 = isToeicPart2(partNumber, currentQuestion);
+  const isAudioOnly = isToeicAudioOnlyPart(partNumber, currentQuestion);
+
+  const { cleanContent, extractedOptions } = useMemo(() => {
+    return parseQuestionContent(content);
+  }, [content]);
+
+  const displayOptions = useMemo(() => {
+    const defaultOptions = isPart2
+      ? [
+          { key: 'A', text: '' },
+          { key: 'B', text: '' },
+          { key: 'C', text: '' },
+        ]
+      : DEFAULT_EMPTY_OPTIONS;
+
+    const baseList = options && options.length > 0 ? options : defaultOptions;
+    const filteredList = isPart2 ? baseList.filter((o) => o.key !== 'D') : baseList;
+
+    return filteredList.map((opt) => {
+      const cleanedOpt = cleanOptionText(opt.text);
+      const cleanedExtracted = extractedOptions
+        ? cleanOptionText(extractedOptions[opt.key as 'A' | 'B' | 'C' | 'D'])
+        : '';
+      const text = cleanedOpt || cleanedExtracted || '';
+      return {
+        key: opt.key,
+        text,
+      };
+    });
+  }, [options, extractedOptions, isPart2]);
+
   const isReadingPart = partNumber >= 5;
 
   return (
-    <div className="bg-surface rounded-lg p-space-lg shadow-sm border border-border-subtle">
+    <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200/90 shadow-xs">
       {/* Question Header Meta */}
-      <div className="flex items-center justify-between pb-space-md border-b border-border-subtle">
-        <div className="flex items-center gap-space-md">
-          <span className="inline-flex items-center justify-center w-8 h-8 rounded bg-primary text-on-primary font-headline-sm text-headline-sm font-bold shadow-sm">
+      <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-semibold text-xs tabular-nums shrink-0 shadow-xs">
             {currentQuestion}
           </span>
           <div>
-            <h2 className="font-headline-sm text-headline-sm text-text-primary tracking-tight font-bold">
+            <h2 className="font-serif text-sm sm:text-base font-semibold text-slate-950 tracking-tight leading-tight">
               Câu hỏi {currentQuestion} / {totalQuestions}
             </h2>
-            <span className="font-caption text-caption text-text-secondary">
-              {partName ? partName : `Phần thi: ${isReadingPart ? 'Đọc' : 'Nghe'} • Part ${partNumber}`} • Mã câu hỏi: Q-{currentQuestion}
+            <span className="text-xs text-slate-500 mt-0.5 block font-sans">
+              {partName ? partName : `${isReadingPart ? 'Kỹ năng Đọc' : 'Kỹ năng Nghe'} • Part ${partNumber}`} • Q-{currentQuestion}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-space-sm">
-          <span className="bg-surface-subtle text-text-secondary px-2.5 py-1 rounded font-caption text-caption border border-border-subtle">
-            1 Điểm
-          </span>
+
+        <div className="flex items-center gap-2">
           <button
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded transition-colors font-label-sm text-label-sm border cursor-pointer ${
-              isFlagged
-                ? 'text-orange-700 bg-orange-50 border-orange-300 font-semibold shadow-2xs hover:bg-orange-100'
-                : 'bg-surface-subtle text-text-secondary border-border-subtle hover:bg-surface hover:text-orange-600'
-            }`}
             type="button"
             onClick={onToggleFlag}
+            title={isFlagged ? 'Đã đặt cờ (Phím F để bỏ)' : 'Đặt cờ câu này (Phím F)'}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border cursor-pointer ${
+              isFlagged
+                ? 'text-amber-900 bg-amber-50 border-amber-300 font-semibold'
+                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+            }`}
           >
-            <span
-              className={`material-symbols-outlined text-[18px] ${isFlagged ? 'text-orange-500' : ''}`}
-              style={{ fontVariationSettings: isFlagged ? "'FILL' 1" : "'FILL' 0" }}
-            >
-              flag
-            </span>
-            <span>{isFlagged ? 'Đã đặt cờ' : 'Đặt cờ câu này'}</span>
+            <Flag className={`w-3.5 h-3.5 ${isFlagged ? 'text-amber-600 fill-amber-600' : 'text-slate-400'}`} />
+            <span>{isFlagged ? 'Đã đặt cờ' : 'Đặt cờ'}</span>
+            <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-500 ml-0.5 px-1 rounded bg-slate-200/60">
+              F
+            </kbd>
           </button>
         </div>
       </div>
 
-      {/* Reading Passage Stimulus (Part 6 & Part 7) */}
+      {/* Reading Passage Stimulus (Part 6 & Part 7) - Authentic ETS Test Paper Look */}
       {passageText && (
-        <div className="my-space-md p-space-md bg-slate-50/80 border border-border-subtle rounded-lg shadow-2xs">
-          <div className="flex items-center gap-2 text-primary font-label-sm text-label-sm font-semibold mb-2">
-            <span className="material-symbols-outlined text-[18px]">menu_book</span>
-            <span>Đoạn văn Đọc hiểu (Reading Passage)</span>
+        <div className="my-5 p-4 sm:p-5 bg-slate-50/70 border border-slate-200/90 rounded-lg">
+          <div className="flex items-center gap-2 text-slate-900 font-semibold text-xs mb-2.5 font-serif">
+            <BookOpen className="w-4 h-4 text-slate-700" />
+            <span>Đoạn văn đọc hiểu (Reading Passage)</span>
           </div>
-          <div className="font-serif text-[15px] leading-relaxed text-text-primary whitespace-pre-line p-3 bg-white rounded border border-border-subtle/80">
+          <div className="max-w-prose mx-auto text-[15px] sm:text-base leading-relaxed text-slate-900 whitespace-pre-line p-4 sm:p-5 bg-white rounded border border-slate-200/80 font-serif">
             {passageText}
           </div>
         </div>
       )}
 
       {/* Dedicated Image Stimulus */}
-      {imageUrl ? (
-        <div className="my-space-md">
-          <div className="relative bg-surface-subtle rounded-md overflow-hidden shadow-sm border border-border-subtle">
+      {imageUrl && (
+        <div className="my-5">
+          <div className="relative bg-slate-50 rounded-lg overflow-hidden border border-slate-200/80">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
               alt={`Hình ảnh câu hỏi ${currentQuestion}`}
-              className="w-full max-h-96 object-contain bg-white"
+              className="w-full max-h-96 object-contain bg-white mx-auto"
             />
           </div>
         </div>
-      ) : !passageText && partNumber === 1 ? (
-        /* Stimulus Photograph Fallback for Part 1 Mockup */
-        <div className="my-space-md">
-          <div className="relative bg-surface-subtle rounded-md overflow-hidden shadow-sm border border-border-subtle">
-            <div className="w-full h-80 bg-slate-200 flex flex-col items-center justify-center text-slate-500 relative">
-              <span className="material-symbols-outlined text-[56px] text-slate-400 mb-2">image</span>
-              <p className="font-semibold text-sm">ETS Logistics Fulfillment Center Inspection</p>
-              <p className="text-xs text-slate-400 mt-1">
-                Hai giám sát viên đang kiểm tra các kiện hàng cùng bảng kẹp hồ sơ và máy quét
-              </p>
-              <div className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur-sm px-2.5 py-1 rounded font-caption text-caption text-text-primary shadow-sm border border-border-subtle">
-                Ảnh mô tả Câu hỏi {currentQuestion} / 6
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
+      )}
 
       {/* Question Content / Stem */}
-      {content && (
-        <div className="my-space-md p-space-md bg-blue-50/40 rounded-lg border border-blue-100 text-text-primary font-body-reading text-[16px] font-medium leading-relaxed">
-          {content}
+      {cleanContent && (
+        <div className="my-4 p-3.5 sm:p-4 bg-slate-50/60 rounded-lg border border-slate-200/70 text-slate-950 text-sm sm:text-[15px] font-medium leading-relaxed font-sans">
+          {cleanContent}
         </div>
       )}
 
       {/* Multiple Choice Options (A, B, C, D) */}
-      <div className="flex flex-col gap-space-sm mt-space-md">
+      <div className="flex flex-col gap-2.5 mt-5" role="radiogroup" aria-label="Phương án trả lời">
         {displayOptions.map((opt) => {
           const isSelected = selectedAnswer === opt.key;
           const isCorrectChoice = isReviewMode && correctOption === opt.key;
           const isUserWrongChoice = isReviewMode && isSelected && !isCorrectChoice;
+          const optionTextDisplay = isAudioOnly ? '' : formatOptionDisplay(opt.key, opt.text);
 
-          let optionContainerClasses = 'bg-surface border-border-subtle hover:bg-surface-subtle';
-          let badgeClasses = 'bg-surface-subtle text-text-body';
+          let optionClasses = 'bg-white border-slate-200 hover:border-slate-400 text-slate-800';
+          let badgeClasses = 'bg-slate-100 text-slate-700 border border-slate-200/80';
 
           if (isReviewMode) {
             if (isCorrectChoice) {
-              optionContainerClasses = 'bg-emerald-50 border-emerald-500 shadow-xs ring-1 ring-emerald-500';
-              badgeClasses = 'bg-emerald-600 text-white font-bold';
+              optionClasses = 'bg-emerald-50/70 border-emerald-600 ring-1 ring-emerald-600 text-emerald-950 font-medium';
+              badgeClasses = 'bg-emerald-700 text-white font-bold';
             } else if (isUserWrongChoice) {
-              optionContainerClasses = 'bg-rose-50 border-rose-400 shadow-xs ring-1 ring-rose-400';
-              badgeClasses = 'bg-rose-600 text-white font-bold';
+              optionClasses = 'bg-rose-50/70 border-rose-500 ring-1 ring-rose-500 text-rose-950 font-medium';
+              badgeClasses = 'bg-rose-700 text-white font-bold';
             } else {
-              optionContainerClasses = 'bg-slate-50/70 border-slate-200 opacity-80';
-              badgeClasses = 'bg-slate-100 text-slate-600';
+              optionClasses = 'bg-slate-50/40 border-slate-200 text-slate-500 opacity-60';
+              badgeClasses = 'bg-slate-100 text-slate-400';
             }
           } else if (isSelected) {
-            optionContainerClasses = 'bg-surface-container-low border-primary shadow-sm';
-            badgeClasses = 'bg-primary text-on-primary font-bold';
+            optionClasses = 'bg-blue-50/70 border-blue-600 ring-1 ring-blue-600 text-slate-950 font-medium';
+            badgeClasses = 'bg-blue-600 text-white font-bold';
           }
 
           return (
-            <label
+            <div
               key={opt.key}
-              className={`group flex items-center justify-between p-space-md rounded ${
-                isReviewMode ? 'cursor-default' : 'cursor-pointer'
-              } transition-all border ${optionContainerClasses}`}
+              role={isReviewMode ? undefined : 'radio'}
+              aria-checked={isReviewMode ? undefined : isSelected}
+              tabIndex={isReviewMode ? undefined : 0}
+              onKeyDown={(e) => {
+                if (!isReviewMode && (e.key === ' ' || e.key === 'Enter')) {
+                  e.preventDefault();
+                  onSelectAnswer(opt.key);
+                }
+              }}
               onClick={() => {
                 if (!isReviewMode) onSelectAnswer(opt.key);
               }}
+              className={`group flex items-center justify-between p-3.5 sm:p-4 rounded-lg transition-colors border outline-hidden ${
+                isReviewMode ? 'cursor-default' : 'cursor-pointer'
+              } ${optionClasses}`}
             >
-              <div className="flex items-center gap-space-md flex-1">
+              <div className="flex items-center gap-3.5 flex-1 min-w-0">
                 <div
-                  className={`w-9 h-9 min-w-[36px] rounded flex items-center justify-center font-headline-sm text-headline-sm transition-colors font-bold ${badgeClasses}`}
+                  className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-semibold shrink-0 transition-colors ${badgeClasses}`}
                 >
                   {opt.key}
                 </div>
-                <span
-                  className={`font-body-reading text-body-reading ${
-                    isSelected || isCorrectChoice ? 'font-semibold text-text-primary' : 'text-text-body'
-                  }`}
-                >
-                  {opt.text || `Đáp án (${opt.key})`}
-                </span>
+                {optionTextDisplay ? (
+                  <span className="text-sm sm:text-[15px] leading-relaxed break-words flex-1 font-sans">
+                    {optionTextDisplay}
+                  </span>
+                ) : null}
               </div>
 
               {/* Status chips in Review Mode */}
               {isReviewMode && isCorrectChoice && (
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full shrink-0 ml-2">
-                  ✓ Đáp án đúng
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded shrink-0 ml-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Đáp án đúng</span>
                 </span>
               )}
               {isReviewMode && isUserWrongChoice && (
-                <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-1 rounded-full shrink-0 ml-2">
-                  ✗ Bạn chọn
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-800 bg-rose-100 px-2 py-0.5 rounded shrink-0 ml-2">
+                  <XCircle className="w-3.5 h-3.5 text-rose-700" />
+                  <span>Bạn chọn</span>
                 </span>
               )}
 
               {!isReviewMode && (
-                <input
-                  checked={isSelected}
-                  onChange={() => onSelectAnswer(opt.key)}
-                  className="w-4 h-4 text-primary focus:ring-0"
-                  name={`question-${currentQuestion}`}
-                  type="radio"
-                  value={opt.key}
-                />
+                <div className="flex items-center shrink-0 ml-2">
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                      isSelected
+                        ? 'border-blue-600 bg-blue-600'
+                        : 'border-slate-300 bg-white group-hover:border-slate-400'
+                    }`}
+                  >
+                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                </div>
               )}
-            </label>
+            </div>
           );
         })}
       </div>
 
-      {/* Review Mode: Detailed Explanation and Audio Transcript */}
+      {/* Review Mode: Detailed Explanation and Audio Transcript (Notion-style Callouts) */}
       {isReviewMode && (explanation || transcript) && (
-        <div className="mt-4 p-4 rounded-xl bg-blue-50/60 border border-blue-200/80 space-y-3 animate-in fade-in duration-200">
+        <div className="mt-5 space-y-3">
           {explanation && (
-            <div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 mb-1">
-                <span>💡 Giải thích chi tiết câu {currentQuestion}:</span>
+            <div className="p-4 rounded-r-lg bg-slate-50 border border-slate-200 border-l-[3px] border-l-blue-600">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900 mb-1.5">
+                <Lightbulb className="w-4 h-4 text-blue-600" />
+                <span className="font-serif">Giải thích chi tiết câu {currentQuestion}:</span>
               </div>
-              <p className="text-xs sm:text-sm text-blue-950 leading-relaxed whitespace-pre-wrap font-medium">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-sans max-w-prose">
                 {explanation}
               </p>
             </div>
           )}
 
           {transcript && showTranscript && (
-            <div className="pt-2 border-t border-blue-200/60">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900 mb-1">
-                <span>🎙️ Lời thoại Audio (Transcript):</span>
+            <div className="p-4 rounded-r-lg bg-slate-50 border border-slate-200 border-l-[3px] border-l-amber-500">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-900 mb-1.5">
+                <Headphones className="w-4 h-4 text-amber-600" />
+                <span className="font-serif">Lời thoại Audio (Transcript):</span>
               </div>
-              <p className="text-xs font-mono text-blue-900 leading-relaxed whitespace-pre-wrap bg-white/70 p-2.5 rounded border border-blue-200/50">
+              <p className="text-xs font-mono text-slate-800 leading-relaxed whitespace-pre-wrap bg-white p-3 rounded border border-slate-200 max-w-prose">
                 {transcript}
               </p>
             </div>
@@ -261,54 +306,56 @@ export default function QuestionCard({
         </div>
       )}
 
-      {/* Bottom Interaction Action Row */}
-      <div className="flex flex-wrap items-center justify-between gap-space-sm pt-space-lg mt-space-lg border-t border-border-subtle">
-        <div className="flex items-center gap-space-sm">
+      {/* Bottom Action Row */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 mt-6 border-t border-slate-100">
+        <div className="flex items-center gap-2">
           {isReviewMode && transcript ? (
             <button
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-label-md text-label-md transition-colors shadow-sm border border-blue-200 cursor-pointer"
               type="button"
               onClick={() => setShowTranscript((prev) => !prev)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-medium transition-colors border border-slate-200 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px]">graphic_eq</span>
+              <Headphones className="w-3.5 h-3.5 text-slate-600" />
               <span>{showTranscript ? 'Ẩn lời thoại Audio' : 'Xem lời thoại Audio'}</span>
             </button>
           ) : (
             <button
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-surface hover:bg-surface-subtle text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors shadow-sm border border-border-subtle opacity-70"
               type="button"
               disabled
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 text-slate-400 text-xs sm:text-sm font-medium border border-slate-200/50 cursor-not-allowed"
             >
-              <span className="material-symbols-outlined text-[18px]">lock</span>
+              <Lock className="w-3.5 h-3.5" />
               <span>Lời thoại Audio (Khóa khi thi)</span>
             </button>
           )}
-          <button
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded bg-surface hover:bg-surface-subtle text-text-secondary hover:text-text-primary font-label-md text-label-md transition-colors shadow-sm border border-border-subtle"
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[18px]">notes</span>
-            <span>Bảng nháp</span>
-          </button>
         </div>
-        <div className="flex items-center gap-space-sm">
+
+        <div className="flex items-center gap-2">
           <button
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-surface-subtle text-text-secondary hover:text-text-primary font-label-md text-label-md border border-border-subtle disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!canGoPrev}
             type="button"
             onClick={onPrevQuestion}
+            disabled={!canGoPrev}
+            title="Câu trước (Phím ← hoặc PageUp)"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-medium border border-slate-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            <ArrowLeft className="w-4 h-4" />
             <span>Câu trước</span>
+            <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-500 bg-slate-200/80 px-1 py-0.5 rounded">
+              ←
+            </kbd>
           </button>
           <button
-            className="inline-flex items-center gap-2 px-5 py-2 rounded bg-primary text-on-primary font-label-md text-label-md shadow-sm hover:bg-primary-container transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            disabled={!canGoNext}
             type="button"
             onClick={onNextQuestion}
+            disabled={!canGoNext}
+            title="Câu tiếp theo (Phím → hoặc PageDown)"
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
           >
             <span>Câu tiếp theo</span>
-            <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            <kbd className="hidden sm:inline-block text-[10px] font-mono text-blue-100 bg-blue-700 px-1 py-0.5 rounded">
+              →
+            </kbd>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

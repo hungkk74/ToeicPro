@@ -172,7 +172,7 @@ public class NotificationResource {
         LOG.debug("REST request to get Notification : {}", id);
         Optional<NotificationDTO> notificationDTO = notificationService.findOne(id);
         if (notificationDTO.isPresent()) {
-            checkOwnershipOrAdmin(notificationDTO.get().getUserId());
+            checkOwnershipOrAdmin(notificationDTO.orElseThrow().getUserId());
         }
         return ResponseUtil.wrapOrNotFound(notificationDTO);
     }
@@ -227,7 +227,7 @@ public class NotificationResource {
         LOG.debug("REST request to mark Notification as read : {}", id);
         Optional<NotificationDTO> notificationDTO = notificationService.findOne(id);
         if (notificationDTO.isPresent()) {
-            checkOwnershipOrAdmin(notificationDTO.get().getUserId());
+            checkOwnershipOrAdmin(notificationDTO.orElseThrow().getUserId());
         }
         return ResponseUtil.wrapOrNotFound(notificationService.markAsRead(id));
     }
@@ -254,7 +254,7 @@ public class NotificationResource {
         if (currentUserLogin.isEmpty()) {
             throw new AccessDeniedException("Yêu cầu đăng nhập để truy cập thông báo!");
         }
-        String login = currentUserLogin.get();
+        String login = currentUserLogin.orElseThrow();
         if (targetUserId.equals(login)) {
             return;
         }

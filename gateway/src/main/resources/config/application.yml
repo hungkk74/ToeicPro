@@ -129,7 +129,7 @@ spring:
             - id: userservice-route
               uri: lb://userservice
               predicates:
-                - Path=/api/user-profiles/**, /api/auth/**, /api/users/**
+                - Path=/api/user-profiles, /api/user-profiles/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -139,7 +139,7 @@ spring:
             - id: subscriptionservice-plans-route
               uri: lb://subscriptionservice
               predicates:
-                - Path=/api/plans/**
+                - Path=/api/plans, /api/plans/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -148,7 +148,7 @@ spring:
             - id: subscriptionservice-subscriptions-route
               uri: lb://subscriptionservice
               predicates:
-                - Path=/api/subscriptions/**
+                - Path=/api/subscriptions, /api/subscriptions/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -158,7 +158,7 @@ spring:
             - id: paymentservice-transactions-route
               uri: lb://paymentservice
               predicates:
-                - Path=/api/payment-transactions/**
+                - Path=/api/payment-transactions, /api/payment-transactions/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -167,7 +167,7 @@ spring:
             - id: paymentservice-webhooks-route
               uri: lb://paymentservice
               predicates:
-                - Path=/api/payment-webhook-logs/**
+                - Path=/api/payment-webhook-logs, /api/payment-webhook-logs/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -177,7 +177,7 @@ spring:
             - id: examservice-route
               uri: lb://examservice
               predicates:
-                - Path=/api/exams/**, /api/parts/**, /api/question-groups/**, /api/questions/**, /api/exam-attempts/**, /api/user-answers/**, /api/score-conversions/**, /api/storage/**
+                - Path=/api/exams, /api/exams/**, /api/parts, /api/parts/**, /api/question-groups, /api/question-groups/**, /api/questions, /api/questions/**, /api/exam-attempts, /api/exam-attempts/**, /api/user-answers, /api/user-answers/**, /api/score-conversions, /api/score-conversions/**, /api/storage, /api/storage/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -187,7 +187,7 @@ spring:
             - id: courseservice-route
               uri: lb://courseservice
               predicates:
-                - Path=/api/courses/**, /api/chapters/**, /api/lessons/**, /api/course-enrollments/**, /api/lesson-progresses/**
+                - Path=/api/courses, /api/courses/**, /api/chapters, /api/chapters/**, /api/lessons, /api/lessons/**, /api/course-enrollments, /api/course-enrollments/**, /api/lesson-progresses, /api/lesson-progresses/**
               filters:
                 - name: CircuitBreaker
                   args:
@@ -197,7 +197,7 @@ spring:
             - id: notificationservice-route
               uri: lb://notificationservice
               predicates:
-                - Path=/api/notifications/**, /api/notification-templates/**, /api/notification-logs/**
+                - Path=/api/notifications, /api/notifications/**, /api/notification-templates, /api/notification-templates/**, /api/notification-logs, /api/notification-logs/**
               filters:
                 - name: CircuitBreaker
                   args:

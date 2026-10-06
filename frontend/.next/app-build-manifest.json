@@ -21,10 +21,20 @@
       "static/chunks/main-app.js",
       "static/chunks/app/khoa-hoc/page.js"
     ],
+    "/exam/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/exam/[id]/page.js"
+    ],
     "/tac-gia/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/tac-gia/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

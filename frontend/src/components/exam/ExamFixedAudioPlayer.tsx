@@ -1,6 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Headphones,
+} from 'lucide-react';
 
 interface ExamFixedAudioPlayerProps {
   audioUrl: string;
@@ -21,6 +29,42 @@ export default function ExamFixedAudioPlayer({
   const [playbackSpeed, setPlaybackSpeed] = useState('1.0x');
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(audioUrl);
+  const [hasError, setHasError] = useState(false);
+
+  // Reload audio when audioUrl prop changes
+  useEffect(() => {
+    setCurrentSrc(audioUrl);
+    setHasError(false);
+    setCurrentTime(0);
+    setIsPlaying(false);
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.load();
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, [audioUrl]);
+
+  // Handle media loading error
+  const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    console.warn('Audio playback error on URL:', currentSrc, e);
+    // If external R2 failed, attempt local fallback /audio/<filename>
+    const cleanFileName = currentSrc.split('/').pop()?.split('?')[0];
+    if (cleanFileName && currentSrc.startsWith('http') && !currentSrc.startsWith('/audio/')) {
+      const localPath = `/audio/${cleanFileName}`;
+      console.info('Attempting fallback to local audio:', localPath);
+      setCurrentSrc(localPath);
+      return;
+    }
+    setHasError(true);
+    setIsPlaying(false);
+  };
 
   // Sync playback speed when changed
   const handleSpeedChange = (spd: string) => {
@@ -33,12 +77,14 @@ export default function ExamFixedAudioPlayer({
 
   // Toggle Play / Pause
   const handleTogglePlay = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || hasError) return;
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch((e) => {
-        console.warn('Audio play request interrupted or prevented:', e);
+      audioRef.current.play().catch((err) => {
+        console.warn('Audio play request interrupted or prevented:', err);
+        setIsPlaying(false);
+        setHasError(true);
       });
     }
   };
@@ -91,7 +137,8 @@ export default function ExamFixedAudioPlayer({
     const onPause = () => setIsPlaying(false);
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onLoadedMetadata = () => {
-      setDuration(audio.duration || 0);
+      const dur = audio.duration;
+      setDuration(isFinite(dur) ? dur : 0);
       const rate = parseFloat(playbackSpeed.replace('x', ''));
       if (!isNaN(rate)) audio.playbackRate = rate;
     };
@@ -110,9 +157,9 @@ export default function ExamFixedAudioPlayer({
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.removeEventListener('ended', onEnded);
     };
-  }, [playbackSpeed]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioUrl]);
 
-  // Format time (mm:ss or hh:mm:ss)
   const formatTime = (seconds: number) => {
     if (isNaN(seconds) || seconds < 0) return '00:00';
     const h = Math.floor(seconds / 3600);
@@ -125,39 +172,48 @@ export default function ExamFixedAudioPlayer({
   };
 
   const fileName = decodeURIComponent(audioUrl.split('/').pop()?.split('?')[0] || 'Listening_Track.mp3');
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <aside 
+    <aside
       aria-label="Thanh điều khiển âm thanh phòng thi"
-      className="fixed top-14 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-b border-border-subtle shadow-xs transition-all duration-200"
+      className="fixed top-14 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/90 transition-all duration-200"
     >
-      {/* Hidden native audio element */}
-      <audio ref={audioRef} src={audioUrl} preload="auto" />
+      <audio
+        ref={audioRef}
+        src={currentSrc}
+        preload="auto"
+        onError={handleAudioError}
+      />
 
-      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-2 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-        {/* Left: Track Information & Status Badge */}
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-between sm:justify-start">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
+        {/* Left: Track Info */}
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
           <div className="flex items-center gap-2.5 min-w-0">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                isPlaying
-                  ? 'bg-primary text-on-primary shadow-xs ring-2 ring-primary/20'
-                  : 'bg-surface-subtle text-text-secondary border border-border-subtle'
+                hasError
+                  ? 'bg-rose-100 text-rose-600 border border-rose-200'
+                  : isPlaying
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-700 border border-slate-200'
               }`}
             >
-              <span className="material-symbols-outlined text-[18px]">
-                {isPlaying ? 'graphic_eq' : 'headphones'}
-              </span>
+              <Headphones className="w-4 h-4" />
             </div>
             <div className="min-w-0 max-w-[140px] sm:max-w-[180px] md:max-w-xs truncate">
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-xs sm:text-sm text-text-primary truncate" title={fileName}>
+                <span className="font-medium text-xs sm:text-sm text-slate-900 truncate" title={fileName}>
                   {fileName}
                 </span>
-                <span className="bg-blue-100 text-primary text-[10px] font-bold px-1.5 py-0.2 rounded shrink-0">
-                  {partName || `Part ${partNumber}`}
-                </span>
+                {hasError ? (
+                  <span className="bg-rose-50 text-rose-700 text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 border border-rose-200/70">
+                    Không tải được audio
+                  </span>
+                ) : (
+                  <span className="bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 border border-slate-200">
+                    {partName || `Part ${partNumber}`}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -166,126 +222,123 @@ export default function ExamFixedAudioPlayer({
           <div className="sm:hidden flex items-center gap-1 shrink-0">
             <button
               type="button"
+              disabled={hasError}
               onClick={handleTogglePlay}
-              className="p-1.5 rounded-full bg-primary text-on-primary hover:bg-primary-dark transition-colors"
-              title={isPlaying ? 'Tạm dừng' : 'Phát tiếp'}
+              className={`p-2 rounded-full text-white transition-colors ${
+                hasError
+                  ? 'bg-slate-300 text-slate-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-xs'
+              }`}
+              title={hasError ? 'File audio lỗi hoặc không tồn tại' : isPlaying ? 'Tạm dừng' : 'Phát tiếp'}
             >
-              <span className="material-symbols-outlined text-[20px]">
-                {isPlaying ? 'pause' : 'play_arrow'}
-              </span>
+              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        {/* Center: Controls, Scrubber Slider & Timestamps */}
+        {/* Center: Controls & Scrubber Slider */}
         <div className="flex-1 min-w-0 w-full max-w-2xl flex flex-col gap-1 items-center">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 w-full">
-            {/* Replay 5s */}
+          <div className="flex items-center justify-center gap-3 w-full">
             <button
               type="button"
+              disabled={hasError}
               onClick={handleReplay5}
-              className="p-1 sm:p-1.5 rounded-md hover:bg-surface text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+              className={`p-1.5 rounded-lg transition-colors ${
+                hasError
+                  ? 'text-slate-300 cursor-not-allowed'
+                  : 'hover:bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer'
+              }`}
               title="Lùi lại 5 giây"
             >
-              <span className="material-symbols-outlined text-[19px] sm:text-[21px]">replay_5</span>
+              <RotateCcw className="w-4 h-4" />
             </button>
 
-            {/* Play / Pause Primary Button */}
             <button
               type="button"
+              disabled={hasError}
               onClick={handleTogglePlay}
-              className="hidden sm:flex w-8 h-8 rounded-full bg-primary text-on-primary hover:bg-primary-dark transition-transform active:scale-95 shadow-xs items-center justify-center cursor-pointer"
-              title={isPlaying ? 'Tạm dừng' : 'Phát tiếp'}
+              className={`hidden sm:flex w-8 h-8 rounded-full text-white transition-transform active:scale-95 items-center justify-center ${
+                hasError
+                  ? 'bg-slate-300 text-slate-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800 shadow-xs cursor-pointer'
+              }`}
+              title={hasError ? 'File audio lỗi hoặc không tồn tại' : isPlaying ? 'Tạm dừng' : 'Phát tiếp'}
             >
-              <span className="material-symbols-outlined text-[22px]">
-                {isPlaying ? 'pause' : 'play_arrow'}
-              </span>
+              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white translate-x-0.5" />}
             </button>
 
-            {/* Forward 5s */}
             <button
               type="button"
+              disabled={hasError}
               onClick={handleForward5}
-              className="p-1 sm:p-1.5 rounded-md hover:bg-surface text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+              className={`p-1.5 rounded-lg transition-colors rotate-180 ${
+                hasError
+                  ? 'text-slate-300 cursor-not-allowed'
+                  : 'hover:bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer'
+              }`}
               title="Tua tới 5 giây"
             >
-              <span className="material-symbols-outlined text-[19px] sm:text-[21px]">forward_5</span>
+              <RotateCcw className="w-4 h-4" />
             </button>
 
-            {/* Scrubber & Time */}
-            <div className="flex items-center gap-2 flex-1 w-full max-w-lg">
-              <span className="text-[11px] sm:text-xs font-mono font-medium text-text-primary tabular-nums shrink-0 w-11 sm:w-12 text-right">
-                {formatTime(currentTime)}
-              </span>
-
-              {/* Range Track */}
-              <div className="relative flex-1 flex items-center group py-1">
-                <input
-                  type="range"
-                  min={0}
-                  max={duration || 100}
-                  step={0.5}
-                  value={currentTime}
-                  onChange={handleSeek}
-                  aria-label="Thanh tua âm thanh bài thi"
-                  className="w-full h-1.5 sm:h-2 bg-border-strong rounded-full appearance-none cursor-pointer accent-primary focus:outline-hidden"
-                  style={{
-                    background: `linear-gradient(to right, #0056D2 ${progressPercent}%, #E2E8F0 ${progressPercent}%)`,
-                  }}
-                />
-              </div>
-
-              <span className="text-[11px] sm:text-xs font-mono font-medium text-text-muted tabular-nums shrink-0 w-11 sm:w-12">
-                {formatTime(duration)}
-              </span>
+            <div className="hidden sm:flex items-center gap-1.5 ml-2">
+              {['0.75x', '1.0x', '1.25x'].map((spd) => (
+                <button
+                  key={spd}
+                  type="button"
+                  onClick={() => handleSpeedChange(spd)}
+                  className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                    playbackSpeed === spd
+                      ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {spd}
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* Time scrubber */}
+          <div className="w-full flex items-center gap-2 text-[11px] text-slate-500 font-mono tabular-nums">
+            <span className="w-10 text-right">{formatTime(currentTime)}</span>
+            <div className="flex-1 relative flex items-center">
+              <input
+                type="range"
+                min="0"
+                max={duration || 100}
+                value={currentTime}
+                disabled={hasError}
+                onChange={handleSeek}
+                className={`w-full h-1 rounded-lg appearance-none transition-colors ${
+                  hasError
+                    ? 'bg-slate-200 cursor-not-allowed'
+                    : 'bg-slate-200 cursor-pointer accent-blue-600'
+                }`}
+              />
+            </div>
+            <span className="w-10 text-left">{formatTime(duration)}</span>
           </div>
         </div>
 
-        {/* Right: Playback Speed & Volume */}
-        <div className="hidden lg:flex items-center gap-3 shrink-0">
-          {/* Playback Speed Chips */}
-          <div className="inline-flex bg-surface-subtle p-0.5 rounded-md border border-border-subtle shadow-2xs">
-            {['0.8x', '1.0x', '1.2x', '1.5x'].map((spd) => (
-              <button
-                key={spd}
-                type="button"
-                onClick={() => handleSpeedChange(spd)}
-                className={`px-2 py-0.5 rounded text-[11px] font-medium transition-all ${
-                  playbackSpeed === spd
-                    ? 'bg-surface text-primary font-bold shadow-xs border border-border-subtle'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-                title={`Tốc độ đọc: ${spd}`}
-              >
-                {spd}
-              </button>
-            ))}
-          </div>
-
-          {/* Volume Control */}
-          <div className="flex items-center gap-1.5 text-text-secondary">
-            <button
-              type="button"
-              onClick={handleToggleMute}
-              className="p-1 rounded hover:text-primary transition-colors"
-              title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
-            >
-              <span className="material-symbols-outlined text-[18px]">
-                {isMuted || volume === 0 ? 'volume_off' : volume < 0.5 ? 'volume_down' : 'volume_up'}
-              </span>
-            </button>
-            <input
-              type="range"
-              min={0}
-              max={1}
-              step={0.05}
-              value={isMuted ? 0 : volume}
-              onChange={handleVolumeChange}
-              aria-label="Âm lượng bài nghe"
-              className="w-16 h-1 bg-border-strong rounded-lg appearance-none cursor-pointer accent-primary"
-            />
-          </div>
+        {/* Right: Volume */}
+        <div className="hidden md:flex items-center gap-2 w-32 justify-end">
+          <button
+            type="button"
+            onClick={handleToggleMute}
+            className="p-1 text-slate-500 hover:text-slate-800 transition-colors"
+          >
+            {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={isMuted ? 0 : volume}
+            onChange={handleVolumeChange}
+            className="w-16 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+          />
         </div>
       </div>
     </aside>

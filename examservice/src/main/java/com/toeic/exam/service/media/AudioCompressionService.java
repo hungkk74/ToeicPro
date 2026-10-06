@@ -1,6 +1,7 @@
 package com.toeic.exam.service.media;
 
 import java.io.File;
+import java.nio.file.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class AudioCompressionService {
         attrs.setOutputFormat("mp3");
         attrs.setAudioAttributes(audio);
 
-        File tempOutput = File.createTempFile("audio_output_", ".mp3");
+        File tempOutput = Files.createTempFile("audio_output_", ".mp3").toFile();
         try {
             Encoder encoder = new Encoder();
             encoder.encode(new MultimediaObject(tempInput), tempOutput, attrs);

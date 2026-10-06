@@ -6,17 +6,19 @@ interface UseScoreCountdownOptions {
   activeTab: string;
   initialSeconds?: number;
   redirectUrl?: string;
+  autoStart?: boolean;
 }
 
 export function useScoreCountdown({
   isOpen,
   activeTab,
-  initialSeconds = 10,
+  initialSeconds = 60,
   redirectUrl = '/de-thi',
+  autoStart = false,
 }: UseScoreCountdownOptions) {
   const router = useRouter();
   const [countdown, setCountdown] = useState(initialSeconds);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(!autoStart);
 
   useEffect(() => {
     if (!isOpen || isPaused || activeTab !== 'summary') return;
@@ -35,12 +37,14 @@ export function useScoreCountdown({
 
   const togglePause = () => setIsPaused((prev) => !prev);
   const pause = () => setIsPaused(true);
+  const resume = () => setIsPaused(false);
 
   return {
     countdown,
     isPaused,
     togglePause,
     pause,
+    resume,
     redirectToTarget: () => router.push(redirectUrl),
   };
 }

@@ -48,27 +48,27 @@ export default function QuestionMatrix({
   const displayParts = parts && parts.length > 0 ? parts : DEFAULT_PARTS;
 
   return (
-    <aside className="w-full lg:w-[340px] xl:w-[380px] shrink-0 lg:sticky lg:top-20 flex flex-col gap-space-md">
+    <aside className="w-full lg:w-[340px] xl:w-[360px] shrink-0 lg:sticky lg:top-20 flex flex-col gap-4 font-sans">
       {/* Progress Summary Card */}
-      <div className="bg-surface rounded-lg p-space-md shadow-sm border border-border-subtle">
+      <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs">
         {isReviewMode ? (
           <>
-            <div className="flex items-center justify-between pb-space-xs flex-wrap gap-1">
-              <span className="font-headline-sm text-headline-sm text-text-primary font-bold">
+            <div className="flex items-center justify-between pb-1 flex-wrap gap-1">
+              <span className="font-serif text-sm font-semibold text-slate-900">
                 Kết quả bài thi
               </span>
-              <span className="font-numeric-metric text-xs sm:text-numeric-metric text-emerald-700 tabular-nums font-bold">
+              <span className="text-xs font-semibold text-emerald-800 tabular-nums font-mono">
                 Đúng {correctCount}/{totalQuestions} câu ({totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0}%)
               </span>
             </div>
-            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mt-1 mb-space-md flex">
+            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1 mb-3 flex">
               <div
-                className="bg-emerald-500 h-full transition-all duration-300"
+                className="bg-emerald-600 h-full transition-all duration-300"
                 style={{ width: `${totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0}%` }}
                 title={`Đúng: ${correctCount} câu`}
               />
               <div
-                className="bg-rose-500 h-full transition-all duration-300"
+                className="bg-rose-600 h-full transition-all duration-300"
                 style={{ width: `${totalQuestions > 0 ? (wrongCount / totalQuestions) * 100 : 0}%` }}
                 title={`Sai: ${wrongCount} câu`}
               />
@@ -79,90 +79,89 @@ export default function QuestionMatrix({
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-space-xs text-center text-xs">
-              <div className="bg-emerald-50 border border-emerald-200 rounded p-2">
-                <span className="block font-bold text-emerald-800 text-sm tabular-nums">
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="bg-emerald-50/80 border border-emerald-200/70 rounded-lg p-2">
+                <span className="block font-serif font-bold text-emerald-900 text-sm tabular-nums">
                   {correctCount}
                 </span>
-                <span className="font-caption text-caption text-emerald-700">Đúng</span>
+                <span className="text-[11px] text-emerald-700 font-medium">Đúng</span>
               </div>
-              <div className="bg-rose-50 border border-rose-200 rounded p-2">
-                <span className="block font-bold text-rose-800 text-sm tabular-nums">
+              <div className="bg-rose-50/80 border border-rose-200/70 rounded-lg p-2">
+                <span className="block font-serif font-bold text-rose-900 text-sm tabular-nums">
                   {wrongCount}
                 </span>
-                <span className="font-caption text-caption text-rose-700">Sai</span>
+                <span className="text-[11px] text-rose-700 font-medium">Sai</span>
               </div>
-              <div className="bg-slate-100 border border-slate-200 rounded p-2">
-                <span className="block font-bold text-slate-700 text-sm tabular-nums">
+              <div className="bg-slate-100 border border-slate-200 rounded-lg p-2">
+                <span className="block font-serif font-bold text-slate-700 text-sm tabular-nums">
                   {skippedCount}
                 </span>
-                <span className="font-caption text-caption text-slate-600">Chưa làm</span>
+                <span className="text-[11px] text-slate-500 font-medium">Chưa làm</span>
               </div>
             </div>
           </>
         ) : (
           <>
-            <div className="flex items-center justify-between pb-space-xs flex-wrap gap-1">
-              <span className="font-headline-sm text-headline-sm text-text-primary font-bold">Tiến độ làm bài</span>
-              <span className="font-numeric-metric text-xs sm:text-numeric-metric text-primary tabular-nums font-semibold">
+            <div className="flex items-center justify-between pb-1 flex-wrap gap-1">
+              <span className="font-serif text-sm font-semibold text-slate-900">Tiến độ làm bài</span>
+              <span className="text-xs font-semibold text-slate-700 tabular-nums font-mono">
                 {answeredCount}/{totalQuestions} câu ({totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0}%)
               </span>
             </div>
-            <div className="w-full h-1.5 bg-border-strong rounded-full overflow-hidden mt-1 mb-space-md">
+            <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mt-1 mb-3">
               <div
-                className="h-full bg-primary rounded-full transition-all duration-300"
+                className="h-full bg-blue-600 rounded-full transition-all duration-300"
                 style={{ width: `${totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0}%` }}
-              ></div>
+              />
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 sm:gap-space-xs">
-              <div className="bg-primary/10 rounded p-2 text-center border border-primary/20">
-                <span className="block font-numeric-metric text-numeric-metric text-primary tabular-nums font-bold">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-slate-100 rounded-lg p-2 text-center border border-slate-200">
+                <span className="block text-sm font-serif font-bold text-slate-900 tabular-nums">
                   {answeredCount}
                 </span>
-                <span className="font-caption text-caption text-text-secondary">Đã làm</span>
+                <span className="text-[11px] text-slate-600 font-medium">Đã làm</span>
               </div>
-              <div className="bg-orange-50 rounded p-2 text-center border border-orange-200">
+              <div className="bg-amber-50 rounded-lg p-2 text-center border border-amber-200">
                 <div className="inline-flex items-center gap-1 justify-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-                  <span className="font-numeric-metric text-numeric-metric text-orange-600 tabular-nums font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600" />
+                  <span className="text-sm font-serif font-bold text-amber-900 tabular-nums">
                     {flaggedCount}
                   </span>
                 </div>
-                <span className="block font-caption text-caption text-text-secondary">Đã đặt cờ</span>
+                <span className="block text-[11px] text-amber-700 font-medium">Đặt cờ</span>
               </div>
-              <div className="bg-surface-subtle rounded p-2 text-center border border-border-subtle">
-                <span className="block font-numeric-metric text-numeric-metric text-text-secondary tabular-nums font-bold">
+              <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-200/70">
+                <span className="block text-sm font-serif font-bold text-slate-600 tabular-nums">
                   {Math.max(0, totalQuestions - answeredCount)}
                 </span>
-                <span className="font-caption text-caption text-text-secondary">Chưa làm</span>
+                <span className="text-[11px] text-slate-500 font-medium">Chưa làm</span>
               </div>
             </div>
           </>
         )}
       </div>
 
-      {/* Complete Question Matrix Grid */}
-      <div className="bg-surface rounded-lg p-space-md shadow-sm border border-border-subtle max-h-[580px] overflow-y-auto">
+      {/* Question Matrix Grid */}
+      <div className="bg-white rounded-xl p-4 border border-slate-200/90 shadow-xs max-h-[580px] overflow-y-auto">
         {displayParts.map((part, pIdx) => {
           const partAnsweredCount = part.questions.filter((q) => Boolean(selectedAnswers[q])).length;
-          const isListening = part.partNumber <= 4;
           return (
-            <div key={part.partNumber} className={`mb-space-md ${pIdx > 0 ? 'pt-3 border-t border-border-subtle' : ''}`}>
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-2">
-                  <span className={`w-1.5 h-3.5 rounded-full ${isListening ? 'bg-primary' : 'bg-emerald-600'}`}></span>
-                  <span className="font-label-md text-label-md text-text-primary font-semibold">
+            <div key={part.partNumber} className={`mb-3.5 ${pIdx > 0 ? 'pt-3 border-t border-slate-100' : ''}`}>
+              <div className="flex items-center justify-between pb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1 h-3 rounded-full bg-blue-600" />
+                  <span className="text-xs font-semibold text-slate-900">
                     {part.name}
                   </span>
                 </div>
-                <span className="font-caption text-caption text-text-secondary tabular-nums">
+                <span className="text-xs text-slate-500 tabular-nums font-mono">
                   {isReviewMode
-                    ? `${part.questions.filter((q) => reviewAnswers?.[q]?.isCorrect).length}/${part.questions.length} đúng`
-                    : `${partAnsweredCount}/${part.questions.length} đã làm`}
+                    ? `${part.questions.filter((q) => reviewAnswers?.[q]?.isCorrect).length}/${part.questions.length}`
+                    : `${partAnsweredCount}/${part.questions.length}`}
                 </span>
               </div>
-              <div className="grid grid-cols-5 sm:grid-cols-6 gap-1.5 sm:gap-2 pt-1">
+              <div className="grid grid-cols-5 sm:grid-cols-6 gap-1 pt-1">
                 {part.questions.map((qNum) => {
                   const isCurrent = currentQuestion === qNum;
                   const isAnswered = Boolean(selectedAnswers[qNum]);
@@ -174,44 +173,44 @@ export default function QuestionMatrix({
                   if (isReviewMode) {
                     if (revItem?.isCorrect) {
                       cellClasses = isCurrent
-                        ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400 ring-offset-2 shadow-md'
-                        : 'bg-emerald-500 text-white font-semibold hover:bg-emerald-600';
+                        ? 'bg-emerald-700 text-white font-bold ring-2 ring-emerald-600 ring-offset-1'
+                        : 'bg-emerald-600 text-white font-medium hover:bg-emerald-700';
                     } else if (revItem && revItem.selectedOption != null) {
                       cellClasses = isCurrent
-                        ? 'bg-rose-600 text-white font-bold ring-2 ring-rose-400 ring-offset-2 shadow-md'
-                        : 'bg-rose-500 text-white font-semibold hover:bg-rose-600';
+                        ? 'bg-rose-700 text-white font-bold ring-2 ring-rose-600 ring-offset-1'
+                        : 'bg-rose-600 text-white font-medium hover:bg-rose-700';
                     } else {
                       cellClasses = isCurrent
-                        ? 'bg-slate-300 text-slate-800 font-bold ring-2 ring-slate-400 ring-offset-2 shadow-md'
-                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300';
+                        ? 'bg-slate-300 text-slate-900 font-bold ring-2 ring-slate-400 ring-offset-1'
+                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border border-slate-200/60';
                     }
                   } else {
                     if (isCurrent) {
                       cellClasses = isFlagged
-                        ? 'bg-orange-600 text-white ring-2 ring-orange-400 ring-offset-2 shadow-md font-bold'
-                        : 'bg-primary text-on-primary ring-2 ring-primary ring-offset-2 shadow-sm font-bold';
+                        ? 'bg-amber-600 text-white ring-2 ring-amber-500 ring-offset-1 font-bold'
+                        : 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-1 font-bold shadow-xs';
                     } else if (isFlagged) {
                       cellClasses = isAnswered
-                        ? 'bg-orange-500 text-white border border-orange-600 font-bold shadow-xs'
-                        : 'bg-orange-100 text-orange-950 border-2 border-orange-400 font-bold hover:bg-orange-200';
+                        ? 'bg-amber-500 text-white font-medium'
+                        : 'bg-amber-100 text-amber-900 border border-amber-300 font-medium hover:bg-amber-200';
                     } else if (isAnswered) {
-                      cellClasses = 'bg-primary-container text-on-primary font-semibold';
+                      cellClasses = 'bg-blue-600 text-white font-medium hover:bg-blue-700';
                     } else {
-                      cellClasses = 'bg-surface-subtle text-text-secondary hover:bg-surface-container border border-border-subtle';
+                      cellClasses = 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/80';
                     }
                   }
 
                   return (
                     <button
                       key={qNum}
-                      className={`relative h-8 min-w-0 rounded flex items-center justify-center font-caption text-xs tabular-nums transition-all ${cellClasses}`}
-                      title={`Câu hỏi ${qNum}${isReviewMode && revItem ? (revItem.isCorrect ? ' (Đúng)' : revItem.selectedOption ? ` (Sai - Bạn chọn ${revItem.selectedOption})` : ' (Chưa làm)') : ''}`}
                       type="button"
+                      className={`relative h-7 min-w-0 rounded flex items-center justify-center text-xs tabular-nums transition-colors cursor-pointer ${cellClasses}`}
+                      title={`Câu hỏi ${qNum}${isReviewMode && revItem ? (revItem.isCorrect ? ' (Đúng)' : revItem.selectedOption ? ` (Sai - Bạn chọn ${revItem.selectedOption})` : ' (Chưa làm)') : ''}`}
                       onClick={() => onSelectQuestion(qNum)}
                     >
                       {qNum}
                       {!isReviewMode && isFlagged && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-orange-500 ring-1.5 ring-white"></span>
+                        <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-amber-600" />
                       )}
                     </button>
                   );

@@ -10,10 +10,10 @@ interface ScorePartsTabProps {
 
 export function ScorePartsTab({ reviewData, loadingReview }: ScorePartsTabProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
-          <BarChart3 className="w-4 h-4 text-slate-700" />
+        <h3 className="font-serif text-sm font-semibold text-slate-900 flex items-center gap-1.5">
+          <BarChart3 className="w-4 h-4 text-slate-600" />
           <span>Độ chính xác chi tiết theo từng Part</span>
         </h3>
         <span className="text-xs text-slate-500 font-medium">
@@ -35,17 +35,17 @@ export function ScorePartsTab({ reviewData, loadingReview }: ScorePartsTabProps)
             return (
               <div
                 key={part.partNumber}
-                className="p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors space-y-2"
+                className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors space-y-2.5 shadow-xs"
               >
                 <div className="flex items-center justify-between text-xs sm:text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-md bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-md bg-slate-900 text-white font-semibold text-xs flex items-center justify-center shrink-0">
                       {part.partNumber}
                     </span>
                     <span className="font-semibold text-slate-900">{part.partName}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-slate-600 text-xs font-medium tabular-nums">
+                    <span className="text-slate-500 text-xs font-medium tabular-nums">
                       {correct}/{total} câu đúng
                     </span>
                     <span className="font-bold text-slate-900 tabular-nums">{percentage}%</span>
@@ -57,10 +57,10 @@ export function ScorePartsTab({ reviewData, loadingReview }: ScorePartsTabProps)
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       percentage >= 80
-                        ? 'bg-emerald-500'
+                        ? 'bg-emerald-600'
                         : percentage >= 50
-                        ? 'bg-blue-500'
-                        : 'bg-amber-500'
+                        ? 'bg-blue-600'
+                        : 'bg-slate-400'
                     }`}
                     style={{ width: `${percentage}%` }}
                   />

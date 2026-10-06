@@ -32,11 +32,17 @@ export function getKeycloakAdminUrl(): string {
 }
 
 export async function getAdminToken(keycloakBase: string): Promise<string> {
+  const adminUsername = process.env.KEYCLOAK_ADMIN_USERNAME;
+  const adminPassword = process.env.KEYCLOAK_ADMIN_PASSWORD;
+  if (!adminUsername || !adminPassword) {
+    throw new Error('Missing required env vars: KEYCLOAK_ADMIN_USERNAME, KEYCLOAK_ADMIN_PASSWORD');
+  }
+
   const adminTokenParams = new URLSearchParams({
     client_id: 'admin-cli',
     grant_type: 'password',
-    username: process.env.KEYCLOAK_ADMIN_USERNAME || 'admin',
-    password: process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin',
+    username: adminUsername,
+    password: adminPassword,
   });
 
   const tokenRes = await fetch(
