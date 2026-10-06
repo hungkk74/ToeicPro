@@ -595,6 +595,9 @@ html, body {
 .top-full{
   top: 100%;
 }
+.left-2\.5{
+  left: 0.625rem;
+}
 .z-0{
   z-index: 0;
 }
@@ -1607,6 +1610,9 @@ html, body {
 .bg-white\/95{
   background-color: rgb(255 255 255 / 0.95);
 }
+.bg-white\/80{
+  background-color: rgb(255 255 255 / 0.8);
+}
 .bg-gradient-to-br{
   background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
@@ -2239,6 +2245,9 @@ html, body {
 .opacity-80{
   opacity: 0.8;
 }
+.opacity-70{
+  opacity: 0.7;
+}
 .shadow-2xl{
   --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
@@ -2694,6 +2703,10 @@ html, body {
   text-decoration-line: underline;
 }
 
+.hover\:opacity-100:hover{
+  opacity: 1;
+}
+
 .hover\:shadow:hover{
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -2872,6 +2885,10 @@ html, body {
     height: 320px;
   }
 
+  .sm\:h-8{
+    height: 2rem;
+  }
+
   .sm\:w-60{
     width: 15rem;
   }
@@ -2882,6 +2899,10 @@ html, body {
 
   .sm\:w-auto{
     width: auto;
+  }
+
+  .sm\:w-8{
+    width: 2rem;
   }
 
   .sm\:max-w-\[180px\]{
@@ -3145,12 +3166,20 @@ html, body {
     display: none;
   }
 
+  .lg\:h-\[340px\]{
+    height: 340px;
+  }
+
   .lg\:w-\[340px\]{
     width: 340px;
   }
 
   .lg\:max-w-lg{
     max-width: 32rem;
+  }
+
+  .lg\:max-w-none{
+    max-width: none;
   }
 
   .lg\:flex-1{

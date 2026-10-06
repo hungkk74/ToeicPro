@@ -101,9 +101,9 @@ export default function HomeCarousel() {
         </div>
 
         {/* Right Column: Frame Banner with Calm Motion */}
-        <div className="lg:col-span-5">
-          <div className="relative rounded-xl border border-slate-200/90 bg-slate-100 overflow-hidden">
-            <div className="relative w-full h-[260px] sm:h-[320px]">
+        <div className="lg:col-span-5 flex items-center justify-center">
+          <div className="relative w-full max-w-lg lg:max-w-none rounded-xl border border-slate-200/90 bg-slate-100 overflow-hidden shadow-xs">
+            <div className="relative w-full h-[260px] sm:h-[320px] lg:h-[340px]">
               {images.map((item, index) => (
                 <div
                   key={index}
@@ -119,50 +119,42 @@ export default function HomeCarousel() {
                     className="object-cover"
                     priority={index === 0}
                   />
-                  {/* Subtle caption bar */}
-                  <div className="absolute inset-x-0 bottom-0 bg-slate-950/70 backdrop-blur-xs text-slate-200 px-3.5 py-2 text-xs flex items-center justify-between">
-                    <span className="truncate pr-2">{item.caption}</span>
-                    <span className="tabular-nums font-mono text-[11px] text-slate-400 shrink-0">
-                      0{index + 1} / 0{images.length}
-                    </span>
-                  </div>
                 </div>
               ))}
+
+              {/* Side Floating Controls */}
+              <button
+                type="button"
+                onClick={goToPrevious}
+                aria-label="Ảnh trước"
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 flex items-center justify-center shadow-xs backdrop-blur-xs transition-all cursor-pointer opacity-70 hover:opacity-100"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={goToNext}
+                aria-label="Ảnh sau"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/80 hover:bg-white text-slate-700 hover:text-slate-900 flex items-center justify-center shadow-xs backdrop-blur-xs transition-all cursor-pointer opacity-70 hover:opacity-100"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Quiet Pagination Controls */}
-            <div className="flex items-center justify-between px-3 py-2 bg-slate-50 border-t border-slate-200/80">
-              <div className="flex gap-1.5">
+            <div className="flex items-center justify-center px-3.5 py-2.5 bg-white border-t border-slate-200/80">
+              <div className="flex items-center gap-1.5">
                 {images.map((_, index) => (
                   <button
                     key={index}
                     type="button"
                     onClick={() => setCurrentIndex(index)}
-                    aria-label={`Ảnh ${index + 1}`}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                    aria-label={`Chuyển đến ảnh ${index + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                       currentIndex === index ? 'w-6 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
                     }`}
                   />
                 ))}
-              </div>
-
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={goToPrevious}
-                  aria-label="Ảnh trước"
-                  className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={goToNext}
-                  aria-label="Ảnh sau"
-                  className="p-1 rounded text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           </div>
