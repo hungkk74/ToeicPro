@@ -58,31 +58,21 @@ public class QuestionGroupService {
     }
 
     @Transactional(readOnly = true)
-    public List<QuestionGroupDTO> findAll() {
-        LOG.debug("Request to get all QuestionGroups");
-        return questionGroupRepository.findAll().stream().map(questionGroupMapper::toDto).toList();
-    }
-
-    @Transactional(readOnly = true)
     public Page<QuestionGroupDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get a page of QuestionGroups");
-        return questionGroupRepository.findAll(pageable).map(questionGroupMapper::toDto);
-    }
-
-    @Transactional(readOnly = true)
-    public List<QuestionGroupDTO> findAllWithEagerRelationships() {
-        LOG.debug("Request to get all QuestionGroups with eager relationships");
-        return questionGroupRepository
-            .findAllWithEagerRelationships()
-            .stream()
-            .map(questionGroupMapper::toDto)
-            .toList();
+        return findAllWithEagerRelationships(pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<QuestionGroupDTO> findAllWithEagerRelationships(Pageable pageable) {
         LOG.debug("Request to get a page of QuestionGroups with eager relationships");
         return questionGroupRepository.findAllWithEagerRelationships(pageable).map(questionGroupMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<QuestionGroupDTO> findAllWithEagerRelationships() {
+        LOG.debug("Request to get all QuestionGroups with eager relationships");
+        return questionGroupRepository.findAllWithEagerRelationships().stream().map(questionGroupMapper::toDto).toList();
     }
 
     @Transactional(readOnly = true)

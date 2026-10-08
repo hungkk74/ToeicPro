@@ -2,7 +2,9 @@ package com.toeic.exam.service.media;
 
 import com.sksamuel.scrimage.ImmutableImage;
 import com.sksamuel.scrimage.webp.WebpWriter;
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,22 @@ public class ImageCompressionService {
             return image.bytes(WebpWriter.DEFAULT.withQ(WEBP_QUALITY));
         } catch (Exception e) {
             LOG.error("Lỗi khi tối ưu hình ảnh WebP", e);
+            throw e;
+        }
+    }
+
+    public File compressToWebpFile(File inputFile) throws Exception {
+        File tempOutput = Files.createTempFile("image_optimized_", ".webp").toFile();
+        try {
+            ImmutableImage image = ImmutableImage.loader().fromFile(inputFile);
+            if (image.awt().getWidth() > MAX_WIDTH) {
+                image = image.scaleToWidth(MAX_WIDTH);
+            }
+            image.output(WebpWriter.DEFAULT.withQ(WEBP_QUALITY), tempOutput);
+            return tempOutput;
+        } catch (Exception e) {
+            Files.deleteIfExists(tempOutput.toPath());
+            LOG.error("Lỗi khi tối ưu hình ảnh WebP ra file", e);
             throw e;
         }
     }

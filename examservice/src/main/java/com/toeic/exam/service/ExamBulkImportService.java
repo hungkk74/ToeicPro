@@ -70,6 +70,7 @@ public class ExamBulkImportService {
             return examMapper.toDto(exam);
         }
 
+        List<Part> partsToSave = new ArrayList<>(request.getParts().size());
         for (PartCreateDTO partDto : request.getParts()) {
             Part part = new Part();
             part.setPartNumber(partDto.getPartNumber());
@@ -85,25 +86,38 @@ public class ExamBulkImportService {
                 }
             }
             part.setTotalQuestions(partTotalQuestions);
-            part = partRepository.save(part);
+            partsToSave.add(part);
+        }
+        List<Part> savedParts = partRepository.saveAll(partsToSave);
 
-            if (partDto.getQuestionGroups() == null || partDto.getQuestionGroups().isEmpty()) {
-                continue;
-            }
+        List<QuestionGroup> groupsToSave = new ArrayList<>();
+        List<QuestionGroupCreateDTO> allGroupDtos = new ArrayList<>();
 
-            for (QuestionGroupCreateDTO groupDto : partDto.getQuestionGroups()) {
-                QuestionGroup group = new QuestionGroup();
-                group.setPassageText(groupDto.getPassageText());
-                group.setImageUrl(groupDto.getImageUrl());
-                group.setAudioUrl(groupDto.getAudioUrl());
-                group.setPart(part);
-                group = questionGroupRepository.save(group);
+        for (int i = 0; i < request.getParts().size(); i++) {
+            PartCreateDTO partDto = request.getParts().get(i);
+            Part part = savedParts.get(i);
 
-                if (groupDto.getQuestions() == null || groupDto.getQuestions().isEmpty()) {
-                    continue;
+            if (partDto.getQuestionGroups() != null) {
+                for (QuestionGroupCreateDTO groupDto : partDto.getQuestionGroups()) {
+                    QuestionGroup group = new QuestionGroup();
+                    group.setPassageText(groupDto.getPassageText());
+                    group.setImageUrl(groupDto.getImageUrl());
+                    group.setAudioUrl(groupDto.getAudioUrl());
+                    group.setPart(part);
+                    groupsToSave.add(group);
+                    allGroupDtos.add(groupDto);
                 }
+            }
+        }
+        List<QuestionGroup> savedGroups = questionGroupRepository.saveAll(groupsToSave);
 
-                List<Question> questions = new ArrayList<>(groupDto.getQuestions().size());
+        List<Question> questionsToSave = new ArrayList<>();
+        for (int i = 0; i < savedGroups.size(); i++) {
+            QuestionGroup group = savedGroups.get(i);
+            QuestionGroupCreateDTO groupDto = allGroupDtos.get(i);
+            Part part = group.getPart();
+
+            if (groupDto.getQuestions() != null) {
                 for (QuestionCreateDTO qDto : groupDto.getQuestions()) {
                     Question question = new Question();
                     question.setQuestionNumber(qDto.getQuestionNumber());
@@ -126,10 +140,12 @@ public class ExamBulkImportService {
                     question.setExplanation(qDto.getExplanation());
                     question.setQuestionGroup(group);
                     question.setPart(part);
-                    questions.add(question);
+                    questionsToSave.add(question);
                 }
-                questionRepository.saveAll(questions);
             }
+        }
+        if (!questionsToSave.isEmpty()) {
+            questionRepository.saveAll(questionsToSave);
         }
 
         return examMapper.toDto(exam);

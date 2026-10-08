@@ -1,9 +1,11 @@
 package com.toeic.exam.service.dto.create;
 
-import java.io.Serializable;
-import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.List;
 
 public class PartCreateDTO implements Serializable {
 
@@ -14,6 +16,8 @@ public class PartCreateDTO implements Serializable {
     @Size(max = 255)
     private String name;
 
+    @Valid
+    @NotEmpty
     private List<QuestionGroupCreateDTO> questionGroups;
 
     public Integer getPartNumber() {

@@ -11,7 +11,13 @@ import java.time.Instant;
 // Lịch sử lần làm bài thi của học viên
  */
 @Entity
-@Table(name = "exam_attempt")
+@Table(
+    name = "exam_attempt",
+    indexes = {
+        @Index(name = "idx_exam_attempt_user_id", columnList = "user_id"),
+        @Index(name = "idx_exam_attempt_status_started_at", columnList = "status, started_at")
+    }
+)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class ExamAttempt implements Serializable {
 
@@ -257,6 +263,58 @@ public class ExamAttempt implements Serializable {
     public ExamAttempt exam(Exam exam) {
         this.setExam(exam);
         return this;
+    }
+
+    public static ExamAttempt start(String userId, Exam exam) {
+        ExamAttempt attempt = new ExamAttempt();
+        attempt.setUserId(userId);
+        attempt.setExam(exam);
+        attempt.setStatus(AttemptStatus.IN_PROGRESS);
+        attempt.setCorrectAnswers(0);
+        attempt.setWrongAnswers(0);
+        attempt.setSkippedAnswers(0);
+        attempt.setTimeSpentSeconds(0);
+        attempt.setStartedAt(Instant.now());
+        return attempt;
+    }
+
+    public void complete(
+        int listeningScore,
+        int readingScore,
+        int totalScore,
+        int correctAnswers,
+        int wrongAnswers,
+        int skippedAnswers,
+        int timeSpentSeconds,
+        Instant completedAt
+    ) {
+        if (this.status != AttemptStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Bài thi đã được nộp trước đó");
+        }
+        this.status = AttemptStatus.COMPLETED;
+        this.listeningScore = listeningScore;
+        this.readingScore = readingScore;
+        this.totalScore = totalScore;
+        this.correctAnswers = correctAnswers;
+        this.wrongAnswers = wrongAnswers;
+        this.skippedAnswers = skippedAnswers;
+        this.timeSpentSeconds = timeSpentSeconds;
+        this.completedAt = completedAt != null ? completedAt : Instant.now();
+    }
+
+    public void validateCanCancel() {
+        if (this.status != AttemptStatus.IN_PROGRESS) {
+            throw new IllegalStateException("Chỉ có thể hủy bài thi đang trong tiến trình làm!");
+        }
+    }
+
+    public boolean canViewAnswers() {
+        int correctCount = this.correctAnswers != null ? this.correctAnswers : 0;
+        int wrongCount = this.wrongAnswers != null ? this.wrongAnswers : 0;
+        int skippedCount = this.skippedAnswers != null ? this.skippedAnswers : 0;
+        int answeredCount = correctCount + wrongCount;
+        int totalQuestions = answeredCount + skippedCount;
+        return totalQuestions > 0 && ((long) answeredCount * 100 >= (long) totalQuestions * 80);
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

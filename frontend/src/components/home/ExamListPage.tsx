@@ -100,9 +100,12 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
 
       const userScope = `user_${user.login}`;
 
-      // Xoá các key cũ không có prefix tài khoản để không bị xung đột dữ liệu
+      // Xoá các key cũ không có prefix tài khoản để không bị xung đột dữ liệu giữa các tài khoản/khách
       initialExams.forEach((exam) => {
-        try { localStorage.removeItem(`exam_progress_${exam.id}`); } catch { /* noop */ }
+        try {
+          localStorage.removeItem(`exam_progress_${exam.id}`);
+          localStorage.removeItem(`toeic_latest_attempt_${exam.id}`);
+        } catch { /* noop */ }
       });
 
       // Nếu đã đăng nhập, tải điểm số và lịch sử các đề đã hoàn thành (completed) từ backend
@@ -132,9 +135,7 @@ export default function ExamListPage({ initialExams }: ExamListPageProps) {
 
           if (!latest) {
             try {
-              const cached =
-                localStorage.getItem(`toeic_latest_attempt_${userScope}_${exam.id}`) ||
-                localStorage.getItem(`toeic_latest_attempt_${exam.id}`);
+              const cached = localStorage.getItem(`toeic_latest_attempt_${userScope}_${exam.id}`);
               if (cached) {
                 latest = JSON.parse(cached);
               }

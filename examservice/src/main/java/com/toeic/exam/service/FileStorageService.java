@@ -6,10 +6,14 @@ import com.toeic.exam.service.media.AudioCompressionService;
 import com.toeic.exam.service.media.ImageCompressionService;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -23,16 +27,33 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Error;
 
 /**
  * Service điều phối lưu trữ file và upload lên Cloudflare R2 / S3.
+ * Tối ưu High-Throughput I/O, chống OOM, bảo mật Magic Bytes và Cloudflare CDN caching.
  */
 @Service
 public class FileStorageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileStorageService.class);
+
+    private static final String CACHE_CONTROL_IMMUTABLE = "public, max-age=31536000, immutable";
+
+    private static final long MAX_IMAGE_SIZE = 10L * 1024 * 1024; // 10MB
+    private static final long MAX_AUDIO_SIZE = 50L * 1024 * 1024; // 50MB (đáp ứng trọn gói file Audio Full Test TOEIC)
+    private static final long MAX_GENERIC_FILE_SIZE = 50L * 1024 * 1024;
+
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of(
+        "jpg", "jpeg", "png", "webp", "gif", "bmp"
+    );
+
+    private static final Set<String> ALLOWED_AUDIO_EXTENSIONS = Set.of(
+        "mp3", "wav", "m4a", "ogg", "flac", "aac"
+    );
 
     private final S3Client s3Client;
     private final CloudflareR2Properties properties;
@@ -54,142 +75,154 @@ public class FileStorageService {
         this.fileProcessingExecutor = fileProcessingExecutor;
     }
 
-    public FileUploadResponse uploadAudio(MultipartFile file) {
-        return processAudioAsync(file).join();
-    }
-
+    /**
+     * Upload và nén Audio bất đồng bộ non-blocking (khuyến nghị dùng trên Web/API).
+     */
     public CompletableFuture<FileUploadResponse> processAudioAsync(MultipartFile file) {
-        validateFile(file, "audio");
-        File tempInput = null;
+        validateUploadedFile(file, MAX_AUDIO_SIZE, ALLOWED_AUDIO_EXTENSIONS, true);
+
+        Path tempInput = null;
         try {
-            tempInput = Files.createTempFile("audio_input_", ".tmp").toFile();
-            Files.copy(file.getInputStream(), tempInput.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            return uploadAudioAsync(tempInput, file.getOriginalFilename(), file.getSize());
-        } catch (IOException e) {
-            if (tempInput != null && tempInput.exists()) {
-                tempInput.delete();
+            tempInput = Files.createTempFile("audio_in_", ".tmp");
+            try (InputStream is = file.getInputStream()) {
+                Files.copy(is, tempInput, StandardCopyOption.REPLACE_EXISTING);
             }
-            LOG.error("Failed to buffer audio upload input stream", e);
-            CompletableFuture<FileUploadResponse> failed = new CompletableFuture<>();
-            failed.completeExceptionally(new RuntimeException("Lỗi khi đọc file audio upload: " + e.getMessage(), e));
-            return failed;
-        }
-    }
+            validateMagicBytes(tempInput, true);
 
-    public CompletableFuture<FileUploadResponse> uploadAudioAsync(File tempInput, String originalFilename, long originalSize) {
-        try {
-            return CompletableFuture.supplyAsync(() -> {
-                File tempOutput = null;
-                try {
-                    tempOutput = audioCompressionService.compressToMp3(tempInput);
+            final Path finalTempInput = tempInput;
+            String originalFilename = file.getOriginalFilename();
+            long originalSize = file.getSize();
 
-                    String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
-                    String contentType = "audio/mpeg";
-                    long optimizedSize = tempOutput.length();
-
-                    LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
-                        properties.getBucketName(), fileKey, originalSize, optimizedSize);
-
-                    PutObjectRequest putRequest = PutObjectRequest.builder()
-                        .bucket(properties.getBucketName())
-                        .key(fileKey)
-                        .contentType(contentType)
-                        .build();
-
-                    s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
-
-                    String fileUrl = buildPublicUrl(fileKey);
-                    LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
-
-                    return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
-                } catch (Exception e) {
-                    LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
-                    throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
-                } finally {
-                    if (tempInput != null && tempInput.exists()) {
-                        tempInput.delete();
-                    }
-                    if (tempOutput != null && tempOutput.exists()) {
-                        tempOutput.delete();
-                    }
-                }
-            }, fileProcessingExecutor);
-        } catch (Throwable t) {
-            if (tempInput != null && tempInput.exists()) {
-                tempInput.delete();
-            }
-            CompletableFuture<FileUploadResponse> failed = new CompletableFuture<>();
-            failed.completeExceptionally(t);
-            return failed;
-        }
-    }
-
-    public FileUploadResponse uploadImage(MultipartFile file) {
-        validateFile(file, "image");
-
-        try {
-            byte[] webpBytes = imageCompressionService.compressToWebp(file.getInputStream());
-
-            String fileKey = generateFileKey(file.getOriginalFilename(), "images", ".webp");
-            String contentType = "image/webp";
-
-            LOG.info("Uploading optimized WebP to Cloudflare R2 - Bucket: {}, Key: {}, Original Size: {} bytes, Optimized Size: {} bytes",
-                properties.getBucketName(), fileKey, file.getSize(), webpBytes.length);
-
-            PutObjectRequest putRequest = PutObjectRequest.builder()
-                .bucket(properties.getBucketName())
-                .key(fileKey)
-                .contentType(contentType)
-                .build();
-
-            s3Client.putObject(putRequest, RequestBody.fromBytes(webpBytes));
-
-            String fileUrl = buildPublicUrl(fileKey);
-            LOG.info("Optimized Image uploaded successfully to R2: {}", fileUrl);
-
-            return new FileUploadResponse(fileKey, fileUrl, file.getOriginalFilename(), webpBytes.length, contentType);
+            return CompletableFuture.supplyAsync(
+                () -> executeAudioProcessing(finalTempInput, originalFilename, originalSize),
+                fileProcessingExecutor
+            );
         } catch (Exception e) {
-            LOG.error("Failed to optimize and upload image to Cloudflare R2", e);
-            throw new RuntimeException("Lỗi khi tối ưu và upload ảnh: " + e.getMessage(), e);
+            safeDelete(tempInput);
+            LOG.error("Lỗi khi tiền xử lý audio upload: {}", file.getOriginalFilename(), e);
+            return CompletableFuture.failedFuture(new RuntimeException("Lỗi khi đọc file audio upload: " + e.getMessage(), e));
         }
     }
 
+    /**
+     * Upload Audio đồng bộ trực tiếp trên calling thread (không dùng .join() trên Thread Pool).
+     */
+    public FileUploadResponse uploadAudio(MultipartFile file) {
+        validateUploadedFile(file, MAX_AUDIO_SIZE, ALLOWED_AUDIO_EXTENSIONS, true);
+
+        Path tempInput = null;
+        try {
+            tempInput = Files.createTempFile("audio_in_", ".tmp");
+            try (InputStream is = file.getInputStream()) {
+                Files.copy(is, tempInput, StandardCopyOption.REPLACE_EXISTING);
+            }
+            validateMagicBytes(tempInput, true);
+            return executeAudioProcessing(tempInput, file.getOriginalFilename(), file.getSize());
+        } catch (Exception e) {
+            safeDelete(tempInput);
+            LOG.error("Lỗi khi upload audio đồng bộ: {}", file.getOriginalFilename(), e);
+            throw new RuntimeException("Lỗi khi upload audio: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Upload và nén Image sang WebP bất đồng bộ non-blocking.
+     */
+    public CompletableFuture<FileUploadResponse> processImageAsync(MultipartFile file) {
+        validateUploadedFile(file, MAX_IMAGE_SIZE, ALLOWED_IMAGE_EXTENSIONS, false);
+
+        Path tempInput = null;
+        try {
+            tempInput = Files.createTempFile("image_in_", ".tmp");
+            try (InputStream is = file.getInputStream()) {
+                Files.copy(is, tempInput, StandardCopyOption.REPLACE_EXISTING);
+            }
+            validateMagicBytes(tempInput, false);
+
+            final Path finalTempInput = tempInput;
+            String originalFilename = file.getOriginalFilename();
+            long originalSize = file.getSize();
+
+            return CompletableFuture.supplyAsync(
+                () -> executeImageProcessing(finalTempInput, originalFilename, originalSize),
+                fileProcessingExecutor
+            );
+        } catch (Exception e) {
+            safeDelete(tempInput);
+            LOG.error("Lỗi khi tiền xử lý image upload: {}", file.getOriginalFilename(), e);
+            return CompletableFuture.failedFuture(new RuntimeException("Lỗi khi đọc file ảnh upload: " + e.getMessage(), e));
+        }
+    }
+
+    /**
+     * Upload Image đồng bộ trực tiếp trên calling thread.
+     */
+    public FileUploadResponse uploadImage(MultipartFile file) {
+        validateUploadedFile(file, MAX_IMAGE_SIZE, ALLOWED_IMAGE_EXTENSIONS, false);
+
+        Path tempInput = null;
+        try {
+            tempInput = Files.createTempFile("image_in_", ".tmp");
+            try (InputStream is = file.getInputStream()) {
+                Files.copy(is, tempInput, StandardCopyOption.REPLACE_EXISTING);
+            }
+            validateMagicBytes(tempInput, false);
+            return executeImageProcessing(tempInput, file.getOriginalFilename(), file.getSize());
+        } catch (Exception e) {
+            safeDelete(tempInput);
+            LOG.error("Lỗi khi upload hình ảnh đồng bộ: {}", file.getOriginalFilename(), e);
+            throw new RuntimeException("Lỗi khi upload hình ảnh: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Upload file tĩnh thông thường (stream file tạm trung gian, không nạp mảng byte[] vào Heap).
+     */
     public FileUploadResponse uploadFile(MultipartFile file, String folder) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File upload không được để trống");
         }
-
-        String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        if (file.getSize() > MAX_GENERIC_FILE_SIZE) {
+            throw new IllegalArgumentException(
+                "Kích thước file vượt quá giới hạn (%d MB). Kích thước hiện tại: %d MB"
+                    .formatted(MAX_GENERIC_FILE_SIZE / (1024 * 1024), file.getSize() / (1024 * 1024))
+            );
         }
 
-        String fileKey = generateFileKey(originalFilename, folder, extension);
+        String originalFilename = file.getOriginalFilename();
+        String extension = extractExtension(originalFilename);
+        String targetExtension = extension.isBlank() ? "" : "." + extension;
+        String fileKey = generateFileKey(originalFilename, folder, targetExtension);
         String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
 
-        LOG.info("Uploading file to Cloudflare R2 - Bucket: {}, Key: {}, Size: {} bytes",
+        LOG.info("Uploading generic file to Cloudflare R2 - Bucket: {}, Key: {}, Size: {} bytes",
             properties.getBucketName(), fileKey, file.getSize());
 
+        Path tempInput = null;
         try {
+            tempInput = Files.createTempFile("upload_generic_", ".tmp");
+            try (InputStream is = file.getInputStream()) {
+                Files.copy(is, tempInput, StandardCopyOption.REPLACE_EXISTING);
+            }
+
             PutObjectRequest putRequest = PutObjectRequest.builder()
                 .bucket(properties.getBucketName())
                 .key(fileKey)
                 .contentType(contentType)
+                .cacheControl(CACHE_CONTROL_IMMUTABLE)
                 .build();
 
-            s3Client.putObject(putRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            s3Client.putObject(putRequest, RequestBody.fromFile(tempInput));
 
             String fileUrl = buildPublicUrl(fileKey);
-            LOG.info("File uploaded successfully to R2: {}", fileUrl);
+            LOG.info("Generic file uploaded successfully to R2: {}", fileUrl);
 
             return new FileUploadResponse(fileKey, fileUrl, originalFilename, file.getSize(), contentType);
-        } catch (IOException e) {
-            LOG.error("Failed to read input stream for file: {}", originalFilename, e);
-            throw new RuntimeException("Lỗi khi đọc file upload: " + e.getMessage(), e);
         } catch (Exception e) {
-            LOG.error("Failed to upload file to Cloudflare R2: {}", fileKey, e);
+            LOG.error("Failed to upload generic file to Cloudflare R2: {}", fileKey, e);
             throw new RuntimeException("Lỗi khi upload file lên Cloudflare R2: " + e.getMessage(), e);
+        } finally {
+            safeDelete(tempInput);
         }
     }
 
@@ -241,15 +274,25 @@ public class FileStorageService {
                     .delete(Delete.builder().objects(batch).quiet(true).build())
                     .build();
 
-                s3Client.deleteObjects(deleteRequest);
-                LOG.info("Successfully batch deleted {} files from Cloudflare R2", batch.size());
+                DeleteObjectsResponse response = s3Client.deleteObjects(deleteRequest);
+                if (response.hasErrors() && !response.errors().isEmpty()) {
+                    for (S3Error error : response.errors()) {
+                        LOG.warn("Lỗi khi xóa file trên Cloudflare R2 - Key: {}, Code: {}, Message: {}",
+                            error.key(), error.code(), error.message());
+                    }
+                } else {
+                    LOG.info("Xóa thành công batch {} files từ Cloudflare R2", batch.size());
+                }
             } catch (Exception e) {
-                LOG.error("Failed to batch delete files from Cloudflare R2", e);
+                LOG.error("Failed to batch delete files from Cloudflare R2 (batch size: {})", batch.size(), e);
             }
         }
     }
 
     public CompletableFuture<Void> deleteFilesAsync(Collection<String> fileKeysOrUrls) {
+        if (fileKeysOrUrls == null || fileKeysOrUrls.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
         return CompletableFuture.runAsync(() -> {
             try {
                 deleteFiles(fileKeysOrUrls);
@@ -297,27 +340,230 @@ public class FileStorageService {
         return trimmed;
     }
 
-    private static final long MAX_IMAGE_SIZE = 10L * 1024 * 1024; // 10MB
-    private static final long MAX_AUDIO_SIZE = 30L * 1024 * 1024; // 30MB
+    // --- Private Processing & Helper Methods ---
 
-    private void validateFile(MultipartFile file, String expectedTypePrefix) {
+    private FileUploadResponse executeAudioProcessing(Path tempInput, String originalFilename, long originalSize) {
+        Path tempOutput = null;
+        try {
+            File compressedFile = audioCompressionService.compressToMp3(tempInput.toFile());
+            tempOutput = compressedFile.toPath();
+
+            String fileKey = generateFileKey(originalFilename, "audio", ".mp3");
+            String contentType = "audio/mpeg";
+            long optimizedSize = Files.size(tempOutput);
+
+            LOG.info("Uploading optimized MP3 to Cloudflare R2 - Bucket: {}, Key: {}, Original: {} bytes, Optimized: {} bytes",
+                properties.getBucketName(), fileKey, originalSize, optimizedSize);
+
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(properties.getBucketName())
+                .key(fileKey)
+                .contentType(contentType)
+                .cacheControl(CACHE_CONTROL_IMMUTABLE)
+                .build();
+
+            s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
+
+            String fileUrl = buildPublicUrl(fileKey);
+            LOG.info("Optimized Audio uploaded successfully to R2: {}", fileUrl);
+
+            return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
+        } catch (Exception e) {
+            LOG.error("Failed to optimize and upload audio to Cloudflare R2", e);
+            throw new RuntimeException("Lỗi khi tối ưu và upload audio: " + e.getMessage(), e);
+        } finally {
+            safeDelete(tempInput);
+            safeDelete(tempOutput);
+        }
+    }
+
+    private FileUploadResponse executeImageProcessing(Path tempInput, String originalFilename, long originalSize) {
+        Path tempOutput = null;
+        try {
+            File compressedFile = imageCompressionService.compressToWebpFile(tempInput.toFile());
+            tempOutput = compressedFile.toPath();
+
+            String fileKey = generateFileKey(originalFilename, "images", ".webp");
+            String contentType = "image/webp";
+            long optimizedSize = Files.size(tempOutput);
+
+            LOG.info("Uploading optimized WebP to Cloudflare R2 - Bucket: {}, Key: {}, Original: {} bytes, Optimized: {} bytes",
+                properties.getBucketName(), fileKey, originalSize, optimizedSize);
+
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                .bucket(properties.getBucketName())
+                .key(fileKey)
+                .contentType(contentType)
+                .cacheControl(CACHE_CONTROL_IMMUTABLE)
+                .build();
+
+            s3Client.putObject(putRequest, RequestBody.fromFile(tempOutput));
+
+            String fileUrl = buildPublicUrl(fileKey);
+            LOG.info("Optimized Image uploaded successfully to R2: {}", fileUrl);
+
+            return new FileUploadResponse(fileKey, fileUrl, originalFilename, optimizedSize, contentType);
+        } catch (Exception e) {
+            LOG.error("Failed to optimize and upload image to Cloudflare R2", e);
+            throw new RuntimeException("Lỗi khi tối ưu và upload ảnh: " + e.getMessage(), e);
+        } finally {
+            safeDelete(tempInput);
+            safeDelete(tempOutput);
+        }
+    }
+
+    private void validateUploadedFile(MultipartFile file, long maxSizeBytes, Set<String> allowedExtensions, boolean isAudio) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("File không được để trống");
+            throw new IllegalArgumentException("File upload không được để trống");
         }
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith(expectedTypePrefix)) {
+        if (file.getSize() > maxSizeBytes) {
             throw new IllegalArgumentException(
-                "Định dạng file không hợp lệ. Kỳ vọng loại '%s', nhưng nhận được: '%s'".formatted(
-                    expectedTypePrefix, contentType)
+                "Kích thước file vượt quá giới hạn (%d MB). Kích thước hiện tại: %d MB"
+                    .formatted(maxSizeBytes / (1024 * 1024), file.getSize() / (1024 * 1024))
             );
         }
-        long maxSize = expectedTypePrefix.startsWith("image") ? MAX_IMAGE_SIZE : MAX_AUDIO_SIZE;
-        if (file.getSize() > maxSize) {
+
+        String extension = extractExtension(file.getOriginalFilename());
+        if (!allowedExtensions.contains(extension)) {
             throw new IllegalArgumentException(
-                "Kích thước file vượt quá giới hạn cho phép (%d MB). File hiện tại: %d MB".formatted(
-                    maxSize / (1024 * 1024), file.getSize() / (1024 * 1024))
+                "Định dạng file không được hỗ trợ: '%s'. Danh sách định dạng cho phép: %s"
+                    .formatted(extension, allowedExtensions)
             );
         }
+    }
+
+    private void validateMagicBytes(Path tempFile, boolean isAudio) throws IOException {
+        byte[] header = new byte[16];
+        int bytesRead;
+        try (InputStream is = Files.newInputStream(tempFile)) {
+            bytesRead = is.read(header);
+        }
+        if (bytesRead < 4) {
+            throw new IllegalArgumentException("File upload bị hỏng hoặc rỗng");
+        }
+
+        boolean valid = isAudio ? isAudioSignature(header, bytesRead) : isImageSignature(header, bytesRead);
+        if (!valid) {
+            throw new IllegalArgumentException(
+                "Nội dung file không khớp với định dạng công bố (Magic Bytes mismatch). Nguy cơ file độc hại!"
+            );
+        }
+    }
+
+    private static boolean isImageSignature(byte[] header, int length) {
+        if (header == null || length < 4) {
+            return false;
+        }
+        // JPEG: FF D8 FF
+        if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8 && (header[2] & 0xFF) == 0xFF) {
+            return true;
+        }
+        // PNG: 89 50 4E 47 0D 0A 1A 0A
+        if (length >= 8 && (header[0] & 0xFF) == 0x89 && header[1] == 0x50 && header[2] == 0x4E && header[3] == 0x47
+            && header[4] == 0x0D && header[5] == 0x0A && header[6] == 0x1A && header[7] == 0x0A) {
+            return true;
+        }
+        // GIF: GIF87a or GIF89a
+        if (header[0] == 'G' && header[1] == 'I' && header[2] == 'F' && header[3] == '8') {
+            return true;
+        }
+        // WebP: RIFF....WEBP (offset 0..3 is "RIFF", offset 8..11 is "WEBP")
+        if (length >= 12 && header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F'
+            && header[8] == 'W' && header[9] == 'E' && header[10] == 'B' && header[11] == 'P') {
+            return true;
+        }
+        // BMP: BM
+        if (header[0] == 'B' && header[1] == 'M') {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isAudioSignature(byte[] header, int length) {
+        if (header == null || length < 4) {
+            return false;
+        }
+        // MP3 with ID3v2 tag: "ID3"
+        if (header[0] == 'I' && header[1] == 'D' && header[2] == '3') {
+            return true;
+        }
+        // MP3 frame sync without ID3: 11 bits set (0xFF, 0xE0..0xFF)
+        if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xE0) == 0xE0) {
+            return true;
+        }
+        // WAV: RIFF....WAVE
+        if (length >= 12 && header[0] == 'R' && header[1] == 'I' && header[2] == 'F' && header[3] == 'F'
+            && header[8] == 'W' && header[9] == 'A' && header[10] == 'V' && header[11] == 'E') {
+            return true;
+        }
+        // OGG: "OggS"
+        if (header[0] == 'O' && header[1] == 'g' && header[2] == 'g' && header[3] == 'S') {
+            return true;
+        }
+        // FLAC: "fLaC"
+        if (header[0] == 'f' && header[1] == 'L' && header[2] == 'a' && header[3] == 'C') {
+            return true;
+        }
+        // M4A / MP4 Audio: bytes 4..7 are "ftyp"
+        if (length >= 8 && header[4] == 'f' && header[5] == 't' && header[6] == 'y' && header[7] == 'p') {
+            return true;
+        }
+        // AAC ADTS sync: 12 bits set (0xFF, 0xF0..0xFF)
+        if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xF0) == 0xF0) {
+            return true;
+        }
+        return false;
+    }
+
+    private String sanitizeFolder(String folder) {
+        if (folder == null || folder.isBlank()) {
+            return "general";
+        }
+        String sanitized = folder.trim()
+            .replaceAll("[^a-zA-Z0-9_/-]", "_")
+            .replaceAll("/{2,}", "/")
+            .replaceAll("^/+", "")
+            .replaceAll("/+$", "");
+        if (sanitized.contains("..") || sanitized.isBlank()) {
+            return "general";
+        }
+        return sanitized;
+    }
+
+    private String sanitizeFilename(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return "file";
+        }
+        String clean = filename.replaceAll("^.*[/\\\\]", "").replaceAll("\0", "");
+        int lastDot = clean.lastIndexOf('.');
+        String nameWithoutExt = lastDot > 0 ? clean.substring(0, lastDot) : clean;
+        String sanitized = nameWithoutExt.replaceAll("[^a-zA-Z0-9._-]", "_");
+        if (sanitized.isBlank()) {
+            sanitized = "file";
+        } else if (sanitized.length() > 50) {
+            sanitized = sanitized.substring(0, 50);
+        }
+        return sanitized;
+    }
+
+    private String extractExtension(String filename) {
+        if (filename == null || filename.isBlank()) {
+            return "";
+        }
+        String clean = filename.replaceAll("^.*[/\\\\]", "").replaceAll("\0", "");
+        int lastDot = clean.lastIndexOf('.');
+        if (lastDot < 0 || lastDot == clean.length() - 1) {
+            return "";
+        }
+        return clean.substring(lastDot + 1).toLowerCase(Locale.ROOT);
+    }
+
+    private String generateFileKey(String originalFilename, String folder, String targetExtension) {
+        String safeFolder = sanitizeFolder(folder);
+        String safeName = sanitizeFilename(originalFilename);
+        String uniquePrefix = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        String safeExt = targetExtension.startsWith(".") ? targetExtension : "." + targetExtension;
+        return "%s/%s_%s%s".formatted(safeFolder, uniquePrefix, safeName, safeExt);
     }
 
     private String buildPublicUrl(String fileKey) {
@@ -328,22 +574,13 @@ public class FileStorageService {
         return "%s/%s/%s".formatted(properties.getEndpoint().replaceAll("/$", ""), properties.getBucketName(), fileKey);
     }
 
-    private String generateFileKey(String originalFilename, String folder, String targetExtension) {
-        if (originalFilename != null && !originalFilename.isBlank()) {
-            String cleanName = originalFilename.replaceAll("^.*[/\\\\]", "");
-            int lastDot = cleanName.lastIndexOf('.');
-            String nameWithoutExt = lastDot > 0 ? cleanName.substring(0, lastDot) : cleanName;
-
-            String sanitized = nameWithoutExt.replaceAll("[^a-zA-Z0-9._-]", "_");
-            if (sanitized.isBlank()) {
-                sanitized = "file";
-            } else if (sanitized.length() > 50) {
-                sanitized = sanitized.substring(0, 50);
+    private void safeDelete(Path path) {
+        if (path != null) {
+            try {
+                Files.deleteIfExists(path);
+            } catch (IOException e) {
+                LOG.warn("Không thể xóa file tạm: {}", path, e);
             }
-
-            String uniquePrefix = UUID.randomUUID().toString().substring(0, 8);
-            return "%s/%s_%s%s".formatted(folder, uniquePrefix, sanitized, targetExtension);
         }
-        return "%s/%s%s".formatted(folder, UUID.randomUUID().toString(), targetExtension);
     }
 }

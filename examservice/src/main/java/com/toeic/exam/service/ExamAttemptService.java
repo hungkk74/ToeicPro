@@ -16,6 +16,7 @@ import com.toeic.exam.service.dto.ExamAttemptHistoryDTO;
 import com.toeic.exam.service.dto.ExamResultDTO;
 import com.toeic.exam.service.dto.ExamSubmissionDTO;
 import com.toeic.exam.service.dto.QuestionAnswerSubmissionDTO;
+import com.toeic.exam.service.dto.StartExamAttemptDTO;
 import com.toeic.exam.service.dto.review.ExamReviewDTO;
 import com.toeic.exam.service.mapper.ExamAttemptMapper;
 import com.toeic.exam.service.util.ExamScoringEngine;
@@ -34,7 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Service điều phối quản lý và chấm bài {@link com.toeic.exam.domain.ExamAttempt}.
+ * Service điều phối quản lý và chấm bài ExamAttempt
  */
 @Service
 @Transactional
@@ -71,38 +72,36 @@ public class ExamAttemptService {
         this.examReviewService = examReviewService;
     }
 
-    public ExamAttemptDTO save(ExamAttemptDTO examAttemptDTO) {
-        LOG.debug("Request to save ExamAttempt : {}", examAttemptDTO);
+    public ExamAttemptDTO save(StartExamAttemptDTO startDTO) {
+        LOG.debug("Request to start ExamAttempt for examId: {}", startDTO.examId());
         String currentUser = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccessDeniedException("Yêu cầu đăng nhập để bắt đầu bài thi!"));
-        examAttemptDTO.setUserId(currentUser);
 
-        if (examAttemptDTO.getExam() == null || examAttemptDTO.getExam().getId() == null) {
+        if (startDTO.examId() == null) {
             throw new IllegalArgumentException("Đề thi không hợp lệ");
         }
-        Exam exam = examRepository.findById(examAttemptDTO.getExam().getId())
-            .orElseThrow(() -> new EntityNotFoundException("Exam not found with id: " + examAttemptDTO.getExam().getId()));
-        if (!Boolean.TRUE.equals(exam.getIsPublished())) {
-            throw new IllegalStateException("Đề thi chưa được công bố!");
+        if (!examRepository.existsByIdAndIsPublishedTrue(startDTO.examId())) {
+            throw new EntityNotFoundException("Đề thi không tồn tại hoặc chưa được công bố: " + startDTO.examId());
         }
 
-        examAttemptDTO.setStatus(AttemptStatus.IN_PROGRESS);
-        examAttemptDTO.setListeningScore(null);
-        examAttemptDTO.setReadingScore(null);
-        examAttemptDTO.setTotalScore(null);
-        examAttemptDTO.setCorrectAnswers(0);
-        examAttemptDTO.setWrongAnswers(0);
-        examAttemptDTO.setSkippedAnswers(0);
-        examAttemptDTO.setStartedAt(Instant.now());
-        examAttemptDTO.setCompletedAt(null);
+        Exam examRef = examRepository.getReferenceById(startDTO.examId());
 
-        ExamAttempt examAttempt = examAttemptMapper.toEntity(examAttemptDTO);
+        ExamAttempt examAttempt = ExamAttempt.start(currentUser, examRef);
         examAttempt = examAttemptRepository.save(examAttempt);
         return examAttemptMapper.toDto(examAttempt);
     }
 
+    public ExamAttemptDTO save(ExamAttemptDTO dto) {
+        LOG.debug("Request to save ExamAttempt : {}", dto);
+        Long examId = dto.getExam() != null ? dto.getExam().getId() : null;
+        return save(new StartExamAttemptDTO(dto.getId(), examId));
+    }
+
     public ExamAttemptDTO update(ExamAttemptDTO examAttemptDTO) {
         LOG.debug("Request to update ExamAttempt : {}", examAttemptDTO);
+        ExamAttempt existing = examAttemptRepository.findOneWithToOneRelationships(examAttemptDTO.getId())
+            .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + examAttemptDTO.getId()));
+        checkOwnershipOrAdmin(existing.getUserId(), "Bạn không có quyền cập nhật bài thi này!");
         ExamAttempt examAttempt = examAttemptMapper.toEntity(examAttemptDTO);
         examAttempt = examAttemptRepository.save(examAttempt);
         return examAttemptMapper.toDto(examAttempt);
@@ -112,8 +111,9 @@ public class ExamAttemptService {
         LOG.debug("Request to partially update ExamAttempt : {}", examAttemptDTO);
 
         return examAttemptRepository
-            .findById(examAttemptDTO.getId())
+            .findOneWithToOneRelationships(examAttemptDTO.getId())
             .map(existingExamAttempt -> {
+                checkOwnershipOrAdmin(existingExamAttempt.getUserId(), "Bạn không có quyền cập nhật bài thi này!");
                 examAttemptMapper.partialUpdate(existingExamAttempt, examAttemptDTO);
                 return existingExamAttempt;
             })
@@ -141,19 +141,27 @@ public class ExamAttemptService {
 
     public void delete(Long id) {
         LOG.debug("Request to delete ExamAttempt : {}", id);
-        examAttemptRepository.deleteById(id);
+        examAttemptRepository.findOneWithToOneRelationships(id).ifPresent(attempt -> {
+            checkOwnershipOrAdmin(attempt.getUserId(), "Bạn không có quyền xóa bài thi này!");
+            userAnswerRepository.deleteByExamAttemptId(id);
+            examAttemptRepository.deleteById(id);
+        });
     }
 
+    @Transactional(timeout = 10)
     public ExamResultDTO submitExam(Long attemptId, ExamSubmissionDTO dto) {
         LOG.debug("Request to submit ExamAttempt : {}", attemptId);
 
-        ExamAttempt attempt = examAttemptRepository.findOneForUpdate(attemptId)
+        ExamAttemptRepository.AttemptAuthView auth = examAttemptRepository
+            .findAuthById(attemptId)
             .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + attemptId));
-        if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
+        if (auth.getStatus() != AttemptStatus.IN_PROGRESS) {
             throw new IllegalStateException("Bài thi đã được nộp trước đó");
         }
+        checkOwnershipOrAdmin(auth.getUserId(), "Bạn không có quyền nộp bài thi này!");
 
-        checkOwnershipOrAdmin(attempt.getUserId(), "Bạn không có quyền nộp bài thi này!");
+        ExamAttempt attempt = examAttemptRepository.findOneForUpdate(attemptId)
+            .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + attemptId));
 
         List<Question> allQuestions;
         if (attempt.getExam() != null && attempt.getExam().getId() != null) {
@@ -175,15 +183,16 @@ public class ExamAttemptService {
         userAnswerRepository.deleteByExamAttemptId(attemptId);
         userAnswerBatchRepository.batchInsert(attemptId, scored.userAnswers());
 
-        attempt.setStatus(AttemptStatus.COMPLETED);
-        attempt.setListeningScore(scored.listeningScore());
-        attempt.setReadingScore(scored.readingScore());
-        attempt.setTotalScore(scored.totalScore());
-        attempt.setCorrectAnswers(scored.correctAnswers());
-        attempt.setWrongAnswers(scored.wrongAnswers());
-        attempt.setSkippedAnswers(scored.skippedAnswers());
-        attempt.setTimeSpentSeconds(scored.timeSpentSeconds());
-        attempt.setCompletedAt(scored.completedAt());
+        attempt.complete(
+            scored.listeningScore(),
+            scored.readingScore(),
+            scored.totalScore(),
+            scored.correctAnswers(),
+            scored.wrongAnswers(),
+            scored.skippedAnswers(),
+            scored.timeSpentSeconds(),
+            scored.completedAt()
+        );
         attempt = examAttemptRepository.saveAndFlush(attempt);
 
         return buildResultDTO(attempt);
@@ -199,46 +208,22 @@ public class ExamAttemptService {
         String currentUserId = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccessDeniedException("User not authenticated"));
 
-        return examAttemptRepository.findCompletedByUserId(currentUserId, pageable)
-            .map(a -> new ExamAttemptHistoryDTO(
-                a.getId(),
-                a.getExam() != null ? a.getExam().getId() : null,
-                a.getExam() != null ? a.getExam().getTitle() : null,
-                a.getListeningScore(),
-                a.getReadingScore(),
-                a.getTotalScore(),
-                a.getCorrectAnswers(),
-                a.getWrongAnswers(),
-                a.getSkippedAnswers(),
-                a.getTimeSpentSeconds(),
-                a.getStartedAt(),
-                a.getCompletedAt()
-            ));
+        return examAttemptRepository.findHistoryByUserId(currentUserId, pageable);
     }
 
     public void cancelAttempt(Long attemptId) {
         LOG.debug("Request to cancel in-progress ExamAttempt : {}", attemptId);
-        ExamAttempt attempt = examAttemptRepository.findById(attemptId)
+        ExamAttempt attempt = examAttemptRepository.findOneWithToOneRelationships(attemptId)
             .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + attemptId));
 
-        if (attempt.getStatus() != AttemptStatus.IN_PROGRESS) {
-            throw new IllegalStateException("Chỉ có thể hủy bài thi đang trong tiến trình làm!");
-        }
-
+        attempt.validateCanCancel();
         checkOwnershipOrAdmin(attempt.getUserId(), "Bạn không có quyền hủy bài thi này!");
 
         userAnswerRepository.deleteByExamAttemptId(attemptId);
-        examAttemptRepository.delete(attempt);
+        examAttemptRepository.deleteById(attemptId);
     }
 
     private ExamResultDTO buildResultDTO(ExamAttempt attempt) {
-        int correctCount = attempt.getCorrectAnswers() != null ? attempt.getCorrectAnswers() : 0;
-        int wrongCount = attempt.getWrongAnswers() != null ? attempt.getWrongAnswers() : 0;
-        int skippedCount = attempt.getSkippedAnswers() != null ? attempt.getSkippedAnswers() : 0;
-        int answeredCount = correctCount + wrongCount;
-        int totalQuestions = answeredCount + skippedCount;
-        boolean canViewAnswers = totalQuestions > 0 && ((long) answeredCount * 100 >= (long) totalQuestions * 80);
-
         return new ExamResultDTO(
             attempt.getId(),
             attempt.getExam() != null ? attempt.getExam().getId() : null,
@@ -252,7 +237,7 @@ public class ExamAttemptService {
             attempt.getSkippedAnswers(),
             attempt.getTimeSpentSeconds(),
             attempt.getCompletedAt(),
-            canViewAnswers
+            attempt.canViewAnswers()
         );
     }
 

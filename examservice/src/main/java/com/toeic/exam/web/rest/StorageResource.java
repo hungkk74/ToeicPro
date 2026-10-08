@@ -3,6 +3,7 @@ package com.toeic.exam.web.rest;
 import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.FileStorageService;
 import com.toeic.exam.service.dto.FileUploadResponse;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/api/storage")
+@Validated
 @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
 public class StorageResource {
 
@@ -39,13 +42,12 @@ public class StorageResource {
     }
 
     /**
-     * POST /api/storage/upload/image : Upload hình ảnh đề thi TOEIC.
+     * POST /api/storage/upload/image : Upload hình ảnh đề thi TOEIC (Async non-blocking worker).
      */
     @PostMapping(value = "/upload/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<FileUploadResponse> uploadImage(@RequestParam("file") MultipartFile file) {
+    public CompletableFuture<ResponseEntity<FileUploadResponse>> uploadImage(@RequestParam("file") MultipartFile file) {
         LOG.debug("REST request to upload image file: {}", file.getOriginalFilename());
-        FileUploadResponse response = fileStorageService.uploadImage(file);
-        return ResponseEntity.ok(response);
+        return fileStorageService.processImageAsync(file).thenApply(ResponseEntity::ok);
     }
 
     /**
@@ -62,7 +64,7 @@ public class StorageResource {
      * DELETE /api/storage/files : Xóa nhiều file theo danh sách fileKey hoặc URL.
      */
     @DeleteMapping("/files")
-    public ResponseEntity<Void> deleteFiles(@RequestBody List<String> fileKeys) {
+    public ResponseEntity<Void> deleteFiles(@RequestBody @Size(max = 200) List<String> fileKeys) {
         LOG.debug("REST request to delete files: {}", fileKeys);
         fileStorageService.deleteFiles(fileKeys);
         return ResponseEntity.noContent().build();

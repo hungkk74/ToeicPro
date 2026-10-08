@@ -58,31 +58,21 @@ public class PartService {
     }
 
     @Transactional(readOnly = true)
-    public List<PartDTO> findAll() {
-        LOG.debug("Request to get all Parts");
-        return partRepository.findAll().stream().map(partMapper::toDto).toList();
-    }
-
-    @Transactional(readOnly = true)
     public Page<PartDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get a page of Parts");
-        return partRepository.findAll(pageable).map(partMapper::toDto);
-    }
-
-    @Transactional(readOnly = true)
-    public List<PartDTO> findAllWithEagerRelationships() {
-        LOG.debug("Request to get all Parts with eager relationships");
-        return partRepository
-            .findAllWithEagerRelationships()
-            .stream()
-            .map(partMapper::toDto)
-            .toList();
+        return findAllWithEagerRelationships(pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<PartDTO> findAllWithEagerRelationships(Pageable pageable) {
         LOG.debug("Request to get a page of Parts with eager relationships");
         return partRepository.findAllWithEagerRelationships(pageable).map(partMapper::toDto);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PartDTO> findAllWithEagerRelationships() {
+        LOG.debug("Request to get all Parts with eager relationships");
+        return partRepository.findAllWithEagerRelationships().stream().map(partMapper::toDto).toList();
     }
 
     @Transactional(readOnly = true)

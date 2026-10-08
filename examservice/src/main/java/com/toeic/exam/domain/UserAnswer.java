@@ -11,7 +11,12 @@ import java.io.Serializable;
 // Chi tiết đáp án học viên chọn cho từng câu hỏi
  */
 @Entity
-@Table(name = "user_answer")
+@Table(
+    name = "user_answer",
+    indexes = {
+        @Index(name = "idx_user_answer_attempt_id", columnList = "exam_attempt_id")
+    }
+)
 @SuppressWarnings("common-java:DuplicatedBlocks")
 public class UserAnswer implements Serializable {
 

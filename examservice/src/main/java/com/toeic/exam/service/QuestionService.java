@@ -59,7 +59,7 @@ public class QuestionService {
     @Transactional(readOnly = true)
     public Page<QuestionDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get all Questions");
-        return questionRepository.findAll(pageable).map(questionMapper::toDto);
+        return findAllWithEagerRelationships(pageable);
     }
 
     @Transactional(readOnly = true)

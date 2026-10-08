@@ -1,8 +1,9 @@
 package com.toeic.exam.service.dto.create;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
-import jakarta.validation.constraints.Size;
 
 public class QuestionGroupCreateDTO implements Serializable {
 
@@ -14,6 +15,7 @@ public class QuestionGroupCreateDTO implements Serializable {
     @Size(max = 1000)
     private String audioUrl;
 
+    @Valid
     private List<QuestionCreateDTO> questions;
 
     public String getPassageText() {

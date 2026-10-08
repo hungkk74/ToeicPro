@@ -14,8 +14,10 @@ import com.toeic.exam.domain.Exam;
 import com.toeic.exam.domain.ExamAttempt;
 import com.toeic.exam.domain.enumeration.AttemptStatus;
 import com.toeic.exam.repository.ExamAttemptRepository;
+import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.ExamAttemptService;
 import com.toeic.exam.service.dto.ExamAttemptDTO;
+import com.toeic.exam.service.dto.StartExamAttemptDTO;
 import com.toeic.exam.service.mapper.ExamAttemptMapper;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
@@ -44,7 +46,7 @@ import tools.jackson.databind.ObjectMapper;
 @IntegrationTest
 @ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
-@WithMockUser
+@WithMockUser(authorities = AuthoritiesConstants.ADMIN)
 class ExamAttemptResourceIT {
 
     private static final String DEFAULT_USER_ID = "AAAAAAAAAA";
@@ -134,10 +136,14 @@ class ExamAttemptResourceIT {
         Exam exam;
         if (TestUtil.findAll(em, Exam.class).isEmpty()) {
             exam = ExamResourceIT.createEntity();
+            exam.setIsPublished(true);
             em.persist(exam);
             em.flush();
         } else {
             exam = TestUtil.findAll(em, Exam.class).get(0);
+            exam.setIsPublished(true);
+            em.merge(exam);
+            em.flush();
         }
         examAttempt.setExam(exam);
         return examAttempt;
@@ -166,10 +172,14 @@ class ExamAttemptResourceIT {
         Exam exam;
         if (TestUtil.findAll(em, Exam.class).isEmpty()) {
             exam = ExamResourceIT.createUpdatedEntity();
+            exam.setIsPublished(true);
             em.persist(exam);
             em.flush();
         } else {
             exam = TestUtil.findAll(em, Exam.class).get(0);
+            exam.setIsPublished(true);
+            em.merge(exam);
+            em.flush();
         }
         updatedExamAttempt.setExam(exam);
         return updatedExamAttempt;
@@ -193,11 +203,11 @@ class ExamAttemptResourceIT {
     void createExamAttempt() throws Exception {
         long databaseSizeBeforeCreate = getRepositoryCount();
         // Create the ExamAttempt
-        ExamAttemptDTO examAttemptDTO = examAttemptMapper.toDto(examAttempt);
-        var returnedExamAttemptDTO = om.readValue(
+        StartExamAttemptDTO startDTO = new StartExamAttemptDTO(examAttempt.getExam().getId());
+        ExamAttemptDTO returnedExamAttemptDTO = om.readValue(
             restExamAttemptMockMvc
                 .perform(
-                    post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(examAttemptDTO))
+                    post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(startDTO))
                 )
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -208,8 +218,9 @@ class ExamAttemptResourceIT {
 
         // Validate the ExamAttempt in the database
         assertIncrementedRepositoryCount(databaseSizeBeforeCreate);
-        var returnedExamAttempt = examAttemptMapper.toEntity(returnedExamAttemptDTO);
-        assertExamAttemptUpdatableFieldsEquals(returnedExamAttempt, getPersistedExamAttempt(returnedExamAttempt));
+        ExamAttempt returnedExamAttempt = examAttemptMapper.toEntity(returnedExamAttemptDTO);
+        assertThat(returnedExamAttempt.getId()).isNotNull();
+        assertThat(returnedExamAttempt.getStatus()).isEqualTo(AttemptStatus.IN_PROGRESS);
 
         insertedExamAttempt = returnedExamAttempt;
     }
@@ -218,15 +229,14 @@ class ExamAttemptResourceIT {
     @Transactional
     void createExamAttemptWithExistingId() throws Exception {
         // Create the ExamAttempt with an existing ID
-        examAttempt.setId(1L);
-        ExamAttemptDTO examAttemptDTO = examAttemptMapper.toDto(examAttempt);
+        StartExamAttemptDTO startDTO = new StartExamAttemptDTO(1L, examAttempt.getExam().getId());
 
         long databaseSizeBeforeCreate = getRepositoryCount();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restExamAttemptMockMvc
             .perform(
-                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(examAttemptDTO))
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(startDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -236,55 +246,13 @@ class ExamAttemptResourceIT {
 
     @Test
     @Transactional
-    void checkUserIdIsRequired() throws Exception {
+    void checkExamIdIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
-        // set the field null
-        examAttempt.setUserId(null);
-
-        // Create the ExamAttempt, which fails.
-        ExamAttemptDTO examAttemptDTO = examAttemptMapper.toDto(examAttempt);
+        StartExamAttemptDTO startDTO = new StartExamAttemptDTO(null, null);
 
         restExamAttemptMockMvc
             .perform(
-                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(examAttemptDTO))
-            )
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    void checkStatusIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        // set the field null
-        examAttempt.setStatus(null);
-
-        // Create the ExamAttempt, which fails.
-        ExamAttemptDTO examAttemptDTO = examAttemptMapper.toDto(examAttempt);
-
-        restExamAttemptMockMvc
-            .perform(
-                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(examAttemptDTO))
-            )
-            .andExpect(status().isBadRequest());
-
-        assertSameRepositoryCount(databaseSizeBeforeTest);
-    }
-
-    @Test
-    @Transactional
-    void checkStartedAtIsRequired() throws Exception {
-        long databaseSizeBeforeTest = getRepositoryCount();
-        // set the field null
-        examAttempt.setStartedAt(null);
-
-        // Create the ExamAttempt, which fails.
-        ExamAttemptDTO examAttemptDTO = examAttemptMapper.toDto(examAttempt);
-
-        restExamAttemptMockMvc
-            .perform(
-                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(examAttemptDTO))
+                post(ENTITY_API_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(om.writeValueAsBytes(startDTO))
             )
             .andExpect(status().isBadRequest());
 

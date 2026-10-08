@@ -6,6 +6,7 @@ import com.toeic.exam.service.dto.ExamAttemptDTO;
 import com.toeic.exam.service.dto.ExamAttemptHistoryDTO;
 import com.toeic.exam.service.dto.ExamResultDTO;
 import com.toeic.exam.service.dto.ExamSubmissionDTO;
+import com.toeic.exam.service.dto.StartExamAttemptDTO;
 import com.toeic.exam.security.AuthoritiesConstants;
 import com.toeic.exam.service.dto.review.ExamReviewDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,12 +62,12 @@ public class ExamAttemptResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("")
-    public ResponseEntity<ExamAttemptDTO> createExamAttempt(@Valid @RequestBody ExamAttemptDTO examAttemptDTO) throws URISyntaxException {
-        LOG.debug("REST request to save ExamAttempt : {}", examAttemptDTO);
-        if (examAttemptDTO.getId() != null) {
+    public ResponseEntity<ExamAttemptDTO> createExamAttempt(@Valid @RequestBody StartExamAttemptDTO startDTO) throws URISyntaxException {
+        LOG.debug("REST request to start ExamAttempt : {}", startDTO);
+        if (startDTO.id() != null) {
             throw new BadRequestAlertException("A new examAttempt cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        examAttemptDTO = examAttemptService.save(examAttemptDTO);
+        ExamAttemptDTO examAttemptDTO = examAttemptService.save(startDTO);
         return ResponseEntity.created(new URI("/api/exam-attempts/" + examAttemptDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, examAttemptDTO.getId().toString()))
             .body(examAttemptDTO);

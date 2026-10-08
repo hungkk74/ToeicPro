@@ -431,8 +431,8 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
           timeSpentSeconds: result.timeSpentSeconds,
           completedAt: new Date().toISOString(),
         };
-        localStorage.setItem(`toeic_latest_attempt_${examId}`, JSON.stringify(latestResultItem));
         localStorage.setItem(`toeic_latest_attempt_${userScope}_${examId}`, JSON.stringify(latestResultItem));
+        localStorage.removeItem(`toeic_latest_attempt_${examId}`);
       } catch {
         // noop
       }
@@ -442,6 +442,7 @@ export function useExamRunner(examId: string, reviewAttemptIdParam: string | nul
       try {
         localStorage.removeItem(progressKey);
         localStorage.removeItem(`exam_progress_${examId}`);
+        localStorage.removeItem(`toeic_latest_attempt_${examId}`);
       } catch {
         // noop
       }

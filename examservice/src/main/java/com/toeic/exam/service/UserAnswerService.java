@@ -59,7 +59,7 @@ public class UserAnswerService {
     @Transactional(readOnly = true)
     public Page<UserAnswerDTO> findAll(Pageable pageable) {
         LOG.debug("Request to get all UserAnswers");
-        return userAnswerRepository.findAll(pageable).map(userAnswerMapper::toDto);
+        return findAllWithEagerRelationships(pageable);
     }
 
     @Transactional(readOnly = true)

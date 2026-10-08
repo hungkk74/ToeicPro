@@ -40,7 +40,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     @Query("select question from Question question left join fetch question.part where question.id =:id")
     Optional<Question> findOneWithToOneRelationships(@Param("id") Long id);
 
-    @Query("SELECT q FROM Question q LEFT JOIN FETCH q.part WHERE q.id IN :ids")
+    @Query("SELECT q FROM Question q JOIN FETCH q.part WHERE q.id IN :ids")
     List<Question> findAllByIdInWithPart(@Param("ids") Collection<Long> ids);
 
     @Query("SELECT q FROM Question q JOIN FETCH q.part p LEFT JOIN FETCH q.questionGroup WHERE p.exam.id = :examId ORDER BY q.questionNumber ASC")

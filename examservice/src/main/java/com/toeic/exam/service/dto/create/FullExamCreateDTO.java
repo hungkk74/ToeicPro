@@ -1,10 +1,12 @@
 package com.toeic.exam.service.dto.create;
 
 import com.toeic.exam.domain.enumeration.ExamCategory;
-import java.io.Serializable;
-import java.util.List;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.List;
 
 public class FullExamCreateDTO implements Serializable {
 
@@ -31,6 +33,8 @@ public class FullExamCreateDTO implements Serializable {
     @NotNull
     private Boolean isPublished;
 
+    @Valid
+    @NotEmpty
     private List<PartCreateDTO> parts;
 
     public String getCode() {

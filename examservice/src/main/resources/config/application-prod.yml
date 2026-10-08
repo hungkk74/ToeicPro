@@ -45,7 +45,7 @@ spring:
       port: 8500
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/examservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&rewriteBatchedStatements=true
+    url: jdbc:mysql://localhost:3306/examservice?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&rewriteBatchedStatements=true&connectTimeout=3000&socketTimeout=10000
     hikari:
       poolName: Hikari
       auto-commit: false

@@ -143,43 +143,35 @@ public class ExamService {
     public void delete(Long id) {
         LOG.debug("Request to delete Exam : {}", id);
 
-        // 1. Thu thập danh sách file URLs/keys trên R2 trước khi xóa dữ liệu DB
-        Set<String> filesToDelete = new HashSet<>();
-
-        List<String> examAudios = entityManager.createQuery(
-            "SELECT e.audioFullUrl FROM Exam e WHERE e.id = :examId AND e.audioFullUrl IS NOT NULL",
-            String.class
-        ).setParameter("examId", id).getResultList();
-        filesToDelete.addAll(examAudios);
-
-        List<String> groupAudios = entityManager.createQuery(
-            "SELECT g.audioUrl FROM QuestionGroup g WHERE g.part.exam.id = :examId AND g.audioUrl IS NOT NULL",
-            String.class
-        ).setParameter("examId", id).getResultList();
-        filesToDelete.addAll(groupAudios);
-
-        List<String> groupImages = entityManager.createQuery(
-            "SELECT g.imageUrl FROM QuestionGroup g WHERE g.part.exam.id = :examId AND g.imageUrl IS NOT NULL",
-            String.class
-        ).setParameter("examId", id).getResultList();
-        filesToDelete.addAll(groupImages);
-
-        List<String> questionAudios = entityManager.createQuery(
-            "SELECT q.audioUrl FROM Question q WHERE q.part.exam.id = :examId AND q.audioUrl IS NOT NULL",
-            String.class
-        ).setParameter("examId", id).getResultList();
-        filesToDelete.addAll(questionAudios);
-
-        List<String> questionImages = entityManager.createQuery(
-            "SELECT q.imageUrl FROM Question q WHERE q.part.exam.id = :examId AND q.imageUrl IS NOT NULL",
-            String.class
-        ).setParameter("examId", id).getResultList();
-        filesToDelete.addAll(questionImages);
-
-        // 2. Xóa các thực thể con theo thứ tự khóa ngoại trong DB
-        entityManager.createQuery("DELETE FROM UserAnswer u WHERE u.examAttempt.id IN (SELECT a.id FROM ExamAttempt a WHERE a.exam.id = :examId)")
+        // 1. Thu thập danh sách file URLs/keys trên R2 trước khi xóa dữ liệu DB bằng 1 native UNION query
+        String fileUrlsSql = """
+            SELECT e.audio_full_url AS url FROM exam e WHERE e.id = :examId AND e.audio_full_url IS NOT NULL
+            UNION
+            SELECT g.audio_url AS url FROM question_group g JOIN part p ON g.part_id = p.id WHERE p.exam_id = :examId AND g.audio_url IS NOT NULL
+            UNION
+            SELECT g.image_url AS url FROM question_group g JOIN part p ON g.part_id = p.id WHERE p.exam_id = :examId AND g.image_url IS NOT NULL
+            UNION
+            SELECT q.audio_url AS url FROM question q JOIN part p ON q.part_id = p.id WHERE p.exam_id = :examId AND q.audio_url IS NOT NULL
+            UNION
+            SELECT q.image_url AS url FROM question q JOIN part p ON q.part_id = p.id WHERE p.exam_id = :examId AND q.image_url IS NOT NULL
+            """;
+        @SuppressWarnings("unchecked")
+        List<String> fileList = entityManager.createNativeQuery(fileUrlsSql)
             .setParameter("examId", id)
-            .executeUpdate();
+            .getResultList();
+        Set<String> filesToDelete = new HashSet<>(fileList);
+
+        // 2. Xóa các thực thể con theo thứ tự khóa ngoại trong DB (tách subquery tránh lock/lỗi MySQL)
+        List<Long> attemptIds = entityManager.createQuery(
+            "SELECT a.id FROM ExamAttempt a WHERE a.exam.id = :examId",
+            Long.class
+        ).setParameter("examId", id).getResultList();
+
+        if (!attemptIds.isEmpty()) {
+            entityManager.createQuery("DELETE FROM UserAnswer u WHERE u.examAttempt.id IN :attemptIds")
+                .setParameter("attemptIds", attemptIds)
+                .executeUpdate();
+        }
 
         entityManager.createQuery("DELETE FROM ExamAttempt a WHERE a.exam.id = :examId")
             .setParameter("examId", id)
