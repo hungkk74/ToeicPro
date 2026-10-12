@@ -1,0 +1,176 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1791788477819,
+  "projectRoot": "d:\\Projects\\Toeic_Pro",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "courseservice": {
+      "path": "courseservice",
+      "purpose": null,
+      "fileCount": 15,
+      "lastAccessed": 1791788477723,
+      "keyFiles": [
+        "checkstyle.xml",
+        "courseservice.jdl",
+        "mvnw",
+        "mvnw.cmd",
+        "package-lock.json"
+      ]
+    },
+    "docker": {
+      "path": "docker",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1791788477723,
+      "keyFiles": []
+    },
+    "examservice": {
+      "path": "examservice",
+      "purpose": null,
+      "fileCount": 15,
+      "lastAccessed": 1791788477724,
+      "keyFiles": [
+        "checkstyle.xml",
+        "mvnw",
+        "mvnw.cmd",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "frontend": {
+      "path": "frontend",
+      "purpose": null,
+      "fileCount": 10,
+      "lastAccessed": 1791788477725,
+      "keyFiles": [
+        "Dockerfile",
+        "next-env.d.ts",
+        "next.config.mjs",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "gateway": {
+      "path": "gateway",
+      "purpose": null,
+      "fileCount": 25,
+      "lastAccessed": 1791788477725,
+      "keyFiles": [
+        "checkstyle.xml",
+        "cypress.config.ts",
+        "eslint.config.ts",
+        "gateway.iml",
+        "mvnw"
+      ]
+    },
+    "notificationservice": {
+      "path": "notificationservice",
+      "purpose": null,
+      "fileCount": 14,
+      "lastAccessed": 1791788477726,
+      "keyFiles": [
+        "checkstyle.xml",
+        "mvnw",
+        "mvnw.cmd",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "paymentservice": {
+      "path": "paymentservice",
+      "purpose": null,
+      "fileCount": 14,
+      "lastAccessed": 1791788477726,
+      "keyFiles": [
+        "checkstyle.xml",
+        "mvnw",
+        "mvnw.cmd",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "subscriptionservice": {
+      "path": "subscriptionservice",
+      "purpose": null,
+      "fileCount": 14,
+      "lastAccessed": 1791788477726,
+      "keyFiles": [
+        "checkstyle.xml",
+        "mvnw",
+        "mvnw.cmd",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "target": {
+      "path": "target",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1791788477727,
+      "keyFiles": [
+        "spotless-index"
+      ]
+    },
+    "userservice": {
+      "path": "userservice",
+      "purpose": null,
+      "fileCount": 15,
+      "lastAccessed": 1791788477727,
+      "keyFiles": [
+        "checkstyle.xml",
+        "mvnw",
+        "mvnw.cmd",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "frontend\\node_modules": {
+      "path": "frontend\\node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1791788477730,
+      "keyFiles": []
+    },
+    "frontend\\public": {
+      "path": "frontend\\public",
+      "purpose": "Public files",
+      "fileCount": 4,
+      "lastAccessed": 1791788477731,
+      "keyFiles": [
+        "banner.png",
+        "favicon.ico",
+        "logo.png"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

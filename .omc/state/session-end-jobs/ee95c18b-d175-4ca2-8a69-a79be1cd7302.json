@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "jobId": "c43c47f6-aa01-47ef-b60b-3fde47283044",
+  "sessionId": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+  "scopeKey": "673fbf3fa822ce4826fb1da34ffd3d157f38aa171c30837e5b20b0fcfe5cbebb",
+  "revision": 75,
+  "createdAt": "2026-10-12T07:01:20.012Z",
+  "updatedAt": "2026-10-12T07:01:58.642Z",
+  "producerGraceExpiresAt": "2026-10-12T07:01:50.013Z",
+  "bestEffortDeadlineAt": "2026-10-12T07:02:43.013Z",
+  "producers": {
+    "core": {
+      "state": "sealed",
+      "intentKey": "3a131c41b9171f022994c884c74ab059b7fb7bde4db7c611b75de2a0554dcb75",
+      "payloadDigest": "3a131c41b9171f022994c884c74ab059b7fb7bde4db7c611b75de2a0554dcb75",
+      "sealedAt": "2026-10-12T07:01:53.513Z",
+      "sealedBy": "recovery"
+    },
+    "wiki": {
+      "state": "no-op",
+      "sealedAt": "2026-10-12T07:01:53.513Z",
+      "sealedBy": "recovery"
+    }
+  },
+  "actions": {
+    "foreground-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "c8d7abc524e8eb98fbd8c56ad7028144ea239ec9e2d3783396761babde346be1",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "ended_at": "2026-10-12T07:01:52.449Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-12T07:01:51.524Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "5c7afaad-aaa2-4b9f-8a37-251fc4869557",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:53.498Z"
+    },
+    "wiki-capture": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 0,
+      "idempotencyKey": "4d9ee827bbd406e21dcc3252031c7ae4972e43cec9a5e8af36bb0b56a7ab78aa",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 9000,
+      "completedAt": "2026-10-12T07:01:53.513Z",
+      "lastOutcomeCode": "producer-absent"
+    },
+    "team-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "36fa7cbe2851be576bf86afd0919c0fade4352035833f08681b50d7362eeaae4",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "ended_at": "2026-10-12T07:01:52.449Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-12T07:01:53.578Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "281ce47d-dd56-4ad1-85a9-7a30b400ce23",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:54.369Z"
+    },
+    "python-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "12f23435fa50d2e2d4bc6fcfc62cb2cb7ef915f68c161095af81d1abb8c08dff",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "ended_at": "2026-10-12T07:01:52.449Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-12T07:01:54.421Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "f997e444-725d-46a5-b1eb-b45c6a63cbc8",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:55.156Z"
+    },
+    "reply-cleanup": {
+      "class": "required",
+      "phase": "deferred-required",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "e839f037e7ad4d431e18d18098d15c2d00b73803d7fc868f62c88e56e3ae424f",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 9000,
+      "claimedAt": "2026-10-12T07:01:55.190Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "7832d6f5-a401-4552-8ef1-f695c3404777",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:55.907Z"
+    },
+    "callback": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "e181edeb87636a67dfc6d870cfbbe3491063eac292d0c7c065626fabe8cf4251",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "ended_at": "2026-10-12T07:01:52.449Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-12T07:01:55.939Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "6766c33c-a296-4898-86f2-4ffd9de4402b",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:56.577Z"
+    },
+    "notification": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "3a1ac493084b5cafa6c7f9e905389831a6e0f0d5c3406217d2724e5eebf68b94",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "ended_at": "2026-10-12T07:01:52.449Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-12T07:01:56.612Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "b674b36d-2131-4315-99d1-725a42a5fb82",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:57.263Z"
+    },
+    "openclaw": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "08d48995cbacdfd27a2cc09d6393f9c7185127f90023ed0fd5afc4ee058ad6ae",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {},
+        "metrics": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "ended_at": "2026-10-12T07:01:52.449Z",
+          "reason": "other",
+          "agents_spawned": 0,
+          "agents_completed": 0,
+          "modes_used": []
+        }
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-12T07:01:57.297Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "eff259d8-a65b-47fb-a3ff-c46b6d9c5173",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:57.926Z"
+    },
+    "spawn-next": {
+      "class": "best-effort",
+      "phase": "deferred-best-effort",
+      "status": "completed",
+      "attempts": 1,
+      "idempotencyKey": "b22e86f42d5854d951856c571b7021088d82f6303459fe7bef1594fe62892397",
+      "payload": {
+        "transcriptPath": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+        "cwd": "d:\\Projects\\Toeic_Pro",
+        "reason": "other",
+        "input": {
+          "session_id": "ee95c18b-d175-4ca2-8a69-a79be1cd7302",
+          "transcript_path": "C:\\Users\\Hung\\.claude\\projects\\d--Projects-Toeic-Pro\\ee95c18b-d175-4ca2-8a69-a79be1cd7302.jsonl",
+          "cwd": "d:\\Projects\\Toeic_Pro",
+          "hook_event_name": "SessionEnd",
+          "reason": "other"
+        },
+        "initialTeamNames": [],
+        "openClawRouting": {}
+      },
+      "budgetMs": 2000,
+      "claimedAt": "2026-10-12T07:01:57.955Z",
+      "runner": {
+        "attempt": 1,
+        "runnerNonce": "1d636149-a88e-420c-b7ab-7ef9701191e9",
+        "phase": "terminal",
+        "deadlineAt": "2026-10-12T07:02:00.016Z"
+      },
+      "lastOutcomeCode": "completed",
+      "completedAt": "2026-10-12T07:01:58.589Z"
+    }
+  },
+  "owner": null,
+  "phase": "complete",
+  "recoverableFailure": {
+    "reason": "actions-settled",
+    "releasedAt": "2026-10-12T07:01:58.617Z",
+    "ownerNonce": "5bb335fa-8670-4df9-81c7-282d6e025ec7"
+  },
+  "completion": {
+    "completedAt": "2026-10-12T07:01:58.617Z",
+    "terminalDigest": "667d4dff9a3fad13d9cb9d0db307fe362f54914ea61a3a9bb088c507dd0800fc",
+    "terminalRevision": 74
+  }
+}
