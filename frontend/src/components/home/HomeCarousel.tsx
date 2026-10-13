@@ -57,8 +57,7 @@ export default function HomeCarousel() {
             </div>
 
             <h1 className="font-serif text-[28px] sm:text-[36px] lg:text-[44px] font-semibold text-slate-950 tracking-normal leading-[38px] sm:leading-[48px] lg:leading-[56px]">
-              Đo lường chính xác năng lực TOEIC<br />
-              theo thời gian thực.
+              Đo lường chính xác năng lực TOEIC theo thời gian thực.<br />
             </h1>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl font-sans pt-1">
