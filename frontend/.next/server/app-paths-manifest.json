@@ -1,5 +1,3 @@
 {
-  "/de-thi/page": "app/de-thi/page.js",
-  "/page": "app/page.js",
-  "/icon.png/route": "app/icon.png/route.js"
+  "/page": "app/page.js"
 }
