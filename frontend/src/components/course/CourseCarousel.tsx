@@ -50,13 +50,13 @@ export default function CourseCarousel() {
         {/* Left Column: Editorial & Authentic Typography */}
         <div className="lg:col-span-7 space-y-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-600 tracking-wider uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-              <span>Chương Trình Đào Tạo &amp; Lộ Trình Mục Tiêu</span>
+            <div className="text-[11px] font-semibold text-slate-500 tracking-wider uppercase">
+              Chương Trình Đào Tạo &amp; Lộ Trình Mục Tiêu
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-semibold text-slate-950 tracking-normal leading-snug sm:leading-tight lg:leading-[1.28]">
-              Chinh phục mục tiêu TOEIC<br className="hidden sm:inline" /> với lộ trình tinh gọn, thực chiến.
+            <h1 className="font-serif text-[28px] sm:text-[36px] lg:text-[44px] font-semibold text-slate-950 tracking-normal leading-[38px] sm:leading-[48px] lg:leading-[56px]">
+              Chinh phục mục tiêu TOEIC<br />
+              với lộ trình tinh gọn, thực chiến.
             </h1>
 
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl font-sans pt-1">

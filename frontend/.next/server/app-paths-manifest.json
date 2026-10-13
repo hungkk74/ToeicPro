@@ -3,5 +3,6 @@
   "/de-thi/page": "app/de-thi/page.js",
   "/exam/[id]/page": "app/exam/[id]/page.js",
   "/khoa-hoc/page": "app/khoa-hoc/page.js",
-  "/api/auth/refresh/route": "app/api/auth/refresh/route.js"
+  "/api/auth/refresh/route": "app/api/auth/refresh/route.js",
+  "/icon.png/route": "app/icon.png/route.js"
 }

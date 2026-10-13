@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1791788477819,
-  "projectRoot": "d:\\Projects\\Toeic_Pro",
+  "lastScanned": 1791882294924,
+  "projectRoot": "D:\\Projects\\Toeic_Pro",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -36,7 +36,7 @@
       "path": "courseservice",
       "purpose": null,
       "fileCount": 15,
-      "lastAccessed": 1791788477723,
+      "lastAccessed": 1791882294892,
       "keyFiles": [
         "checkstyle.xml",
         "courseservice.jdl",
@@ -49,14 +49,14 @@
       "path": "docker",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1791788477723,
+      "lastAccessed": 1791882294893,
       "keyFiles": []
     },
     "examservice": {
       "path": "examservice",
       "purpose": null,
       "fileCount": 15,
-      "lastAccessed": 1791788477724,
+      "lastAccessed": 1791882294893,
       "keyFiles": [
         "checkstyle.xml",
         "mvnw",
@@ -69,7 +69,7 @@
       "path": "frontend",
       "purpose": null,
       "fileCount": 10,
-      "lastAccessed": 1791788477725,
+      "lastAccessed": 1791882294893,
       "keyFiles": [
         "Dockerfile",
         "next-env.d.ts",
@@ -82,7 +82,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 25,
-      "lastAccessed": 1791788477725,
+      "lastAccessed": 1791882294893,
       "keyFiles": [
         "checkstyle.xml",
         "cypress.config.ts",
@@ -95,7 +95,7 @@
       "path": "notificationservice",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1791788477726,
+      "lastAccessed": 1791882294894,
       "keyFiles": [
         "checkstyle.xml",
         "mvnw",
@@ -108,7 +108,7 @@
       "path": "paymentservice",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1791788477726,
+      "lastAccessed": 1791882294894,
       "keyFiles": [
         "checkstyle.xml",
         "mvnw",
@@ -121,7 +121,7 @@
       "path": "subscriptionservice",
       "purpose": null,
       "fileCount": 14,
-      "lastAccessed": 1791788477726,
+      "lastAccessed": 1791882294894,
       "keyFiles": [
         "checkstyle.xml",
         "mvnw",
@@ -134,7 +134,7 @@
       "path": "target",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1791788477727,
+      "lastAccessed": 1791882294894,
       "keyFiles": [
         "spotless-index"
       ]
@@ -143,7 +143,7 @@
       "path": "userservice",
       "purpose": null,
       "fileCount": 15,
-      "lastAccessed": 1791788477727,
+      "lastAccessed": 1791882294894,
       "keyFiles": [
         "checkstyle.xml",
         "mvnw",
@@ -156,14 +156,14 @@
       "path": "frontend\\node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1791788477730,
+      "lastAccessed": 1791882294896,
       "keyFiles": []
     },
     "frontend\\public": {
       "path": "frontend\\public",
       "purpose": "Public files",
       "fileCount": 4,
-      "lastAccessed": 1791788477731,
+      "lastAccessed": 1791882294896,
       "keyFiles": [
         "banner.png",
         "favicon.ico",
@@ -174,21 +174,51 @@
   "hotPaths": [
     {
       "path": "frontend/src/components/home/HomeCarousel.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1791881885485,
+      "accessCount": 7,
+      "lastAccessed": 1791882345778,
       "type": "file"
     },
     {
       "path": "frontend/src/components/course/CourseCarousel.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1791881900995,
+      "accessCount": 7,
+      "lastAccessed": 1791882560206,
       "type": "file"
     },
     {
       "path": "frontend/src",
-      "accessCount": 2,
-      "lastAccessed": 1791881841922,
+      "accessCount": 5,
+      "lastAccessed": 1791882708703,
       "type": "directory"
+    },
+    {
+      "path": "frontend/src/components/course/TargetScoreForm.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1791882408572,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/home/CourseCatalog.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1791882324065,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/constants/mockCourses.ts",
+      "accessCount": 2,
+      "lastAccessed": 1791882378040,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/exam/ExamModalsContainer.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1791882726350,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/exam/ExamExitDialog.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1791882761438,
+      "type": "file"
     },
     {
       "path": "frontend/src/app/layout.tsx",
@@ -200,6 +230,18 @@
       "path": "frontend/src/app/globals.css",
       "accessCount": 1,
       "lastAccessed": 1791881866769,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components",
+      "accessCount": 1,
+      "lastAccessed": 1791882308351,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/components/exam/ExamResetDialog.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1791882731873,
       "type": "file"
     }
   ],
