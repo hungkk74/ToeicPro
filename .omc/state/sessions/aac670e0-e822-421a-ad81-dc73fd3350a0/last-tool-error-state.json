@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"D:\\\\Projects\\\\Toeic_Pro\\\\examservice\\\\src\\\\main\\\\java\\\\com\\\\toeic\\\\exam\\\\service\\\\scoring\\\\ExamScoringEngine.java\",\"offset\":50,\"limit\":60}",
+  "error": "File does not exist. Note: your current working directory is D:\\Projects\\Toeic_Pro.",
+  "timestamp": "2026-10-12T10:35:49.999Z",
+  "retry_count": 1
+}

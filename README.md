@@ -11,8 +11,8 @@ flowchart TD
     %% CLIENT LAYER
     subgraph ClientLayer ["1. TẦNG TRUY CẬP (CLIENT & GATEWAY)"]
         User(["Client (Web Browser / Mobile)"])
-        Frontend["Frontend Web :3000\n- Next.js 14 (App Router) + React 18\n- Tailwind CSS + TypeScript"]
-        Gateway["API Gateway :8080\n- Spring Cloud Gateway (Reactive WebFlux)\n- Reverse Proxy & Dynamic Routing\n- Security Token Relay (JWT)"]
+        Frontend["Frontend Web :3000\n- Next.js 14.2 (App Router) + React 18.3\n- Tailwind CSS 3.4 + TypeScript 5.6"]
+        Gateway["API Gateway :8080\n- Spring Cloud Gateway 2025 (WebFlux + R2DBC)\n- Reverse Proxy & Dynamic Routing\n- Security Token Relay (JWT)"]
     end
 
     %% INFRA & SECURITY LAYER
@@ -98,30 +98,36 @@ flowchart TD
 ## 3. Techstack Chi tiết
 
 ### Frontend
-- **Framework:** Next.js 14 (App Router), React 18.
-- **Language:** TypeScript 5.
-- **Styling & UI:** Tailwind CSS, PostCSS, Lucide React Icons.
-- **Networking:** Fetch API / Next Server Actions tích hợp Gateway reverse-proxy.
+- **Framework & Runtime:** Next.js 14.2.15 (App Router, Server & Client Components, Standalone Output), React 18.3.1.
+- **Ngôn ngữ:** TypeScript 5.6.3 (`strict: true`).
+- **Giao diện & Styling:** Tailwind CSS 3.4.19, PostCSS 8.5.28, Autoprefixer 10.6.1, Lucide React 0.453.0.
+- **State Management & Custom Hooks:** `useExamRunner` (quản lý trạng thái làm bài, bộ đếm thời gian, auto-save, auto-submit), `useExamAudio` (đồng bộ audio stream TOEIC Parts 1-4), `useScoreCountdown` (hiệu ứng điểm số mượt mà).
+- **Networking & Authentication:** Isomorphic Fetch API (`api-client.ts`), tự động phát hiện môi trường (Browser Client qua `NEXT_PUBLIC_API_URL` vs Docker SSR qua `INTERNAL_API_URL`), cơ chế Silent Token Refresh tự động làm mới access token qua Keycloak Direct Grant / OIDC Token Endpoint khi gặp lỗi 401.
+- **Audio & Media Streaming:** HTML5 Native Audio API tích hợp CDN Cloudflare R2 (Audio Listening Parts 1-4).
+- **Containerization:** Node.js 20-alpine Multi-stage Dockerfile (deps -> builder -> runner standalone `node server.js`).
 
 ### Backend Microservices
-- **Core Platform:** Java 25 (Temurin JRE), Spring Boot 3 / JHipster 9.
-- **Gateway & Reactive:** Spring Cloud Gateway (Spring WebFlux, Project Reactor, R2DBC).
-- **Security:** Spring Security OAuth2 Resource Server (JWT validation, Stateless), Keycloak OIDC.
-- **Data Persistence:** Spring Data JPA, Hibernate ORM, Liquibase (Schema version control & migrations).
-- **Communication:**
-  - **Đồng bộ (Synchronous):** Spring Cloud OpenFeign + Consul Discovery.
-  - **Bất đồng bộ (Asynchronous):** Spring Kafka, Apache Kafka 3.8.
-- **Media & Cloud Storage:** AWS S3 SDK v2 (`S3AsyncClient`, `S3Client`) tích hợp Cloudflare R2 Storage.
-- **Build Tool:** Apache Maven 3.
+- **Nền tảng chính (Core Platform):** Java 25 (Eclipse Temurin JRE 25), Spring Boot 4.1.1 (`spring-boot-starter-parent`), JHipster Framework 9.3.0, Spring Cloud 2025.1.3.
+- **API Gateway (Reactive):** Spring Cloud Gateway 2025 (Spring WebFlux, Project Reactor, R2DBC MySQL reactive driver, OAuth2 Token Relay).
+- **Bảo mật & Phân quyền (IAM):** Spring Security OAuth2 Resource Server & Client (JWT stateless validation), Keycloak 26.7.2 (Realm `jhipster`, OIDC Authorization Code Flow & Direct Grant).
+- **Lưu trữ & ORM (Persistence):** Spring Data JPA, Hibernate ORM 6, MySQL Connector/J 9.2.0, Liquibase 4.31+ (Schema version control & automatic migrations).
+- **Caching & Khóa phân tán:** Redisson 4.7.0, Spring Data Redis, Redis 8.10.1 (Cache kết quả truy vấn, chống race condition).
+- **Giao tiếp liên dịch vụ (Communication):**
+  - **Đồng bộ (Synchronous):** Spring Cloud OpenFeign 2025 + HashiCorp Consul Service Discovery & Config.
+  - **Bất đồng bộ (Asynchronous):** Spring Kafka, Apache Kafka 3.8.0 (KRaft mode, 3 partitions/topic, Dead Letter Topic - DLT).
+- **Cloud Object Storage:** AWS Java SDK v2 (`software.amazon.awssdk:s3:2.29.38`, `S3AsyncClient`, `S3Client`) tích hợp Cloudflare R2 Bucket `toeic-sever` (S3-compatible, Zero Egress Fee).
+- **Email Service:** Spring Boot Starter Mail (`JavaMailSender`).
+- **Tài liệu API (API Docs):** SpringDoc OpenAPI 3.1.0 (`springdoc-openapi-starter-webmvc-api`, `springdoc-openapi-starter-webflux-api`, Swagger UI).
+- **Build & Đóng gói:** Apache Maven 3.2.5+, Jib Maven Plugin 3.5.2 (`eclipse-temurin:25-jre-noble`).
 
 ### Hạ tầng & DevOps (Infrastructure)
-- **Containerization:** Docker, Docker Compose orchestration (`docker-compose-all.yml`).
-- **Identity Provider:** Keycloak 26 (Realm: `jhipster`, OIDC Authorization Code Flow).
-- **Service Mesh / Discovery:** HashiCorp Consul 2.0.
-- **Database:** MySQL 8.4 (InnoDB, Full-text Search index trên bảng Exam).
-- **Cache:** Redis 8.10.
-- **Message Broker:** Apache Kafka 3.8 (Kraft mode, 3 partitions/topic, Dead Letter Topic support).
-- **Object Storage & CDN:** Cloudflare R2 (S3-compatible, Zero Egress Fee).
+- **Containerization & Điều phối:** Docker, Docker Compose orchestration (`docker-compose-all.yml`, `docker-compose-kafka.yml`).
+- **Identity Provider (IAM):** Keycloak 26.7.2 (Container: `quay.io/keycloak/keycloak:26.7.2-1`, dev-file DB, OIDC Authorization Code Flow).
+- **Service Discovery & Config:** HashiCorp Consul 2.0.3, Consul Config Loader v0.4.1.
+- **Cơ sở dữ liệu:** MySQL 8.4 Server (InnoDB, Database-per-Service: 7 CSDL độc lập).
+- **Bộ nhớ đệm:** Redis 8.10.1 (Distributed Cache & Rate Limiting).
+- **Message Broker:** Apache Kafka 3.8.0 (KRaft mode, auto-provisioning topics qua init container), Kafka UI (Port 8989).
+- **Object Storage & CDN:** Cloudflare R2 Storage (Bucket: `toeic-sever`, Zero Egress Fee).
 
 ---
 

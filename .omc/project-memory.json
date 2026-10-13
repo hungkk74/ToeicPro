@@ -171,6 +171,307 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "userservice/src/main/java/com/toeic/user/web/rest/UserProfileResource.java",
+      "accessCount": 23,
+      "lastAccessed": 1791862935204,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src",
+      "accessCount": 21,
+      "lastAccessed": 1791863909971,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/ExamService.java",
+      "accessCount": 18,
+      "lastAccessed": 1791863521995,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/ExamAttemptService.java",
+      "accessCount": 17,
+      "lastAccessed": 1791863394772,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/hooks/useExamRunner.ts",
+      "accessCount": 10,
+      "lastAccessed": 1791799639841,
+      "type": "file"
+    },
+    {
+      "path": ".doc",
+      "accessCount": 7,
+      "lastAccessed": 1791798314744,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/lib/api-client.ts",
+      "accessCount": 7,
+      "lastAccessed": 1791859575052,
+      "type": "file"
+    },
+    {
+      "path": "docker-compose-all.yml",
+      "accessCount": 6,
+      "lastAccessed": 1791859558940,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/ExamReviewService.java",
+      "accessCount": 6,
+      "lastAccessed": 1791861866786,
+      "type": "file"
+    },
+    {
+      "path": "userservice/src/main/java/com/toeic/user/service/UserProfileService.java",
+      "accessCount": 6,
+      "lastAccessed": 1791862495070,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/repository/UserAnswerRepository.java",
+      "accessCount": 6,
+      "lastAccessed": 1791862574465,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/util/ExamScoringEngine.java",
+      "accessCount": 6,
+      "lastAccessed": 1791862587726,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 5,
+      "lastAccessed": 1791795398829,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/FileStorageService.java",
+      "accessCount": 5,
+      "lastAccessed": 1791798422730,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/util/ExamTakeDtoBuilder.java",
+      "accessCount": 5,
+      "lastAccessed": 1791861850872,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/repository/QuestionRepository.java",
+      "accessCount": 5,
+      "lastAccessed": 1791861856986,
+      "type": "file"
+    },
+    {
+      "path": "userservice/src/main/java/com/toeic/user/service/OtpService.java",
+      "accessCount": 5,
+      "lastAccessed": 1791862980607,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/repository/UserAnswerBatchRepository.java",
+      "accessCount": 5,
+      "lastAccessed": 1791863405098,
+      "type": "file"
+    },
+    {
+      "path": ".doc/examservice_init.sql",
+      "accessCount": 4,
+      "lastAccessed": 1791798322422,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/ExamBulkImportService.java",
+      "accessCount": 4,
+      "lastAccessed": 1791799140929,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/exam/ExamFixedAudioPlayer.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1791799963617,
+      "type": "file"
+    },
+    {
+      "path": "userservice/src/main/java/com/toeic/user/domain/UserProfile.java",
+      "accessCount": 4,
+      "lastAccessed": 1791861752116,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/exam/QuestionCard.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1791863677501,
+      "type": "file"
+    },
+    {
+      "path": "courseservice/src/main/java/com/toeic/course",
+      "accessCount": 3,
+      "lastAccessed": 1791795639206,
+      "type": "directory"
+    },
+    {
+      "path": "userservice/src/main/java/com/toeic/user/config/CacheConfiguration.java",
+      "accessCount": 3,
+      "lastAccessed": 1791801288180,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/domain/QuestionGroup.java",
+      "accessCount": 3,
+      "lastAccessed": 1791801381617,
+      "type": "file"
+    },
+    {
+      "path": "userservice/src/main/java/com/toeic/user/repository/UserProfileRepository.java",
+      "accessCount": 3,
+      "lastAccessed": 1791861757045,
+      "type": "file"
+    },
+    {
+      "path": "gateway/src/main/resources/config/application.yml",
+      "accessCount": 2,
+      "lastAccessed": 1791791247460,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/exam/[id]/page.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1791792788138,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src",
+      "accessCount": 2,
+      "lastAccessed": 1791793057680,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/resources/config/application-dev.yml",
+      "accessCount": 2,
+      "lastAccessed": 1791793745812,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam",
+      "accessCount": 2,
+      "lastAccessed": 1791798201088,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/components/exam/ExamWorkspace.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1791798230558,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/services/examService.ts",
+      "accessCount": 2,
+      "lastAccessed": 1791799198078,
+      "type": "file"
+    },
+    {
+      "path": "frontend",
+      "accessCount": 2,
+      "lastAccessed": 1791799604767,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/components/exam",
+      "accessCount": 1,
+      "lastAccessed": 1791790884582,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/web/rest/StorageResource.java",
+      "accessCount": 1,
+      "lastAccessed": 1791791207916,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/service/dto/FileUploadResponse.java",
+      "accessCount": 1,
+      "lastAccessed": 1791791223244,
+      "type": "file"
+    },
+    {
+      "path": "gateway",
+      "accessCount": 1,
+      "lastAccessed": 1791791229988,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/constants/mockAdminExams.ts",
+      "accessCount": 1,
+      "lastAccessed": 1791791735589,
+      "type": "file"
+    },
+    {
+      "path": "frontend/public/audio/README.md",
+      "accessCount": 1,
+      "lastAccessed": 1791791746834,
+      "type": "file"
+    },
+    {
+      "path": "examservice/TestJackson.java",
+      "accessCount": 1,
+      "lastAccessed": 1791791763404,
+      "type": "file"
+    },
+    {
+      "path": ".doc/ets2023_test2_formatted.json",
+      "accessCount": 1,
+      "lastAccessed": 1791791768196,
+      "type": "file"
+    },
+    {
+      "path": "examservice/src/main/resources/config/liquibase/fake-data/exam.csv",
+      "accessCount": 1,
+      "lastAccessed": 1791791865242,
+      "type": "file"
+    },
+    {
+      "path": "docker/mysql",
+      "accessCount": 1,
+      "lastAccessed": 1791791966885,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/hooks/useExamAudio.ts",
+      "accessCount": 1,
+      "lastAccessed": 1791792593436,
+      "type": "file"
+    },
+    {
+      "path": "frontend/public",
+      "accessCount": 1,
+      "lastAccessed": 1791794036897,
+      "type": "directory"
+    },
+    {
+      "path": ".doc/sample_full_exam_7parts.json",
+      "accessCount": 1,
+      "lastAccessed": 1791794147992,
+      "type": "file"
+    },
+    {
+      "path": "userservice/src/main/java/com/toeic/user",
+      "accessCount": 1,
+      "lastAccessed": 1791795404750,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src/main/java/com/toeic/exam/repository/ExamRepository.java",
+      "accessCount": 1,
+      "lastAccessed": 1791795543274,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }

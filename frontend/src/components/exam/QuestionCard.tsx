@@ -340,9 +340,6 @@ export default function QuestionCard({
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Câu trước</span>
-            <kbd className="hidden sm:inline-block text-[10px] font-mono text-slate-500 bg-slate-200/80 px-1 py-0.5 rounded">
-              ←
-            </kbd>
           </button>
           <button
             type="button"
@@ -352,9 +349,6 @@ export default function QuestionCard({
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs sm:text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
           >
             <span>Câu tiếp theo</span>
-            <kbd className="hidden sm:inline-block text-[10px] font-mono text-blue-100 bg-blue-700 px-1 py-0.5 rounded">
-              →
-            </kbd>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

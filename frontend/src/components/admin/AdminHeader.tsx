@@ -66,18 +66,17 @@ export default function AdminHeader({ user, activeTabTitle }: AdminHeaderProps) 
           </Link>
 
           {/* Quick System Health Tag */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-xs font-medium">
-            <Activity className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-            <span>12/12 Services Online</span>
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs font-medium">
+            <Activity className="w-3.5 h-3.5 text-emerald-700" />
+            <span>Hệ Thống Trực Tuyến</span>
           </div>
 
           <button
             type="button"
-            className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors relative"
+            className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
             title="Thông báo hệ thống"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full"></span>
           </button>
 
           {/* Admin User Pill */}

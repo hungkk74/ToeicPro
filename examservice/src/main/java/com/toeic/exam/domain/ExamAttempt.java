@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.time.Instant;
 
 /**
-// Lịch sử lần làm bài thi của học viên
+ * Lịch sử lần làm bài thi của học viên.
  */
 @Entity
 @Table(

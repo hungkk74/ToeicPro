@@ -53,7 +53,6 @@ export default function HomeCarousel() {
         <div className="lg:col-span-7 space-y-6">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 text-[11px] font-semibold text-slate-600 tracking-wider uppercase">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
               <span>Hệ Thống Đào Tạo &amp; Khảo Thí Chuẩn ETS</span>
             </div>
 

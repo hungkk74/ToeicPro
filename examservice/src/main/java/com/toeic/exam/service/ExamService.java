@@ -32,7 +32,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
-// Service điều phối quản lý {@link com.toeic.exam.domain.Exam}.
+ * Service for managing {@link com.toeic.exam.domain.Exam}.
  */
 @Service
 @Transactional
@@ -143,7 +143,7 @@ public class ExamService {
     public void delete(Long id) {
         LOG.debug("Request to delete Exam : {}", id);
 
-        // 1. Thu thập danh sách file URLs/keys trên R2 trước khi xóa dữ liệu DB bằng 1 native UNION query
+        // Collect R2 media URLs before DB deletion
         String fileUrlsSql = """
             SELECT e.audio_full_url AS url FROM exam e WHERE e.id = :examId AND e.audio_full_url IS NOT NULL
             UNION
@@ -161,7 +161,7 @@ public class ExamService {
             .getResultList();
         Set<String> filesToDelete = new HashSet<>(fileList);
 
-        // 2. Xóa các thực thể con theo thứ tự khóa ngoại trong DB (tách subquery tránh lock/lỗi MySQL)
+        // Delete child entities in foreign key order to prevent deadlocks
         List<Long> attemptIds = entityManager.createQuery(
             "SELECT a.id FROM ExamAttempt a WHERE a.exam.id = :examId",
             Long.class
@@ -191,7 +191,7 @@ public class ExamService {
 
         examRepository.deleteById(id);
 
-        // 3. Sau khi commit DB thành công, kích hoạt async xóa file trên R2 (không block và không gọi HTTP trong transaction)
+        // Async R2 file cleanup after commit isolates external I/O from DB transaction
         if (!filesToDelete.isEmpty()) {
             if (TransactionSynchronizationManager.isSynchronizationActive()) {
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

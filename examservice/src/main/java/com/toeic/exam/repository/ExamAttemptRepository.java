@@ -78,6 +78,12 @@ public interface ExamAttemptRepository extends JpaRepository<ExamAttempt, Long> 
         Pageable pageable
     );
 
+    Optional<ExamAttempt> findFirstByUserIdAndExamIdAndStatusOrderByStartedAtDesc(
+        String userId,
+        Long examId,
+        AttemptStatus status
+    );
+
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ExamAttempt a WHERE a.id IN :ids")
     void deleteAllByIdIn(@Param("ids") List<Long> ids);

@@ -16,9 +16,9 @@ export default function TargetScoreForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-blue-100 bg-gradient-to-br from-white to-blue-50/50">
+    <div className="bg-white rounded-xl p-6 sm:p-8 shadow-xs border border-slate-200">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+        <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
           <Target className="w-5 h-5" />
         </div>
         <div>
@@ -37,7 +37,7 @@ export default function TargetScoreForm() {
             required
             value={currentScore}
             onChange={(e) => setCurrentScore(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
             placeholder="Ví dụ: 300"
           />
         </div>
@@ -50,14 +50,14 @@ export default function TargetScoreForm() {
             required
             value={targetScore}
             onChange={(e) => setTargetScore(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
             placeholder="Ví dụ: 650"
           />
         </div>
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full sm:w-auto h-[46px] px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+            className="w-full sm:w-auto h-[46px] px-6 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs"
           >
             Nhận Lộ Trình <ArrowRight className="w-4 h-4" />
           </button>
@@ -65,9 +65,9 @@ export default function TargetScoreForm() {
       </form>
 
       {showRecommendation && (
-        <div className="mt-6 p-4 rounded-xl border border-green-200 bg-green-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <h3 className="font-semibold text-green-800 mb-1">Đã gửi yêu cầu thành công!</h3>
-          <p className="text-sm text-green-700">
+        <div className="mt-6 p-4 rounded-lg border border-emerald-200 bg-emerald-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <h3 className="font-semibold text-emerald-800 mb-1">Đã gửi yêu cầu thành công!</h3>
+          <p className="text-sm text-emerald-700">
             Giáo viên chuyên môn của chúng tôi đã ghi nhận thông tin (Mục tiêu tăng {Math.max(0, Number(targetScore) - Number(currentScore))} điểm) và sẽ liên hệ trực tiếp với bạn trong thời gian sớm nhất để tư vấn lộ trình học tối ưu nhất.
           </p>
         </div>

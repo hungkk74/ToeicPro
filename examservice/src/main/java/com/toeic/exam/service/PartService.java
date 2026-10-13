@@ -6,6 +6,7 @@ import com.toeic.exam.service.dto.PartDTO;
 import com.toeic.exam.service.mapper.PartMapper;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public class PartService {
         this.partMapper = partMapper;
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public PartDTO save(PartDTO partDTO) {
         LOG.debug("Request to save Part : {}", partDTO);
         Part part = partMapper.toEntity(partDTO);
@@ -37,6 +39,7 @@ public class PartService {
         return partMapper.toDto(part);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public PartDTO update(PartDTO partDTO) {
         LOG.debug("Request to update Part : {}", partDTO);
         Part part = partMapper.toEntity(partDTO);
@@ -44,6 +47,7 @@ public class PartService {
         return partMapper.toDto(part);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public Optional<PartDTO> partialUpdate(PartDTO partDTO) {
         LOG.debug("Request to partially update Part : {}", partDTO);
 
@@ -81,6 +85,7 @@ public class PartService {
         return partRepository.findOneWithEagerRelationships(id).map(partMapper::toDto);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public void delete(Long id) {
         LOG.debug("Request to delete Part : {}", id);
         partRepository.deleteById(id);

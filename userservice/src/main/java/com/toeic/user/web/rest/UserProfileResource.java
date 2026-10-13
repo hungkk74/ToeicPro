@@ -1,6 +1,5 @@
 package com.toeic.user.web.rest;
 
-import com.toeic.user.repository.UserProfileRepository;
 import com.toeic.user.service.UserProfileService;
 import com.toeic.user.service.dto.UserProfileDTO;
 import com.toeic.user.web.rest.errors.BadRequestAlertException;
@@ -44,11 +43,8 @@ public class UserProfileResource {
 
     private final UserProfileService userProfileService;
 
-    private final UserProfileRepository userProfileRepository;
-
-    public UserProfileResource(UserProfileService userProfileService, UserProfileRepository userProfileRepository) {
+    public UserProfileResource(UserProfileService userProfileService) {
         this.userProfileService = userProfileService;
-        this.userProfileRepository = userProfileRepository;
     }
 
     private void checkAccess(Long profileId) {
@@ -117,10 +113,6 @@ public class UserProfileResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!userProfileRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
-        }
-
         checkAccess(id);
         if (!SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             String currentUser = SecurityUtils.getCurrentUserLogin()
@@ -156,10 +148,6 @@ public class UserProfileResource {
         }
         if (!Objects.equals(id, userProfileDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
-        }
-
-        if (!userProfileRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         checkAccess(id);
@@ -219,8 +207,8 @@ public class UserProfileResource {
         if (userProfileDTO.isPresent()) {
             boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
             String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
-            if (!isAdmin && (currentUser == null || !currentUser.equals(userProfileDTO.orElseThrow().getUserId()))) {
-                throw new AccessDeniedException("You are not authorized to view this profile");
+            if (!isAdmin && (currentUser == null || !currentUser.equals(userProfileDTO.get().getUserId()))) {
+                return ResponseEntity.notFound().build();
             }
         }
         return ResponseEntity.of(userProfileDTO);

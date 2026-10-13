@@ -57,7 +57,6 @@ export default function BackendStatus() {
         <span className={`w-2.5 h-2.5 rounded-full ${config.color} ring-2 ${config.ring}`}></span>
       </button>
 
-      {/* Modern SaaS Tooltip */}
       <div className="absolute right-0 top-full mt-2 hidden group-hover:flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white text-xs rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none transition-all duration-150">
         <span className={`w-2 h-2 rounded-full ${config.color}`}></span>
         <span>{config.label}</span>

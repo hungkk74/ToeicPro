@@ -6,6 +6,7 @@ import com.toeic.exam.service.dto.QuestionGroupDTO;
 import com.toeic.exam.service.mapper.QuestionGroupMapper;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public class QuestionGroupService {
         this.questionGroupMapper = questionGroupMapper;
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public QuestionGroupDTO save(QuestionGroupDTO questionGroupDTO) {
         LOG.debug("Request to save QuestionGroup : {}", questionGroupDTO);
         QuestionGroup questionGroup = questionGroupMapper.toEntity(questionGroupDTO);
@@ -37,6 +39,7 @@ public class QuestionGroupService {
         return questionGroupMapper.toDto(questionGroup);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public QuestionGroupDTO update(QuestionGroupDTO questionGroupDTO) {
         LOG.debug("Request to update QuestionGroup : {}", questionGroupDTO);
         QuestionGroup questionGroup = questionGroupMapper.toEntity(questionGroupDTO);
@@ -44,6 +47,7 @@ public class QuestionGroupService {
         return questionGroupMapper.toDto(questionGroup);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public Optional<QuestionGroupDTO> partialUpdate(QuestionGroupDTO questionGroupDTO) {
         LOG.debug("Request to partially update QuestionGroup : {}", questionGroupDTO);
 
@@ -81,6 +85,7 @@ public class QuestionGroupService {
         return questionGroupRepository.findOneWithEagerRelationships(id).map(questionGroupMapper::toDto);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public void delete(Long id) {
         LOG.debug("Request to delete QuestionGroup : {}", id);
         questionGroupRepository.deleteById(id);

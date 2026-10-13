@@ -15,7 +15,6 @@ import com.toeic.exam.service.dto.ExamAttemptDTO;
 import com.toeic.exam.service.dto.ExamAttemptHistoryDTO;
 import com.toeic.exam.service.dto.ExamResultDTO;
 import com.toeic.exam.service.dto.ExamSubmissionDTO;
-import com.toeic.exam.service.dto.QuestionAnswerSubmissionDTO;
 import com.toeic.exam.service.dto.StartExamAttemptDTO;
 import com.toeic.exam.service.dto.review.ExamReviewDTO;
 import com.toeic.exam.service.mapper.ExamAttemptMapper;
@@ -24,8 +23,6 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -82,6 +79,17 @@ public class ExamAttemptService {
         }
         if (!examRepository.existsByIdAndIsPublishedTrue(startDTO.examId())) {
             throw new EntityNotFoundException("Đề thi không tồn tại hoặc chưa được công bố: " + startDTO.examId());
+        }
+
+        Optional<ExamAttempt> activeAttempt = examAttemptRepository
+            .findFirstByUserIdAndExamIdAndStatusOrderByStartedAtDesc(
+                currentUser,
+                startDTO.examId(),
+                AttemptStatus.IN_PROGRESS
+            );
+        if (activeAttempt.isPresent()) {
+            LOG.debug("Resuming existing IN_PROGRESS attempt id: {}", activeAttempt.get().getId());
+            return examAttemptMapper.toDto(activeAttempt.get());
         }
 
         Exam examRef = examRepository.getReferenceById(startDTO.examId());
@@ -163,15 +171,10 @@ public class ExamAttemptService {
         ExamAttempt attempt = examAttemptRepository.findOneForUpdate(attemptId)
             .orElseThrow(() -> new EntityNotFoundException("Attempt not found with id: " + attemptId));
 
-        List<Question> allQuestions;
-        if (attempt.getExam() != null && attempt.getExam().getId() != null) {
-            allQuestions = questionRepository.findByExamIdForScoring(attempt.getExam().getId());
-        } else {
-            Set<Long> qIds = dto.getAnswers() != null
-                ? dto.getAnswers().stream().map(QuestionAnswerSubmissionDTO::questionId).collect(Collectors.toSet())
-                : Set.of();
-            allQuestions = questionRepository.findAllByIdInWithPart(qIds);
+        if (attempt.getExam() == null || attempt.getExam().getId() == null) {
+            throw new IllegalStateException("Bài thi không gắn với đề thi hợp lệ");
         }
+        List<Question> allQuestions = questionRepository.findByExamIdForScoring(attempt.getExam().getId());
 
         ExamScoringEngine.ScoringResult scored = examScoringEngine.calculate(
             attempt,

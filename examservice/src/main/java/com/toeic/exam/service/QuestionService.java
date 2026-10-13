@@ -7,6 +7,7 @@ import com.toeic.exam.service.mapper.QuestionMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class QuestionService {
         this.questionMapper = questionMapper;
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public QuestionDTO save(QuestionDTO questionDTO) {
         LOG.debug("Request to save Question : {}", questionDTO);
         Question question = questionMapper.toEntity(questionDTO);
@@ -36,6 +38,7 @@ public class QuestionService {
         return questionMapper.toDto(question);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public QuestionDTO update(QuestionDTO questionDTO) {
         LOG.debug("Request to update Question : {}", questionDTO);
         Question question = questionMapper.toEntity(questionDTO);
@@ -43,6 +46,7 @@ public class QuestionService {
         return questionMapper.toDto(question);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public Optional<QuestionDTO> partialUpdate(QuestionDTO questionDTO) {
         LOG.debug("Request to partially update Question : {}", questionDTO);
 
@@ -74,6 +78,7 @@ public class QuestionService {
         return questionRepository.findOneWithEagerRelationships(id).map(questionMapper::toDto);
     }
 
+    @CacheEvict(cacheNames = "examTake", allEntries = true)
     public void delete(Long id) {
         LOG.debug("Request to delete Question : {}", id);
         questionRepository.deleteById(id);

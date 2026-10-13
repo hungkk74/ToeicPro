@@ -1,0 +1,2160 @@
+{
+  "code": "ETS_2023_TEST_04",
+  "title": "ETS TOEIC 2023 Test 4",
+  "category": "FULL_TEST",
+  "durationMinutes": 120,
+  "totalQuestions": 200,
+  "audioFullUrl": null,
+  "isPublished": true,
+  "parts": [
+    {
+      "partNumber": 1,
+      "name": "Photographs",
+      "questionGroups": [
+        {
+          "imageUrl": "/media/ets2023/test4/images/q01.jpg",
+          "questions": [
+            {
+              "questionNumber": 1,
+              "content": "Look at the picture marked No. 1 in your test book.",
+              "optionA": null,
+              "optionB": null,
+              "optionC": null,
+              "optionD": null,
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "imageUrl": "/media/ets2023/test4/images/q02.jpg",
+          "questions": [
+            {
+              "questionNumber": 2,
+              "content": "Look at the picture marked No. 2 in your test book.",
+              "optionA": null,
+              "optionB": null,
+              "optionC": null,
+              "optionD": null,
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "imageUrl": "/media/ets2023/test4/images/q03.jpg",
+          "questions": [
+            {
+              "questionNumber": 3,
+              "content": "Look at the picture marked No. 3 in your test book.",
+              "optionA": null,
+              "optionB": null,
+              "optionC": null,
+              "optionD": null,
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "imageUrl": "/media/ets2023/test4/images/q04.jpg",
+          "questions": [
+            {
+              "questionNumber": 4,
+              "content": "Look at the picture marked No. 4 in your test book.",
+              "optionA": null,
+              "optionB": null,
+              "optionC": null,
+              "optionD": null,
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "imageUrl": "/media/ets2023/test4/images/q05.jpg",
+          "questions": [
+            {
+              "questionNumber": 5,
+              "content": "Look at the picture marked No. 5 in your test book.",
+              "optionA": null,
+              "optionB": null,
+              "optionC": null,
+              "optionD": null,
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "imageUrl": "/media/ets2023/test4/images/q06.jpg",
+          "questions": [
+            {
+              "questionNumber": 6,
+              "content": "Look at the picture marked No. 6 in your test book.",
+              "optionA": null,
+              "optionB": null,
+              "optionC": null,
+              "optionD": null,
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 2,
+      "name": "Question-Response",
+      "questionGroups": [
+        {
+          "questions": [
+            { "questionNumber": 7, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 8, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 9, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 10, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 11, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 12, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 13, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 14, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 15, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 16, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 17, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 18, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 19, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 20, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 21, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 22, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 23, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 24, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 25, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 26, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 27, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 28, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null },
+            { "questionNumber": 29, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "C", "explanation": null },
+            { "questionNumber": 30, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "B", "explanation": null },
+            { "questionNumber": 31, "content": "Mark your answer on your answer sheet.", "optionA": null, "optionB": null, "optionC": null, "optionD": null, "correctOption": "A", "explanation": null }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 3,
+      "name": "Conversations",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c32_34.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 32,
+              "content": "Who most likely is the man?",
+              "optionA": "A delivery person",
+              "optionB": "A contractor",
+              "optionC": "A salesperson",
+              "optionD": "A house cleaner",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 33,
+              "content": "What will the man most likely bring when he returns?",
+              "optionA": "An updated invoice",
+              "optionB": "A product recommended to him",
+              "optionC": "A new tool",
+              "optionD": "A replacement tile",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 34,
+              "content": "When will the man most likely return to the woman's house?",
+              "optionA": "On Thursday morning",
+              "optionB": "On Thursday afternoon",
+              "optionC": "On Friday morning",
+              "optionD": "On Friday afternoon",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c35_37.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 35,
+              "content": "What are the speakers mainly discussing?",
+              "optionA": "The condition of forest paths",
+              "optionB": "Hiking options",
+              "optionC": "A recycling program",
+              "optionD": "Vending machines",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 36,
+              "content": "What is the woman concerned about?",
+              "optionA": "The condition of the visitor center",
+              "optionB": "Materials being disposed of properly",
+              "optionC": "The need for new plastic bins",
+              "optionD": "Her work schedule",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 37,
+              "content": "What does the man suggest?",
+              "optionA": "Showing a video",
+              "optionB": "Purchasing a television",
+              "optionC": "Recording some instructions",
+              "optionD": "Hiring additional workers",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c38_40.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 38,
+              "content": "Who most likely is the woman?",
+              "optionA": "A manager",
+              "optionB": "A consultant",
+              "optionC": "A salesperson",
+              "optionD": "A trainer",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 39,
+              "content": "What did Takeshi tell the man?",
+              "optionA": "The training session will increase sales.",
+              "optionB": "The training session was not useful.",
+              "optionC": "Some people prefer independent work.",
+              "optionD": "More salespeople will be hired.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 40,
+              "content": "What will the man most likely do next?",
+              "optionA": "Meet with the salespeople face-to-face",
+              "optionB": "Ask Takeshi to talk to his teams",
+              "optionC": "Cancel this week's sales meeting",
+              "optionD": "Discuss future training sessions",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c41_43.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 41,
+              "content": "Where do the speakers most likely work?",
+              "optionA": "At an accounting firm",
+              "optionB": "At a warehouse",
+              "optionC": "At a university bookstore",
+              "optionD": "At a book-publishing company",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 42,
+              "content": "What is the woman's assignment?",
+              "optionA": "To prepare a sales report",
+              "optionB": "To train recently hired employees",
+              "optionC": "To take notes during staff meetings",
+              "optionD": "To proofread reports",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 43,
+              "content": "Why will the woman be unable to help the man?",
+              "optionA": "She lacks the technical training.",
+              "optionB": "She is too busy.",
+              "optionC": "She is unsure of what Anna really wants.",
+              "optionD": "She sent her laptop to be serviced.",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c44_46.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 44,
+              "content": "Who most likely are the speakers?",
+              "optionA": "School teachers",
+              "optionB": "Employees of a nature area",
+              "optionC": "Members of a bird-watching club",
+              "optionD": "Construction workers",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 45,
+              "content": "What problem are the speakers discussing?",
+              "optionA": "The proposed location of a building",
+              "optionB": "The schedule of a community event",
+              "optionC": "Some recently completed construction",
+              "optionD": "Damage caused by animals",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 46,
+              "content": "What does the man suggest the speakers do?",
+              "optionA": "Contact some builders",
+              "optionB": "Conduct a tour of a nature preserve",
+              "optionC": "Hold a meeting at their workplace",
+              "optionD": "Post an announcement at the community center",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c47_49.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 47,
+              "content": "What does the man say about hiring a new employee?",
+              "optionA": "The hiring process is already finished.",
+              "optionB": "Hiring may not be necessary.",
+              "optionC": "There are no qualified applicants.",
+              "optionD": "There is no money in the budget.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 48,
+              "content": "What does the woman suggest?",
+              "optionA": "Contracting some advertising work",
+              "optionB": "Discussing the problem at the next meeting",
+              "optionC": "Training new factory team workers",
+              "optionD": "Hiring a temporary employee",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 49,
+              "content": "Why will the speakers talk to Janet Olsen?",
+              "optionA": "To get her opinion about an issue",
+              "optionB": "To ask how a problem was solved previously",
+              "optionC": "To learn whether they can use her office",
+              "optionD": "To ask about a recently hired team member",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c50_52.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 50,
+              "content": "What may prevent the woman from seeing the exhibit?",
+              "optionA": "The exhibit will close early.",
+              "optionB": "A parade will be held.",
+              "optionC": "The buses are not running.",
+              "optionD": "She has a work commitment.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 51,
+              "content": "What does the man tell the woman she can do?",
+              "optionA": "Get a full refund",
+              "optionB": "Donate the cost of her tickets",
+              "optionC": "Exchange her tickets for another date",
+              "optionD": "Give her tickets to family members",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 52,
+              "content": "What does the woman imply when she says, \"Oh, I have too many financial commitments at the moment\"?",
+              "optionA": "She will call the man back later.",
+              "optionB": "She will not visit the gift shop.",
+              "optionC": "She will not attend a special event.",
+              "optionD": "She will not purchase a membership.",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c53_55.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 53,
+              "content": "What did Petra do on her way to the office?",
+              "optionA": "She dropped a brochure off at a local store.",
+              "optionB": "She stopped at a printing shop.",
+              "optionC": "She shopped at an office store for some supplies.",
+              "optionD": "She contacted a repair technician.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 54,
+              "content": "What does the man say about the brochure the speakers are discussing?",
+              "optionA": "He likes the bright colors.",
+              "optionB": "He already approved it.",
+              "optionC": "It contains too much information.",
+              "optionD": "It was redesigned several times.",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 55,
+              "content": "Why will Petra make a phone call?",
+              "optionA": "To order copies",
+              "optionB": "To change a deadline",
+              "optionC": "To get a mistake corrected",
+              "optionD": "To try to get a price reduced",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c56_58.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 56,
+              "content": "What does the woman imply when she says, \"I haven't had a chance to look at it\"?",
+              "optionA": "She is not interested in the price list.",
+              "optionB": "She likes the old furniture in the meeting room.",
+              "optionC": "The furniture prices are very high.",
+              "optionD": "The office furniture has not been ordered.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 57,
+              "content": "What is most likely true about the travel arrangements that the woman is working on?",
+              "optionA": "They are taking more time than expected.",
+              "optionB": "They will be finished tomorrow.",
+              "optionC": "There are only two people working on them.",
+              "optionD": "The man is responsible for managing them.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 58,
+              "content": "What does the man suggest that the woman do?",
+              "optionA": "Train a coworker to order furniture",
+              "optionB": "Ask whether a responsibility can be removed",
+              "optionC": "Find somebody to help with travel planning",
+              "optionD": "Apply for a management position",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c59_61.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 59,
+              "content": "Who most likely is the woman?",
+              "optionA": "A consulting company employee",
+              "optionB": "A Web developer",
+              "optionC": "A supervisor",
+              "optionD": "A certified trainer",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 60,
+              "content": "What does the woman tell Felix' supervisor?",
+              "optionA": "She can provide some paperwork.",
+              "optionB": "She is paid hourly.",
+              "optionC": "She is not familiar with a feature.",
+              "optionD": "She has employees who can complete a task.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 61,
+              "content": "When will a Web site be launched?",
+              "optionA": "Once a feature is added",
+              "optionB": "Later that day",
+              "optionC": "After two companies merge",
+              "optionD": "In the coming week",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Monarch Pottery Weekly Schedule:\nMonday: Hand Building (adults)\nTuesday: Wheel Throwing (adults)\nWednesday: Hand Building (children)\nThursday: Wheel Throwing (children)\nFriday: No classes",
+          "audioUrl": "/media/ets2023/test4/audio/c62_64.mp3",
+          "imageUrl": "/media/ets2023/test4/images/q62_64_schedule.jpg",
+          "questions": [
+            {
+              "questionNumber": 62,
+              "content": "What problem does the woman mention?",
+              "optionA": "Her order arrived late.",
+              "optionB": "Her order is missing an item.",
+              "optionC": "She did not order enough of an item.",
+              "optionD": "She did not receive an invoice.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 63,
+              "content": "What does the man say about some buckets of glaze?",
+              "optionA": "They contain the wrong color glaze.",
+              "optionB": "They are on the delivery truck now.",
+              "optionC": "They were left behind.",
+              "optionD": "They are heavier than they look.",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 64,
+              "content": "Look at the graphic. On which day is the conversation taking place?",
+              "optionA": "Tuesday",
+              "optionB": "Wednesday",
+              "optionC": "Thursday",
+              "optionD": "Friday",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Monaco Hotel - Host your business event with us!\nPackage | Number of guests\nBronze: 125\nSilver: 150\nGold: 175\nPlatinum: 200",
+          "audioUrl": "/media/ets2023/test4/audio/c65_67.mp3",
+          "imageUrl": "/media/ets2023/test4/images/q65_67_packages.jpg",
+          "questions": [
+            {
+              "questionNumber": 65,
+              "content": "What are the speakers mainly discussing?",
+              "optionA": "A conference hosted by another company",
+              "optionB": "A location for an upcoming conference",
+              "optionC": "The purpose of an annual conference",
+              "optionD": "A conference speaker they both admire",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 66,
+              "content": "What does the man imply about conference participants?",
+              "optionA": "They will choose food options from a menu.",
+              "optionB": "They will eat breakfast together.",
+              "optionC": "They will not be provided with meals.",
+              "optionD": "They must buy snacks from a nearby store.",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 67,
+              "content": "Look at the graphic. Which package will the speakers most likely purchase?",
+              "optionA": "Bronze",
+              "optionB": "Silver",
+              "optionC": "Gold",
+              "optionD": "Platinum",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/c68_70.mp3",
+          "imageUrl": "/media/ets2023/test4/images/q68_70_floorplan.jpg",
+          "questions": [
+            {
+              "questionNumber": 68,
+              "content": "Where most likely does the woman work?",
+              "optionA": "At a delivery company",
+              "optionB": "At a fitness center",
+              "optionC": "At a truck repair facility",
+              "optionD": "At an exercise equipment manufacturer",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 69,
+              "content": "Look at the graphic. Where will the five heavy boxes be put?",
+              "optionA": "In the reception area",
+              "optionB": "In the locker rooms",
+              "optionC": "In exercise area 1",
+              "optionD": "In exercise area 2",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 70,
+              "content": "What equipment was delivered yesterday?",
+              "optionA": "Rowing machines",
+              "optionB": "Furniture",
+              "optionC": "Pool supplies",
+              "optionD": "Weight-lifting equipment",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 4,
+      "name": "Short Talks",
+      "questionGroups": [
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t71_73.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 71,
+              "content": "Who is the speaker?",
+              "optionA": "A book author",
+              "optionB": "A park ranger",
+              "optionC": "A tour guide",
+              "optionD": "A painter",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 72,
+              "content": "What will the listeners mostly see during their visit?",
+              "optionA": "Rare plants",
+              "optionB": "Works of art",
+              "optionC": "Antique furnishing",
+              "optionD": "A nineteenth-century library",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 73,
+              "content": "What does the speaker invite the listeners to do?",
+              "optionA": "Use a map",
+              "optionB": "Make a purchase",
+              "optionC": "Stay with the group",
+              "optionD": "Take pictures",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t74_76.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 74,
+              "content": "What does the speaker recommend doing?",
+              "optionA": "Creating more charging stations",
+              "optionB": "Buying an electric pickup truck",
+              "optionC": "Getting new tires",
+              "optionD": "Shopping for a sports car",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 75,
+              "content": "What disadvantage of electric pickup trucks does the speaker mention?",
+              "optionA": "Their high cost",
+              "optionB": "Their engine noise",
+              "optionC": "Their slow speed",
+              "optionD": "Their small size",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 76,
+              "content": "What alternative use for electric pickup trucks does the speaker mention?",
+              "optionA": "Sheltering animals",
+              "optionB": "Generating radio signals",
+              "optionC": "Supporting building structures",
+              "optionD": "Powering homes",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t77_79.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 77,
+              "content": "Who most likely is the speaker?",
+              "optionA": "A store cashier",
+              "optionB": "A produce supplier",
+              "optionC": "A restaurant owner",
+              "optionD": "A supermarket manager",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 78,
+              "content": "What are the owners doing?",
+              "optionA": "Increasing staff pay",
+              "optionB": "Introducing new products",
+              "optionC": "Hosting a dinner",
+              "optionD": "Hiring more employees",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 79,
+              "content": "What does the speaker imply when she says, \"There's a sign-up sheet in the staff room\"?",
+              "optionA": "The new work hours are voluntary.",
+              "optionB": "People who sign up get a reward.",
+              "optionC": "All employees must sign up for a shift.",
+              "optionD": "The meeting will continue in the staff room.",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t80_82.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 80,
+              "content": "What is being advertised?",
+              "optionA": "A solar heating system for homes",
+              "optionB": "A contest for a new heating system",
+              "optionC": "A home cleaning service",
+              "optionD": "A service for home heating systems",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 81,
+              "content": "What does the advertisement emphasize about the company?",
+              "optionA": "Its 24-hour service",
+              "optionB": "Its special cameras",
+              "optionC": "Its low prices",
+              "optionD": "Its customer service",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 82,
+              "content": "How can the listeners get a discount?",
+              "optionA": "By presenting a coupon",
+              "optionB": "By scheduling an appointment online",
+              "optionC": "By mentioning a radio advertisement",
+              "optionD": "By joining a mailing list",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t83_85.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 83,
+              "content": "What is the purpose of the meeting?",
+              "optionA": "To welcome new managers",
+              "optionB": "To fix a problem with a training program",
+              "optionC": "To provide an update",
+              "optionD": "To announce a change in strategy",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 84,
+              "content": "What does the speaker imply when he says, \"But we hope to be a strong partner with Regent during this construction boom\"?",
+              "optionA": "Regent is a new construction company.",
+              "optionB": "The plant may earn profits soon.",
+              "optionC": "The plant needs to create new products.",
+              "optionD": "The company needs to build more plants.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 85,
+              "content": "What did new employees do?",
+              "optionA": "They inspected local mines.",
+              "optionB": "They delivered raw materials.",
+              "optionC": "They constructed a building.",
+              "optionD": "They acquired certification.",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t86_88.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 86,
+              "content": "What will happen at Coleman's Downtown Theater this weekend?",
+              "optionA": "Movies of a special type will be shown.",
+              "optionB": "An actor will sign autographs.",
+              "optionC": "Collectors will gather for a trade show.",
+              "optionD": "An outdoor seating area will be opened.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 87,
+              "content": "What might people learn this weekend?",
+              "optionA": "How to prepare to run a marathon",
+              "optionB": "How the city has grown in 100 years",
+              "optionC": "The history of space exploration",
+              "optionD": "The history of an art form",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 88,
+              "content": "Who will be in the lobby on Sunday?",
+              "optionA": "A professional who works in the movies",
+              "optionB": "A writer who has released a new book",
+              "optionC": "A historian from a nearby university",
+              "optionD": "An astronaut who has been to space",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t89_91.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 89,
+              "content": "What work do the listeners do?",
+              "optionA": "Train security guards",
+              "optionB": "Make advertisements",
+              "optionC": "Create security software",
+              "optionD": "Provide financial advice",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 90,
+              "content": "What will happen tonight?",
+              "optionA": "Security systems will be updated.",
+              "optionB": "More security guards will be on duty.",
+              "optionC": "Financial data will be revised.",
+              "optionD": "New computers will be purchased.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 91,
+              "content": "Why does the speaker say, \"We are the most trusted company in the industry, and we want to stay that way\"?",
+              "optionA": "To congratulate a colleague",
+              "optionB": "To show appreciation to clients",
+              "optionC": "To motivate the listeners to act",
+              "optionD": "To introduce the next speaker",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": null,
+          "audioUrl": "/media/ets2023/test4/audio/t92_94.mp3",
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 92,
+              "content": "What is the purpose of the broadcast?",
+              "optionA": "To promote healthy eating habits",
+              "optionB": "To describe new recipes",
+              "optionC": "To review local restaurants",
+              "optionD": "To promote Italian culture",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 93,
+              "content": "What does the speaker criticize about Maria's Kitchen?",
+              "optionA": "The cost",
+              "optionB": "The service",
+              "optionC": "The parking",
+              "optionD": "The view",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 94,
+              "content": "What does the speaker recommend that the listeners do?",
+              "optionA": "Try the Italian food at Maria's Kitchen",
+              "optionB": "Cook Italian food at home",
+              "optionC": "Order the chicken at Arno's Bistro",
+              "optionD": "Travel outside the area for the best Italian food",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Save Our Date\nSophia and Randy\nJune 2\nNewfield Hotel\n5:00 P.M. reception in the Rose Garden\nMusic by Moderne Heart",
+          "audioUrl": "/media/ets2023/test4/audio/t95_97.mp3",
+          "imageUrl": "/media/ets2023/test4/images/q95_97_card.jpg",
+          "questions": [
+            {
+              "questionNumber": 95,
+              "content": "Who most likely is the listener?",
+              "optionA": "A band leader",
+              "optionB": "A wedding planner",
+              "optionC": "A restaurant worker",
+              "optionD": "A professional printer",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 96,
+              "content": "What problem does the speaker mention?",
+              "optionA": "A delayed flight",
+              "optionB": "An unavailable musician",
+              "optionC": "Additional guests",
+              "optionD": "A change in weather",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 97,
+              "content": "Look at the graphic. What information will most likely be changed?",
+              "optionA": "Newfield Hotel",
+              "optionB": "5:00 P.M.",
+              "optionC": "Rose Garden",
+              "optionD": "Moderne Heart",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Car Production Stages:\n#1 Metal pressing -> #2 Welding -> #3 Painting -> #4 Assembly",
+          "audioUrl": "/media/ets2023/test4/audio/t98_100.mp3",
+          "imageUrl": "/media/ets2023/test4/images/q98_100_stages.jpg",
+          "questions": [
+            {
+              "questionNumber": 98,
+              "content": "Who is Sayan Mitra?",
+              "optionA": "A customer service representative",
+              "optionB": "An accountant",
+              "optionC": "A car dealer",
+              "optionD": "A consultant",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 99,
+              "content": "Look at the graphic. Which stage of car production is the speaker discussing?",
+              "optionA": "Stage 1",
+              "optionB": "Stage 2",
+              "optionC": "Stage 3",
+              "optionD": "Stage 4",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 100,
+              "content": "What will the listeners most likely do next?",
+              "optionA": "View a presentation",
+              "optionB": "Ask some questions",
+              "optionC": "Review some specifications",
+              "optionD": "Return to their desks",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 5,
+      "name": "Incomplete Sentences",
+      "questionGroups": [
+        {
+          "questions": [
+            {
+              "questionNumber": 101,
+              "content": "After software updates, our customers report significant ------- in both speed and reliability.",
+              "optionA": "improvable",
+              "optionB": "improvements",
+              "optionC": "improves",
+              "optionD": "improved",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 102,
+              "content": "McNeal Unlimited's market profile was finished before the due date listed ------- the project plan.",
+              "optionA": "in",
+              "optionB": "about",
+              "optionC": "until",
+              "optionD": "along",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 103,
+              "content": "Employees can take up to two weeks off at a time as long as ------- requests are approved in advance.",
+              "optionA": "they",
+              "optionB": "their",
+              "optionC": "themselves",
+              "optionD": "them",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 104,
+              "content": "Service representatives are responsible for being the ------- contact for each of our clients.",
+              "optionA": "small",
+              "optionB": "most",
+              "optionC": "abundant",
+              "optionD": "primary",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 105,
+              "content": "The ------- of the fund-raiser was due to bad weather, so the event will be rescheduled for next weekend.",
+              "optionA": "cancellation",
+              "optionB": "cancel",
+              "optionC": "canceled",
+              "optionD": "canceler",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 106,
+              "content": "AVB Education's online courses help users master many computer skills more ------- than other learning methods do.",
+              "optionA": "nearly",
+              "optionB": "lightly",
+              "optionC": "previously",
+              "optionD": "effectively",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 107,
+              "content": "The ------- of several celebrities at the Sasaki Museum attracted local residents seeking photographs.",
+              "optionA": "presenter",
+              "optionB": "presented",
+              "optionC": "presence",
+              "optionD": "presentable",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 108,
+              "content": "The committee enthusiastically ------- the theater company's grant application because it encourages community participation.",
+              "optionA": "approved",
+              "optionB": "caused",
+              "optionC": "affected",
+              "optionD": "practiced",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 109,
+              "content": "Mr. Ibrahim told the management team that preparation for the annual shareholders' meeting was going ------- as planned.",
+              "optionA": "preciseness",
+              "optionB": "precise",
+              "optionC": "precision",
+              "optionD": "precisely",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 110,
+              "content": "Aryxco's shipping costs vary based upon the destination and the weight ------- the package.",
+              "optionA": "as",
+              "optionB": "along",
+              "optionC": "between",
+              "optionD": "of",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 111,
+              "content": "The health records of our clients are stored on a ------- server that is accessible only to authorized users.",
+              "optionA": "secure",
+              "optionB": "securing",
+              "optionC": "securely",
+              "optionD": "secureness",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 112,
+              "content": "Before we sign a contract with the heating company, we must confirm that its proposal meets our installation -------.",
+              "optionA": "customers",
+              "optionB": "businesses",
+              "optionC": "requirements",
+              "optionD": "volunteers",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 113,
+              "content": "The area ------- the new Furniture Vine headquarters is covered by dense forest.",
+              "optionA": "among",
+              "optionB": "happening",
+              "optionC": "foreseeable",
+              "optionD": "surrounding",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 114,
+              "content": "The firm's top analysts expect that the acquisition of Valuwest, Inc., will lead to a ------- future for shareholders.",
+              "optionA": "prosperous",
+              "optionB": "voluntary",
+              "optionC": "sizable",
+              "optionD": "calculating",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 115,
+              "content": "Upon reviewing the draft of the agreement, the lead lawyer will notify Ms. Gwan's team ------- any concerns.",
+              "optionA": "regarding",
+              "optionB": "afterward",
+              "optionC": "toward",
+              "optionD": "as soon as",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 116,
+              "content": "Following a two-year break, the Grear Institute is once again ------- career-building workshops for health-care workers.",
+              "optionA": "informing",
+              "optionB": "providing",
+              "optionC": "passing",
+              "optionD": "deciding",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 117,
+              "content": "The Cedar Lake Hotel adjusted its prices in an attempt to increase its share of the growing ------- market.",
+              "optionA": "competed",
+              "optionB": "competition",
+              "optionC": "competitor",
+              "optionD": "competitive",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 118,
+              "content": "Operating hours of Big Midwest Cafés are subject to local ------- enforced by the city in which the café is located.",
+              "optionA": "fragments",
+              "optionB": "equalities",
+              "optionC": "regulations",
+              "optionD": "categories",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 119,
+              "content": "The legal department ------- revisions to the amendment last week, and Ms. Koehler sent it to the corporate group for review.",
+              "optionA": "completed",
+              "optionB": "completes",
+              "optionC": "will complete",
+              "optionD": "is completing",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 120,
+              "content": "Ms. Arriata asked all ------- in yesterday's Productivity and Technology workshop to send in their questionnaires.",
+              "optionA": "activities",
+              "optionB": "objectives",
+              "optionC": "participants",
+              "optionD": "schedules",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 121,
+              "content": "Consumers noted that Sunnyside Chocolates taste ------- different from all other chocolates.",
+              "optionA": "distinguish",
+              "optionB": "distinguishably",
+              "optionC": "to distinguish",
+              "optionD": "distinguishing",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 122,
+              "content": "With bicycling becoming more popular than ever, the city council plans to ------- the number of bicycle lanes on city streets.",
+              "optionA": "generate",
+              "optionB": "invent",
+              "optionC": "expand",
+              "optionD": "organize",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 123,
+              "content": "Claston Industry's guidelines help ensure that equipment ordered from all suppliers ------- safety standards.",
+              "optionA": "meets",
+              "optionB": "meeting",
+              "optionC": "to meet",
+              "optionD": "was met",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 124,
+              "content": "Though Ms. Daiyu ------- handles customer inquiries, Mr. Mei takes over when she gets a special assignment from her manager.",
+              "optionA": "never",
+              "optionB": "almost",
+              "optionC": "deeply",
+              "optionD": "usually",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 125,
+              "content": "Opportunities for growth cannot ------- by Aksika Medical without a careful analysis of the costs and benefits.",
+              "optionA": "pursue",
+              "optionB": "be pursued",
+              "optionC": "pursuing",
+              "optionD": "to pursue",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 126,
+              "content": "Mayson Technology not only leads its competitors in revenue ------- in award-winning innovations.",
+              "optionA": "but also",
+              "optionB": "so that",
+              "optionC": "and",
+              "optionD": "yet",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 127,
+              "content": "Our presentation will provide an overview of ------- the theoretical and the practical aspects of machine learning.",
+              "optionA": "each",
+              "optionB": "any",
+              "optionC": "such",
+              "optionD": "both",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 128,
+              "content": "The responsibilities of new assembly-line supervisors at the Streamline Auto Plant increase ------- as they gain more experience.",
+              "optionA": "diligently",
+              "optionB": "completely",
+              "optionC": "progressively",
+              "optionD": "cooperatively",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 129,
+              "content": "Although unforeseen factors initially ------- the construction of the wind farm, it opened on schedule.",
+              "optionA": "complicate",
+              "optionB": "complicated",
+              "optionC": "are complicating",
+              "optionD": "be complicated",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 130,
+              "content": "------- Haruto sees an opportunity for professional development, he is sure to take advantage of it.",
+              "optionA": "Even though",
+              "optionB": "Owing to",
+              "optionC": "Whenever",
+              "optionD": "Whereas",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 6,
+      "name": "Text Completion",
+      "questionGroups": [
+        {
+          "passageText": "Evergreen Mountains Scenic Railway\n\nThe Evergreen Mountains Scenic Railway has reopened after a yearlong renovation project. First built over a century ago, the railway is one of the oldest in the nation. The recent closure was necessary to make extensive upgrades to the aging tracks and train cars. 131. ------- renovations were made to the historic station.\n\nSightseers on the railway will enjoy a trip through the Evergreen Forest as they 132. ------- to the top of Walden Mountain. Here the train will make an hour-long stop for visitors to tour the new visitor center or 133. ------- enjoy the views from the highest mountain in the region. The return trip takes a different route back to the station. 134. -------\n\nTickets for this amazing journey are available online.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 131,
+              "content": "Select the best answer for blank (131).",
+              "optionA": "Additionally",
+              "optionB": "However",
+              "optionC": "Nevertheless",
+              "optionD": "For example",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 132,
+              "content": "Select the best answer for blank (132).",
+              "optionA": "ride",
+              "optionB": "riding",
+              "optionC": "rides",
+              "optionD": "ridden",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 133,
+              "content": "Select the best answer for blank (133).",
+              "optionA": "simple",
+              "optionB": "simplest",
+              "optionC": "simplify",
+              "optionD": "simply",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 134,
+              "content": "Select the best answer for blank (134).",
+              "optionA": "The renovations took longer than expected.",
+              "optionB": "Walden Mountain is the tallest of the Evergreen Mountains.",
+              "optionC": "Other nearby mountains do not have tourist attractions.",
+              "optionD": "The entire trip takes approximately 2.5 hours.",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "To: Marcus Witt <mwitt@bmail.com>\nFrom: Julie Mendell <contracts@nevycorp.com>\nDate: 1 June\nSubject: Your contract with Nevy\nAttachment: Renewal form\n\nDear Mr. Witt:\n\nGreetings from the Nevy Corporation. I hope this message finds you well.\n\nAs I mentioned on our recent call, we are conducting a review of our current 135. -------. This includes your agency. 136. ------- the difficult year, we have been impressed with your agency's professionalism and positive results. 137. ------- Please sign the attached document and return it to us at your earliest convenience.\n\nWe 138. ------- forward to strengthening our relationship with you and your team. If you have any questions or concerns, please let us know.\n\nSincerely,\nJulie Mendell\nPartner Relations Manager",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 135,
+              "content": "Select the best answer for blank (135).",
+              "optionA": "versions",
+              "optionB": "contests",
+              "optionC": "equipment",
+              "optionD": "partnerships",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 136,
+              "content": "Select the best answer for blank (136).",
+              "optionA": "Although",
+              "optionB": "Despite",
+              "optionC": "Instead",
+              "optionD": "Since",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 137,
+              "content": "Select the best answer for blank (137).",
+              "optionA": "Therefore, we would like to extend your contract for another two years.",
+              "optionB": "Unfortunately, we were unable to reach you in time.",
+              "optionC": "Please confirm your contact details at your earliest convenience.",
+              "optionD": "We certainly understand the concerns you raised when we last spoke.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 138,
+              "content": "Select the best answer for blank (138).",
+              "optionA": "were looking",
+              "optionB": "would look",
+              "optionC": "looked",
+              "optionD": "look",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Save Big at Buelo Fitness!\n\nAt Buelo Fitness, we seek to improve the physical and mental well-being of all Carver residents. Since the gym is locally owned, 139. ------- will give you the attention and guidance you need to maximize your fitness. 140. ------- another year comes to an end, why not get in shape? 141. -------\n\nBut you must act fast! These limited-time deals are only valid through December 31.\n\nThe Buelo Bundle consists of fifteen classes within three months for just $100. The Buelo Unlimited package is just $10 for the first month, and then $100 per month thereafter. It requires a six-month 142. -------.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 139,
+              "content": "Select the best answer for blank (139).",
+              "optionA": "we",
+              "optionB": "one",
+              "optionC": "they",
+              "optionD": "mine",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 140,
+              "content": "Select the best answer for blank (140).",
+              "optionA": "As",
+              "optionB": "During",
+              "optionC": "Beyond",
+              "optionD": "Following",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 141,
+              "content": "Select the best answer for blank (141).",
+              "optionA": "Call us if you have any questions.",
+              "optionB": "Check out these positive reviews from customers.",
+              "optionC": "We are offering two special deals to help you begin.",
+              "optionD": "Exercise should be combined with healthy eating habits.",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 142,
+              "content": "Select the best answer for blank (142).",
+              "optionA": "lease",
+              "optionB": "development",
+              "optionC": "opportunity",
+              "optionD": "commitment",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "To: jliu@lle.com\nFrom: customersupport@gerdenbank.com\nSubject: Service Fee\nDate: 27 May, 10:34 A.M.\n\nDear Ms. Liu,\n\n143. ------- an error in our internal computer processing system, a service fee was incorrectly deducted from your savings account on 23 May. This error has been fixed, and a refund was posted to your account on 25 May. You 144. ------- this deposit on your next statement under the description \"Fee adjustment.\"\n\nWe apologize if this has resulted in any 145. -------. Please contact us if you have any concerns regarding this issue. 146. -------\n\nSincerely,\nJennifer Ayers\nCustomer Support\nGerden Bank",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 143,
+              "content": "Select the best answer for blank (143).",
+              "optionA": "In fact",
+              "optionB": "Because of",
+              "optionC": "In reply to",
+              "optionD": "Except for",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 144,
+              "content": "Select the best answer for blank (144).",
+              "optionA": "found",
+              "optionB": "were finding",
+              "optionC": "will find",
+              "optionD": "have found",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 145,
+              "content": "Select the best answer for blank (145).",
+              "optionA": "confusion",
+              "optionB": "satisfaction",
+              "optionC": "explanation",
+              "optionD": "calculation",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 146,
+              "content": "Select the best answer for blank (146).",
+              "optionA": "We just added 280 new customers to our base.",
+              "optionB": "Please let us know whether you want to open a checking account.",
+              "optionC": "Gerden Bank has an important message for our customers.",
+              "optionD": "As always, thank you for choosing Gerden Bank.",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "partNumber": 7,
+      "name": "Reading Comprehension",
+      "questionGroups": [
+        {
+          "passageText": "MEMO\nTo: All Staff\nFrom: Amaya Sodhi\nSubject: Online Portal\nDate: 22 August\n\nThe online portal is now up and running. To use it, patients must first obtain an activation number from a staff member here. Patients will then be able to register to access their records, get lab results, and book appointments.\n\nWe had also planned to launch a payment option within the portal. However, the Web developers are still dealing with issues with the billing system. As a result, that part of the system will be implemented at a later time.\n\nIt will take some time for all of us to learn how to work with the portal. If you have any questions, please contact Marie at extension 244.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 147,
+              "content": "Where most likely does Ms. Sodhi work?",
+              "optionA": "At a hotel",
+              "optionB": "At a medical office",
+              "optionC": "At a credit card company",
+              "optionD": "At an employment agency",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 148,
+              "content": "What has been delayed?",
+              "optionA": "A software update",
+              "optionB": "The hiring of new employees",
+              "optionC": "The delivery of information to Marie",
+              "optionD": "An online payment system",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Welcome to the Mirjana Springs Hotel in Dubrovnik.\n\nThe network password for complimentary Web access is \"Mirjanawifi.\" It is offered throughout the hotel.\n\nFor hotel-related requests, please contact the front desk. For information on local attractions and tourist excursions, please see Ms. Novak in our recreation office.\n\nWe hope you enjoy your stay!\n\nRoom #: 1296\nCheck-in: May 23\nCheckout: May 25\nClerk: Malina Babic\nArrival time: 8:23 P.M.\nGuest: Devon Tolga",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 149,
+              "content": "What is indicated about Internet access at the Mirjana Springs Hotel?",
+              "optionA": "It does not require a password.",
+              "optionB": "It is not very reliable in the evening.",
+              "optionC": "It is not available in room 1296.",
+              "optionD": "Guests do not have to pay for it.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 150,
+              "content": "What is indicated about Ms. Novak?",
+              "optionA": "She works at the front desk.",
+              "optionB": "She will check out on May 25.",
+              "optionC": "She helps set up sightseeing trips.",
+              "optionD": "She is Ms. Babic's supervisor.",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Mini-pure: Portable Air Purifier\n\nMountain Clear Air, a leader in air purifying devices, introduces Mini-pure, the first portable air purifier of its kind. Developed by leading environmentalists and engineers, Mini-pure cleans air by using negative ions! Plus, it's small and convenient, so you can take it with you wherever you go.\n\n• Environmentally friendly and effective\n• Fits easily into a purse or briefcase\n• Reduces pollutants and allergens\n• Charges quickly with any standard phone charger\n• For use at home, in the office, or anywhere\n\nFind out more at Minipureairclean.com.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 151,
+              "content": "For whom is the advertisement most likely intended?",
+              "optionA": "Medical engineers",
+              "optionB": "Hotel operators",
+              "optionC": "Environmental specialists",
+              "optionD": "Everyday consumers",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 152,
+              "content": "What is NOT indicated about the air purifier?",
+              "optionA": "Its size",
+              "optionB": "Its purpose",
+              "optionC": "Its cost",
+              "optionD": "Its power source",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Jim Szymanski (9:42 A.M.) Bev, I want to give you a heads-up. There's a broken water valve at the Eastbury Student Apartments. The water there will be shut off for 2 hours.\nBev Munoz (9:43 A.M.) No problem. We can wash our hands at the Carlton Apartments after we finish this job.\nJim Szymanski (9:44 A.M.) Right. We'll be doing the same thing this morning as we did last time. We'll enter each apartment unit and vacuum out the filter in the wall air conditioner. Any filter that looks too dusty should be replaced. Also, we should clear out debris from the vents.\nBev Munoz (9:46 A.M.) Got it. Will all the apartments be unoccupied?\nJim Szymanski (9:47 A.M.) The students are on school holiday. But you may want to knock on the doors just in case.\nBev Munoz (9:48 A.M.) OK. I can handle Building A because I'm parked nearby. You could work on Building B. The work will go more quickly that way, and we'll have time for an afternoon lunch break.\nJim Szymanski (9:49 A.M.) Exactly. Let me know if you need anything else this morning.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 153,
+              "content": "What will Mr. Szymanski and Ms. Munoz do this morning?",
+              "optionA": "Remove litter from parking areas",
+              "optionB": "Service some air conditioners",
+              "optionC": "Repair broken water pipes",
+              "optionD": "Install kitchen appliances",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 154,
+              "content": "At 9:47 A.M., what does Mr. Szymanski imply when he writes, \"The students are on school holiday\"?",
+              "optionA": "Parking will be easy to find.",
+              "optionB": "No students live in Building A.",
+              "optionC": "The apartments should be vacant.",
+              "optionD": "Students often make their own repairs.",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "To: Larisa M. Lee\nFrom: Minnich Furniture\nSubject: Furniture Sale Ends Friday\nDate: Wednesday, 28 August\n\nMinnich Furniture Seasonal Sale!\nLast three days for up to 50% savings. Shop for:\nSectionals\nSofas\nLamps\nBedroom sets\n\nOver 1,000 items on sale. Hurry! Inventory is going fast!\nShop online at www.minnichfurniture.com\n\n• Limited quantities of certain items are available. Limit 2 sale items per customer.\n• Offer applies to Internet orders only. Additional cost for shipping.\n• Returns must be initiated within 30 days.\n• See Web site for full details and photos of all offerings.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 155,
+              "content": "Who most likely is Ms. Lee?",
+              "optionA": "A potential customer",
+              "optionB": "A sales representative",
+              "optionC": "An interior designer",
+              "optionD": "A warehouse employee",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 156,
+              "content": "How can purchases be made from Minnich Furniture?",
+              "optionA": "By shopping at one of several retail stores in the area",
+              "optionB": "By visiting the central warehouse",
+              "optionC": "By phoning the call center",
+              "optionD": "By placing an online order",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 157,
+              "content": "What is indicated in the e-mail?",
+              "optionA": "The sale will end in 30 days.",
+              "optionB": "Returns of discounted items are not allowed.",
+              "optionC": "Customers can buy only two items at sale price.",
+              "optionD": "Only 1,000 items are left in stock.",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Johan Krueger\nXolani Publishing\n291 Waring Road\nPretoria 0002 South Africa\n16 June\n\nNadja Abdi, Office Manager\n64 Kenda Avenue\nNairobi 00606 Kenya\n\nDear Ms. Abdi,\n\nThank you for requesting a free trial issue of Modern Style Magazine. Enclosed is your complimentary issue. Businesses like yours benefit greatly from our magazine service. Did you know that patients typically wait up to twenty minutes before their checkup or cleaning? Having magazines to read helps the wait time pass quickly.\n\nReady to order a full subscription? Return the enclosed card and get 20 percent off the newsstand price. As a bonus, we will include a copy of our annual review issue at no extra charge.\n\nSincerely,\nJohan Krueger\nJohan Krueger, Xolani Publishing\n\nP.S. We publish magazines for a variety of readers worldwide, including popular titles such as Sports Today, Home Repair Journal, and Budget Traveler Monthly. As a business, you can request a complimentary trial issue of any title in our catalogue. Just visit our Web site today!",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 158,
+              "content": "What type of business does Ms. Abdi most likely manage?",
+              "optionA": "A hair salon",
+              "optionB": "A dental clinic",
+              "optionC": "A coffee shop",
+              "optionD": "A law firm",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 159,
+              "content": "The word \"pass\" in paragraph 1, line 4, is closest in meaning to",
+              "optionA": "cross",
+              "optionB": "happen",
+              "optionC": "elapse",
+              "optionD": "overlook",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 160,
+              "content": "What is indicated about Xolani Publishing?",
+              "optionA": "Its products appeal to people with various interests.",
+              "optionB": "It mainly publishes academic journals.",
+              "optionC": "Its customer base is limited to South Africa.",
+              "optionD": "It sells mostly digital subscriptions.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 161,
+              "content": "What is NOT offered to Ms. Abdi in the letter?",
+              "optionA": "A free trial issue of another magazine",
+              "optionB": "A discounted subscription rate",
+              "optionC": "A bonus for referring new subscribers",
+              "optionD": "A free issue of Modern Style Magazine",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "FOR IMMEDIATE RELEASE\nContact: Roberto Barboza\n351 922 555 965\n\nLISBON (18 June)-This year's International Candy Conference will be held in Lisbon, Portugal, at the Vil de Maitros Convention Center near the Bibb Bubblegum factory. Thousands of candy industry specialists from around the world are expected to attend the event on 8-10 September. - [1] -.\n\nAmanda Bibb, CEO of Bibb Bubblegum, takes the chewing gum industry very seriously. - [2] -. As the company's fourth-generation CEO, she proudly shares, \"My family is excited to sponsor this event and thrilled to be the first chewing gum company ever to host the International Candy Conference!\" Ms. Bibb is also especially pleased that the candy conference will be in Portugal this year. - [3] -. \"Bibb Bubblegum started with a tiny shop near Lisbon. While our main factory is local, we now sell our gum in seven countries. We hope this event will bring attention and revenue to our community as well as to the international bubblegum market.\"\n\nFor more information about the International Candy Conference and for tours of the Bibb Bubblegum factory, contact Roberto Barboza at 351 922 555 965 or visit www.BibbBubblegum.com. - [4] -",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 162,
+              "content": "What is the main purpose of the press release?",
+              "optionA": "To explain the history of the candy industry",
+              "optionB": "To announce the expansion of a gum company",
+              "optionC": "To introduce the CEO of a new business",
+              "optionD": "To promote a conference and its sponsor",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 163,
+              "content": "What is indicated about the Bibb Bubblegum company?",
+              "optionA": "It allows visitors to tour its facility.",
+              "optionB": "Its headquarters are in Lisbon.",
+              "optionC": "It is a new candy business in Portugal.",
+              "optionD": "It offers more flavors than other gum companies do.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 164,
+              "content": "Who most likely is Mr. Barboza?",
+              "optionA": "A shop owner",
+              "optionB": "A company representative",
+              "optionC": "A newspaper writer",
+              "optionD": "A travel agent",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 165,
+              "content": "In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong?\n\"That number now will likely include many gum manufacturers, as Bibb Bubblegum will host this year's event.\"",
+              "optionA": "[1]",
+              "optionB": "[2]",
+              "optionC": "[3]",
+              "optionD": "[4]",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Your upgraded Impala card is in the mail!\n\nAt Impala Credit Union, your safety and convenience are paramount. That is why we are introducing contactless technology for all our member credit and debit cards. With this new development, you will no longer have to swipe or insert your card in a chip reader at checkout. In fact, you will not even need to remove your card from a physical wallet; simply hold it near a point of sale for it to be read!\n\nThere are a few important things to keep in mind. First, your current card will be deactivated on October 31. You may continue to use it until that time.\n\nSecond, the upgraded card may arrive before your current one expires. Once you activate the new card, the old one will automatically be deactivated and no longer be valid for use. You will need to manually activate your new card by following the instructions on the attached sticker.\n\nThird, your contactless technology card will have a new card number, expiration date, and security number. When activating, you will be prompted to choose a PIN (personal identification number). The PIN from your current card will not automatically transfer over. Be sure to update your card on file for all preferred online retailers and app subscriptions to ensure continued access.\n\nWe hope that you enjoy your new card. For any questions regarding your contactless technology Impala card, feel free to contact customer service at 1-610-555-0168.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 166,
+              "content": "What is the purpose of the notice?",
+              "optionA": "To request customer feedback",
+              "optionB": "To alert customers of credit card fraud",
+              "optionC": "To inform customers of a new payment method",
+              "optionD": "To announce a change in billing policies",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 167,
+              "content": "What is indicated about the new Impala card?",
+              "optionA": "It will be valid for use as of October 31.",
+              "optionB": "It does not need to be removed from a wallet for use.",
+              "optionC": "It cannot be used for app subscriptions.",
+              "optionD": "It will contain the same identification information as the old card.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 168,
+              "content": "What do customers need to do when activating their new card?",
+              "optionA": "Select a PIN",
+              "optionB": "Cancel their current card",
+              "optionC": "Enter the security number",
+              "optionD": "Transfer outstanding balances",
+              "correctOption": "A",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Frieda Jung (9:16 A.M.) I have to be out of the office starting on Wednesday until next Monday. I need to present a funding request at the regional legislature office. Would you both feel comfortable giving the presentation about the new Riverwalk to the urban development committee on Friday?\nCassie Alswith (9:18 A.M.) I think we could handle that. Right, Austin?\nAustin Everett (9:20 A.M.) Definitely. I'm not sure how available you will be, Ms. Jung, but we could send you an overview of the presentation on Thursday if you'd like.\nFrieda Jung (9:22 A.M.) I don't think that's necessary. Please be sure to highlight the revenue that we think will be brought into the region by the new businesses, as well as the positive environmental impacts our research group noted.\nAustin Everett (9:23 A.M.) Got it. We will make sure to do that.\nCassie Alswith (9:25 A.M.) Would it be okay if I submit the weekly progress report on Monday instead of Friday? That way I'll have a little more time to prepare for the presentation.\nFrieda Jung (9:26 A.M.) Yes, that's a good idea.\nCassie Alswith (9:26 A.M.) Great. Thank you!\nFrieda Jung (9:27 A.M.) I might not respond to e-mail as frequently while I'm gone, but feel free to call me or text me if there's anything urgent that comes up.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 169,
+              "content": "Why will Ms. Jung be out of the office?",
+              "optionA": "She is interviewing for a different job.",
+              "optionB": "She has another work obligation.",
+              "optionC": "She is taking time off for personal reasons.",
+              "optionD": "She has a doctor's appointment.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 170,
+              "content": "At 9:22 A.M., what does Ms. Jung most likely mean when she writes, \"I don't think that's necessary\"?",
+              "optionA": "She is frustrated with Mr. Everett.",
+              "optionB": "She is confident in the abilities of Mr. Everett and Ms. Alswith.",
+              "optionC": "She does not enjoy reading e-mails.",
+              "optionD": "She thinks the meeting should be canceled.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 171,
+              "content": "What is indicated about the Riverwalk?",
+              "optionA": "It will likely bring extra business to the area.",
+              "optionB": "It is located in the center of the city.",
+              "optionC": "Ms. Alswith is skeptical about its benefits.",
+              "optionD": "The construction on it has progressed quickly.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 172,
+              "content": "What is suggested about Ms. Alswith's report?",
+              "optionA": "It has never been submitted late.",
+              "optionB": "It will be submitted to the legislature office.",
+              "optionC": "It is submitted every Friday.",
+              "optionD": "It must be reviewed by Mr. Everett on Monday.",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Westmouth Financial Services\n1311 Paul Street\nExeter EX8 9YJ, United Kingdom\n14 July\n\nDear Ms. Tartal,\n\nI am writing to notify you of some upcoming changes regarding your retirement investment account at Westmouth Financial. - [1] -. Firstly, as you may already know, your primary financial services advisor, Felix Reardon, is retiring next month. - [2] -. I have over fifteen years of experience working in personal finance and have worked at Westmouth Financial for three of those years, helping over 25 clients meet their retirement goals through savvy financial planning. I am excited to help you continue this journey.\n\nSecondly, I would like to schedule a time to meet or talk with you about your current portfolio. - [3] -. We could meet in person or just have a simple phone or video chat, but it would be good for us to touch base to plan your investment strategy for the next ten years as you are nearing your retirement. Along those lines, I specifically wanted to see if you were interested in shifting some of your funds into more stable assets like bonds and annuities. - [4] -. I usually recommend shifting into these safer options as you get closer to retirement. Please feel free to call me or send an e-mail so we can arrange a time to talk. Thanks, and I look forward to speaking more.\n\nSincerely,\nRita Hidayat\nRita Hidayat, Account Manager",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 173,
+              "content": "What is indicated about Ms. Hidayat?",
+              "optionA": "Personal finance is her second career.",
+              "optionB": "She has been in her current role for three years.",
+              "optionC": "She was Mr. Reardon's mentor.",
+              "optionD": "She retired fifteen years ago.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 174,
+              "content": "What is suggested about Ms. Tartal's financial portfolio?",
+              "optionA": "It does not have a great deal of value.",
+              "optionB": "Mr. Reardon did not manage it well.",
+              "optionC": "Ms. Tartal expected it to perform better.",
+              "optionD": "It has several risky assets.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 175,
+              "content": "In which of the positions marked [1], [2], [3], and [4] does the following sentence best belong?\n\"Therefore, I will be taking over the management of your account.\"",
+              "optionA": "[1]",
+              "optionB": "[2]",
+              "optionC": "[3]",
+              "optionD": "[4]",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "New Home for Theatre Group\nAUCKLAND (11 July)-The south end of Darby Street is dominated by the imposing Victorian building that formerly held the main branch of Pacific Trade Bank. That building is now the home of the Cornata Theatre Company. After a grand-opening ceremony on Tuesday, tours of the new theatre were given to attendees.\nThe debut show is Relax, a comedy by Mi-Sun Yeo about a popular tourist site. Performances are scheduled to begin on Saturday, 16 July, and run until the end of the month.\nAccording to Noah Larkins, the artistic director of the Cornata Theatre Company, \"talk-backs\" will immediately follow every performance. Talk-backs allow the director and cast members to share their thoughts about the play, and audience members can ask them questions. \"We want to be part of the artistic communities in both Auckland and the larger community around us,\" said Mr. Larkins.\nThe building houses a main stage theatre that seats approximately 325 people and a smaller studio theatre upstairs. The company will also offer acting classes for children and adults. For more information or to buy tickets, visit the company's Web page at www.cornatatheatre.nz.\n\n---\nThank you for attending Relax. Please take a few moments to tell us about your experience.\nName and e-mail address: Julia Cruz <jcruz@northwing.nz>\n1. How would you rate the performance you saw?\n[X] Excellent [ ] Good [ ] Fair [ ] Did not enjoy\n2. How would you rate your overall theatre experience?\n[ ] Excellent [X] Good [ ] Fair [ ] Did not enjoy\n3. How did you hear about us? (Check all that apply.)\n[X] Print advertisement [X] Social media [X] Television [ ] E-mail\nComments: The play was a fascinating story, and the acting was brilliant. I'm delighted to be a subscribing member of the theatre this season. If all the shows are this good, I'll be very happy. There did seem to be a problem with the concession stand. There was a long line for food and drinks, and it did not move very quickly.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 176,
+              "content": "What is the purpose of the article?",
+              "optionA": "To examine the history that a play is based on",
+              "optionB": "To attract participation from amateur actors",
+              "optionC": "To announce the opening of an arts venue",
+              "optionD": "To advertise a service for tourists",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 177,
+              "content": "Who is Ms. Yeo?",
+              "optionA": "A playwright",
+              "optionB": "A banker",
+              "optionC": "A department head",
+              "optionD": "A director of tourism",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 178,
+              "content": "What does the article mention about the building on Darby Street?",
+              "optionA": "It contains apartments for many families.",
+              "optionB": "It was once a bank.",
+              "optionC": "It is the oldest building on the street.",
+              "optionD": "It offers a community jobs program.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 179,
+              "content": "What is suggested about Ms. Cruz?",
+              "optionA": "She heard about a theater from an e-mail.",
+              "optionB": "She enjoyed the food and drinks offered.",
+              "optionC": "She did not think the acting was very good.",
+              "optionD": "She saw the first play performed in a new theater.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 180,
+              "content": "What does Ms. Cruz indicate in the survey?",
+              "optionA": "She recently moved to Auckland.",
+              "optionB": "She works at a nearby restaurant.",
+              "optionC": "She is a season subscriber.",
+              "optionD": "She stopped at a theater after shopping.",
+              "correctOption": "C",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Blendora Coffee\nItem 16: Creamy Vanilla Blendelicious\nSteps:\n1. Pour espresso: Use dark roast or decaf. For small drinks, add 1 shot. For medium drinks, add 2 shots. For large drinks, add 3 shots.\n2. Pour milk: For regular drinks, use whole milk. When customers request a light drink, use nonfat milk.\n3. Add flavor: Use vanilla powder. For small drinks, add 2 scoops. For medium drinks, add 3 scoops. For large drinks, add 4 scoops.\n4. Add ice: Use the markings on the ice scoop for small, medium, and large drinks.\n5. Blend: Press the orange button on the blender. The texture should be creamy.\n6. Finish and serve: Pour into a plastic cup. For regular drinks, top with whipped cream and use a domed lid. For light drinks, do not top with whipped cream and use a flat lid.\n7. Clean up: Rinse blender cover and metal blender cup. Wipe the counter.\n\n---\nBlendora Coffee Barista Training\nTrainee: Matt Molinelli\nTrainer: Kuniko Osawa\nDate: June 17\nDrink: Creamy Vanilla Blendelicious (Light) Size: Small [ ] Medium [X] Large [ ]\nRate the quality of the finished beverage: Perfect [ ] Very Good [ ] Good [X] Acceptable [ ] Unacceptable [ ]\nWhat errors did the trainee make?\nMr. Molinelli measured correctly for a medium beverage, and he used nonfat milk. However, he did everything else according to the regular recipe, not the light one.\nComments: Mr. Molinelli was adept at using his hands, and he kept a smile on his face. Once he memorizes the recipes, he will be an excellent barista.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 181,
+              "content": "Who are the instructions meant for?",
+              "optionA": "Dishwashers at a restaurant",
+              "optionB": "New employees at a coffee shop",
+              "optionC": "Customers placing an order",
+              "optionD": "Restaurant equipment manufacturers",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 182,
+              "content": "According to the instructions, what is true of the Creamy Vanilla Blendelicious?",
+              "optionA": "It is available in two sizes only.",
+              "optionB": "It is served hot.",
+              "optionC": "It is not available in decaf.",
+              "optionD": "It is sometimes served with a flat lid.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 183,
+              "content": "How many scoops of vanilla powder did Mr. Molinelli use?",
+              "optionA": "One",
+              "optionB": "Two",
+              "optionC": "Three",
+              "optionD": "Four",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 184,
+              "content": "What did Mr. Molinelli do wrong?",
+              "optionA": "He put whipped cream on the drink.",
+              "optionB": "He used the wrong type of milk.",
+              "optionC": "He used only one shot of espresso.",
+              "optionD": "He washed the blender without using soap.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 185,
+              "content": "What does Ms. Osawa suggest about Mr. Molinelli in the form?",
+              "optionA": "He asked her for help to make the drink.",
+              "optionB": "He presented a friendly appearance.",
+              "optionC": "He had never used a blender before.",
+              "optionD": "He has an excellent memory.",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Dialed-In: The Web Site for Professional Connections\nQuentin Rines\nDialed-In Code number: 04404782\nExperience:\n• Assistant Manager, Commercial Lending, First Bank of Barbados - Three years, three months (present position)\n• Loan Officer, First Bank of Barbados - Three years, eight months\n• Teller, First Bank of Barbados - 1 year, two months\nPosition wanted: Director of Commercial Lending\n\n---\nTo: Quentin Rines <qrines@islandlink.bb>\nFrom: Rozella Huy <rozella.huy@ventana.com>\nDate: 14 November\nSubject: Job offer\n\nDear Mr. Rines:\nOn behalf of all staff here at Ventana Bank, I want to say how pleased we were to meet you last week. We appreciate that you were able to spend so much time with us discussing your background and plans for the future. We are pleased to offer you the position of director of commercial lending. The position will be based in our George Town location on the Cayman Islands. Should you accept the position, you will receive the pay and benefits described during the interview process, as well as a relocation reimbursement of USD $1,000.\nPlease let us know whether you accept the offer by 29 November and inform us of your preferred start date. We hope to have the position filled by mid-December.\nCongratulations on being selected. We look forward to welcoming you to our team.\nSincerely,\nRozella Huy\nPresident, Ventana Bank\n\n---\nTo: Tomas Melville <tmelville@homenetwork.bb>\nFrom: Quentin Rines <qrines@islandlink.bb>\nDate: 14 November\nSubject: New position\n\nMr. Melville,\nI just received the job offer from Ventana Bank that we discussed on Monday. They are meeting my salary request and offering me money for relocating too.\nThis has been my goal ever since you hired me as a teller, right out of college. But now that I have been offered my dream job, I am having doubts. The new location seems so far away. I would rarely get to see my parents and my siblings.\nI would welcome your help in this matter. Could we get together in the next few days for lunch or coffee? As you know, I have always valued your input, and I have missed our lunchtime conversations since you retired.\nQuentin",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 186,
+              "content": "According to the online profile, what is Mr. Rines's current job?",
+              "optionA": "Director",
+              "optionB": "Assistant manager",
+              "optionC": "Loan officer",
+              "optionD": "Teller",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 187,
+              "content": "What is indicated about Mr. Rines in the first e-mail?",
+              "optionA": "He was offered $1,000 to help pay for moving.",
+              "optionB": "He worked with Ms. Huy at First Bank of Barbados.",
+              "optionC": "He plans to go on a short trip to the Cayman Islands.",
+              "optionD": "He recently opened an account at Ventana Bank.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 188,
+              "content": "What is Mr. Rines's concern about the position?",
+              "optionA": "It pays less than advertised.",
+              "optionB": "It requires him to move to the Cayman Islands.",
+              "optionC": "It requires him to start before he is ready.",
+              "optionD": "It seems to be more demanding than he originally thought.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 189,
+              "content": "According to the second e-mail, why does Mr. Rines want to meet with Mr. Melville?",
+              "optionA": "To offer him a job",
+              "optionB": "To request a loan",
+              "optionC": "To ask for advice",
+              "optionD": "To thank him for his help",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 190,
+              "content": "What is suggested about Mr. Melville?",
+              "optionA": "He lives in George Town.",
+              "optionB": "He contacted Mr. Rines using the Dialed-In Web site.",
+              "optionC": "He is a friend of Ms. Huy's.",
+              "optionD": "He once worked at First Bank of Barbados.",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "The Mayan Joy Cocoa Process\n1. We plant and cultivate the seeds following ancient traditions.\n2. We dry, clean, and prepare the seeds naturally.\n3. We toast the cocoa beans and remove the shells by hand.\n4. We grind the shelled beans to produce 100% pure cocoa powder.\n5. YOU enjoy our Mexican cocoa, a rich, sensational, delicious superfood!\n\n---\nMayan Joy Cocoa\nAv Tulum Plaza Galerias\nCancun, Quintana Roo 97655, Mexico\nMarch 24\n\nJames Grigio\n39 Lansford Lane\nValley Falls, Kansas 66088, United States\n\nMayan Joy Cocoa Representative:\nWhen I was recently in Mexico, I purchased a block of your fine cocoa. It was the best I ever had! I did some research on your products, and I was very impressed with your process. I especially appreciate that your workers take care to remove the shells from the beans by hand.\nI would like to purchase some more to make my own chocolates at home. Please send me information and pricing. I would prefer to purchase a one-pound block of pure, unsweetened Yucatan cocoa. I will be sweetening the candy myself, so I am not looking for sweetened cocoa.\nThank you.\nJames Grigio\n\n---\nMayan Joy Cocoa Products Chart:\n• House Blend (Half-pound bag, $25, Item: D-23): Rich, bittersweet, blended powder; Ready for making steamy, frothy, hot drinks; Cocoa, white and brown sugar, cinnamon, ancho, allspice, anise, and cayenne.\n• Artisan Block (1 pound, $40, Item: C-100): Pure cocoa from the Yucatan; Perfect for drinks, cooking, baking, and confections; 100% pure cocoa in block form.\n• Block Gift (2 pounds, $98, Item: C-200): Pure cocoa from the Yucatan; Beautifully displayed in a handcrafted wooden gift box; 100% pure cocoa in block form.\n• Mountain Bag (1 pound, $65, Item: M-42): Mountain grown in the highlands of Guatemala; Unsweetened cocoa in bag designed with artwork from Guatemala; 100% pure cocoa in block form.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 191,
+              "content": "Based on the process chart, what is done to the seeds immediately after they are cultivated?",
+              "optionA": "They are made into a beverage.",
+              "optionB": "They are ground into powder.",
+              "optionC": "They are toasted.",
+              "optionD": "They are dried.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 192,
+              "content": "What does Mr. Grigio indicate in the letter?",
+              "optionA": "He lives in Cancun, Quintana Roo.",
+              "optionB": "He grows natural cocoa.",
+              "optionC": "He owns a chocolate shop.",
+              "optionD": "He bought cocoa in Mexico.",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 193,
+              "content": "What step in Mayan Joy Cocoa's process does Mr. Grigio praise?",
+              "optionA": "Step 1",
+              "optionB": "Step 2",
+              "optionC": "Step 3",
+              "optionD": "Step 4",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 194,
+              "content": "What is true about the Mayan Joy Block Gift?",
+              "optionA": "It is the only product that comes in a decorated container.",
+              "optionB": "It is the only product that is from the Yucatan.",
+              "optionC": "It is larger than the other products from Mayan Joy.",
+              "optionD": "It contains more added sugar than the other Mayan Joy products.",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 195,
+              "content": "What product will Mr. Grigio most likely purchase?",
+              "optionA": "House Blend",
+              "optionB": "Artisan Block",
+              "optionC": "Block Gift",
+              "optionD": "Mountain Bag",
+              "correctOption": "B",
+              "explanation": null
+            }
+          ]
+        },
+        {
+          "passageText": "Customer Survey Feedback Report\nGenerated for: Floorsy, Inc.\nConducted by: Gwyneth Gupta, Medallion Marketing Consultants\nSurvey ratings (923 responses):\n• Overall customer experience: Neutral\n• Customer service: Somewhat Unsatisfied\n• Product options: Somewhat Satisfied\n• Product value: Somewhat Satisfied\n• Web site organization: Very Satisfied\nComments: First, customers had issues getting adequate customer service—this was due to slow e-mail response times, especially when making changes to orders. Medallion recommends investing in a chat window for the Web site and training customer representatives to use it. Customers enjoyed the Web site, and the chat feature would allow customers to get immediate service. One general comment stood out regarding product options. Customers appreciated the wide variety of low-pile carpets with short fibers. However, they were also interested in thicker shag rugs for lounge areas like living rooms.\n\n---\nFloorsy Discount Coupon\nThank you for responding to our customer survey!\nAs a reward for your support, get 20% off your next online purchase from May 1 to 31!\nEnter the code REWARD20 at checkout.\nNote: Floorsy.com offers free shipping and handling on all orders.\n\n---\nThank You For Your Order\nDear Mr. Lindsay,\nThank you for your phone order. The following items from your order #104850 have been delivered:\n• Hendesia Low-Pile Rug in Ruby Red (6x9) x 1: $180.00\n• Verenia Shag Rug in Blue (6x9) x 1: $250.00\nSubtotal: $430.00\nDiscount: -$86.00 (Code: REWARD20)\nTotal: $344.00 (Paid in full)\nVisit www.floorsy.com/comments to submit a review, and receive 10% off your next purchase.",
+          "audioUrl": null,
+          "imageUrl": null,
+          "questions": [
+            {
+              "questionNumber": 196,
+              "content": "What is indicated in the report?",
+              "optionA": "Customers found the Web site easy to navigate.",
+              "optionB": "Customers think the products are too expensive.",
+              "optionC": "Customer service representatives received high marks.",
+              "optionD": "Customers rarely communicate by e-mail.",
+              "correctOption": "A",
+              "explanation": null
+            },
+            {
+              "questionNumber": 197,
+              "content": "What is one recommendation Ms. Gupta makes in the report?",
+              "optionA": "To hire more interior designers",
+              "optionB": "To lower the price of the rugs",
+              "optionC": "To change the returns policy",
+              "optionD": "To spend more money on customer support",
+              "correctOption": "D",
+              "explanation": null
+            },
+            {
+              "questionNumber": 198,
+              "content": "According to the coupon, what is true about Floorsy?",
+              "optionA": "It rarely has sales.",
+              "optionB": "It ships items at no extra cost.",
+              "optionC": "It does not offer gift cards.",
+              "optionD": "Its Web site is poorly organized.",
+              "correctOption": "B",
+              "explanation": null
+            },
+            {
+              "questionNumber": 199,
+              "content": "What can be concluded about Floorsy?",
+              "optionA": "It has fully redesigned its Web site.",
+              "optionB": "It has offered Ms. Gupta a management position.",
+              "optionC": "It has added shag rugs to its product offerings.",
+              "optionD": "It has hired additional customer representatives.",
+              "correctOption": "C",
+              "explanation": null
+            },
+            {
+              "questionNumber": 200,
+              "content": "What is most likely true about Mr. Lindsay?",
+              "optionA": "He spoke to Ms. Gupta about his order.",
+              "optionB": "He was somewhat unsatisfied with the rugs.",
+              "optionC": "He sent an e-mail to change his order.",
+              "optionD": "He submitted responses to the customer survey.",
+              "correctOption": "D",
+              "explanation": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
