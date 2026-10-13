@@ -3124,6 +3124,10 @@ html, body {
     font-size: 2.25rem;
     line-height: 2.5rem;
   }
+
+  .sm\:leading-tight{
+    line-height: 1.25;
+  }
 }
 
 @media (min-width: 768px){
@@ -3262,6 +3266,10 @@ html, body {
 
   .lg\:text-\[44px\]{
     font-size: 44px;
+  }
+
+  .lg\:leading-\[1\.28\]{
+    line-height: 1.28;
   }
 }
 

@@ -171,6 +171,37 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "frontend/src/components/home/HomeCarousel.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1791881885485,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/components/course/CourseCarousel.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1791881900995,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src",
+      "accessCount": 2,
+      "lastAccessed": 1791881841922,
+      "type": "directory"
+    },
+    {
+      "path": "frontend/src/app/layout.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1791881861454,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/app/globals.css",
+      "accessCount": 1,
+      "lastAccessed": 1791881866769,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
