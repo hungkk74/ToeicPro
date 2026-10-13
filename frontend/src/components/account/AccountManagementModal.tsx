@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import Link from 'next/link';
 import { X, User, Mail, Shield, Key, LogOut, LogIn, ExternalLink, CircleUserRound } from 'lucide-react';
 import { UserAccountDTO } from '@/types/backend';
 
@@ -10,7 +11,7 @@ interface AccountManagementModalProps {
   onClose: () => void;
   user: UserAccountDTO | null;
   onLogout: () => void;
-  onSwitchAccount: () => void;
+  onSwitchAccount?: () => void;
 }
 
 export default function AccountManagementModal({
@@ -179,14 +180,14 @@ export default function AccountManagementModal({
         {/* Modal Footer Actions */}
         <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onSwitchAccount}
+            <Link
+              href="/dang-nhap"
+              onClick={onClose}
               className="inline-flex items-center gap-1.5 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-700 border border-slate-200 font-medium text-xs px-3 py-2 rounded-lg transition-colors cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5 text-slate-500" />
               <span>Đăng nhập tài khoản khác</span>
-            </button>
+            </Link>
 
             <button
               type="button"

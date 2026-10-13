@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const keycloakBase = getKeycloakUrl();
+    const keycloakBase = getKeycloakUrl();  
     const tokenParams = new URLSearchParams({
       client_id: 'web_app',
       grant_type: 'refresh_token',

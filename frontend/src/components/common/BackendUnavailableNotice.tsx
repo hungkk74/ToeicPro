@@ -22,7 +22,7 @@ export default function BackendUnavailableNotice({ className = '', showBackHome 
             Đang đồng bộ dữ liệu đề thi
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">
-            Hệ thống đang chuẩn bị và đồng bộ đề thi chuẩn format ETS. Vui lòng tải lại hoặc quay lại sau giây lát.
+            Tác giả đang bận, chờ chút sẽ fix ngay thôi
           </p>
         </div>
 

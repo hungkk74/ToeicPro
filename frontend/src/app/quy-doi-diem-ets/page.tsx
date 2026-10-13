@@ -11,17 +11,17 @@ export default function ScoreConversionPage() {
     <div className="bg-slate-50 font-body-default text-slate-800 antialiased min-h-screen flex flex-col">
       <Navbar />
       <main className="w-full pt-28 pb-16 flex-1">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 bg-white p-8 sm:p-12 rounded-2xl shadow-sm border border-slate-200">
-          <h1 className="text-3xl font-extrabold text-slate-900 mb-8">Phương Pháp Quy Đổi Điểm ETS</h1>
-          
-          <div className="space-y-6 text-slate-600 leading-relaxed">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 bg-white p-8 sm:p-12 rounded-xl shadow-xs border border-slate-200/90">
+          <h1 className="font-serif text-3xl font-bold text-slate-950 mb-8 tracking-tight">Phương Pháp Quy Đổi Điểm ETS</h1>
+
+          <div className="space-y-6 text-slate-600 leading-relaxed font-sans">
             <p>
               Bảng quy đổi điểm TOEIC là công cụ giúp thí sinh tính được điểm số dự kiến của mình sau khi làm bài thi. Nền tảng TOEIC Pro áp dụng thuật toán chấm điểm và quy đổi mô phỏng chính xác nhất theo tiêu chuẩn của ETS (Viện Khảo thí Giáo dục Hoa Kỳ).
             </p>
-            
+
             <section>
-              <h2 className="text-xl font-bold text-slate-800 mb-3">Thang Điểm</h2>
-              <ul className="list-disc pl-5 space-y-2">
+              <h2 className="font-serif text-xl font-semibold text-slate-900 mb-3">Thang Điểm</h2>
+              <ul className="list-disc pl-5 space-y-2 tabular-nums">
                 <li>Phần thi Nghe (Listening): 100 câu hỏi, điểm tối đa 495 điểm.</li>
                 <li>Phần thi Đọc (Reading): 100 câu hỏi, điểm tối đa 495 điểm.</li>
                 <li>Tổng điểm TOEIC cao nhất là 990 điểm.</li>

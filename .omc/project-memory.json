@@ -173,16 +173,22 @@
   },
   "hotPaths": [
     {
+      "path": "frontend/src",
+      "accessCount": 44,
+      "lastAccessed": 1791880742568,
+      "type": "directory"
+    },
+    {
       "path": "userservice/src/main/java/com/toeic/user/web/rest/UserProfileResource.java",
-      "accessCount": 23,
-      "lastAccessed": 1791862935204,
+      "accessCount": 31,
+      "lastAccessed": 1791873889223,
       "type": "file"
     },
     {
-      "path": "frontend/src",
-      "accessCount": 21,
-      "lastAccessed": 1791863909971,
-      "type": "directory"
+      "path": "examservice/src/main/java/com/toeic/exam/service/ExamAttemptService.java",
+      "accessCount": 27,
+      "lastAccessed": 1791877542707,
+      "type": "file"
     },
     {
       "path": "examservice/src/main/java/com/toeic/exam/service/ExamService.java",
@@ -191,15 +197,15 @@
       "type": "file"
     },
     {
-      "path": "examservice/src/main/java/com/toeic/exam/service/ExamAttemptService.java",
-      "accessCount": 17,
-      "lastAccessed": 1791863394772,
+      "path": "examservice/src/main/java/com/toeic/exam/service/ExamReviewService.java",
+      "accessCount": 14,
+      "lastAccessed": 1791878128292,
       "type": "file"
     },
     {
       "path": "frontend/src/hooks/useExamRunner.ts",
-      "accessCount": 10,
-      "lastAccessed": 1791799639841,
+      "accessCount": 13,
+      "lastAccessed": 1791872939972,
       "type": "file"
     },
     {
@@ -215,16 +221,22 @@
       "type": "file"
     },
     {
+      "path": "frontend/src/components/exam/QuestionCard.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1791872788635,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src/services/examService.ts",
+      "accessCount": 7,
+      "lastAccessed": 1791876483067,
+      "type": "file"
+    },
+    {
       "path": "docker-compose-all.yml",
       "accessCount": 6,
       "lastAccessed": 1791859558940,
       "type": "directory"
-    },
-    {
-      "path": "examservice/src/main/java/com/toeic/exam/service/ExamReviewService.java",
-      "accessCount": 6,
-      "lastAccessed": 1791861866786,
-      "type": "file"
     },
     {
       "path": "userservice/src/main/java/com/toeic/user/service/UserProfileService.java",
@@ -281,6 +293,12 @@
       "type": "file"
     },
     {
+      "path": "userservice/src/main/java/com/toeic/user/domain/UserProfile.java",
+      "accessCount": 5,
+      "lastAccessed": 1791879555672,
+      "type": "file"
+    },
+    {
       "path": ".doc/examservice_init.sql",
       "accessCount": 4,
       "lastAccessed": 1791798322422,
@@ -299,16 +317,22 @@
       "type": "file"
     },
     {
-      "path": "userservice/src/main/java/com/toeic/user/domain/UserProfile.java",
+      "path": "frontend/src/components/exam/ExamWorkspace.tsx",
       "accessCount": 4,
-      "lastAccessed": 1791861752116,
+      "lastAccessed": 1791872783806,
       "type": "file"
     },
     {
-      "path": "frontend/src/components/exam/QuestionCard.tsx",
+      "path": "frontend/src/app/exam/[id]/page.tsx",
       "accessCount": 4,
-      "lastAccessed": 1791863677501,
-      "type": "file"
+      "lastAccessed": 1791872799839,
+      "type": "directory"
+    },
+    {
+      "path": "examservice/src",
+      "accessCount": 4,
+      "lastAccessed": 1791872958685,
+      "type": "directory"
     },
     {
       "path": "courseservice/src/main/java/com/toeic/course",
@@ -341,18 +365,6 @@
       "type": "file"
     },
     {
-      "path": "frontend/src/app/exam/[id]/page.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1791792788138,
-      "type": "directory"
-    },
-    {
-      "path": "examservice/src",
-      "accessCount": 2,
-      "lastAccessed": 1791793057680,
-      "type": "directory"
-    },
-    {
       "path": "examservice/src/main/resources/config/application-dev.yml",
       "accessCount": 2,
       "lastAccessed": 1791793745812,
@@ -365,18 +377,6 @@
       "type": "directory"
     },
     {
-      "path": "frontend/src/components/exam/ExamWorkspace.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1791798230558,
-      "type": "file"
-    },
-    {
-      "path": "frontend/src/services/examService.ts",
-      "accessCount": 2,
-      "lastAccessed": 1791799198078,
-      "type": "file"
-    },
-    {
       "path": "frontend",
       "accessCount": 2,
       "lastAccessed": 1791799604767,
@@ -384,8 +384,8 @@
     },
     {
       "path": "frontend/src/components/exam",
-      "accessCount": 1,
-      "lastAccessed": 1791790884582,
+      "accessCount": 2,
+      "lastAccessed": 1791872755392,
       "type": "directory"
     },
     {

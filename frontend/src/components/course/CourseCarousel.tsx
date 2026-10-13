@@ -54,7 +54,7 @@ export default function CourseCarousel() {
               <span>Chương Trình Đào Tạo &amp; Lộ Trình Mục Tiêu</span>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-semibold text-slate-950 tracking-tight leading-[1.18]">
+            <h1 className="font-serif text-[24px] sm:text-[30px] lg:text-[36px] font-semibold text-slate-950 tracking-normal leading-snug">
               Chinh phục mục tiêu TOEIC với lộ trình tinh gọn, thực chiến.
             </h1>
 

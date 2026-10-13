@@ -12,13 +12,11 @@ import AdminExamsTab from '@/components/admin/AdminExamsTab';
 import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminCoursesTab from '@/components/admin/AdminCoursesTab';
 import AdminServicesTab from '@/components/admin/AdminServicesTab';
-import LoginModal from '@/components/account/LoginModal';
 
 export default function AdminPage() {
   const [user, setUser] = useState<UserAccountDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   useEffect(() => {
     getCurrentUser()
@@ -29,11 +27,6 @@ export default function AdminPage() {
         setIsLoading(false);
       });
   }, []);
-
-  const handleLoginSuccess = (newUser: UserAccountDTO) => {
-    setUser(newUser);
-    setIsLoginModalOpen(false);
-  };
 
   const isAdmin = Boolean(
     user?.authorities?.some((r) => ['ROLE_ADMIN', 'ROLE_STAFF'].includes(r) || r.toUpperCase().includes('ADMIN'))
@@ -63,7 +56,7 @@ export default function AdminPage() {
   if (!user || !isAdmin) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 shadow-2xl p-8 text-center space-y-5 animate-in zoom-in-95 duration-200">
+        <div className="max-w-md w-full bg-white rounded-xl border border-slate-200/90 shadow-xl p-8 text-center space-y-5 animate-in zoom-in-95 duration-200">
           <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200 shadow-xs">
             <ShieldAlert className="w-8 h-8" />
           </div>
@@ -87,14 +80,13 @@ export default function AdminPage() {
           </div>
 
           <div className="pt-2 flex flex-col gap-2.5">
-            <button
-              type="button"
-              onClick={() => setIsLoginModalOpen(true)}
+            <Link
+              href="/dang-nhap?redirect=/admin"
               className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer shadow-xs"
             >
               <LogIn className="w-4 h-4" />
               <span>Đăng Nhập Tài Khoản Admin</span>
-            </button>
+            </Link>
 
             <Link
               href="/"
@@ -105,13 +97,6 @@ export default function AdminPage() {
             </Link>
           </div>
         </div>
-
-        {/* Modal Đăng Nhập Trực Tiếp */}
-        <LoginModal
-          isOpen={isLoginModalOpen}
-          onClose={() => setIsLoginModalOpen(false)}
-          onLoginSuccess={handleLoginSuccess}
-        />
       </div>
     );
   }
@@ -138,13 +123,6 @@ export default function AdminPage() {
           {activeTab === 'services' && <AdminServicesTab />}
         </main>
       </div>
-
-      {/* Direct Login Modal (if switching accounts inside admin) */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
     </div>
   );
 }

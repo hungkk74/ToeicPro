@@ -88,8 +88,9 @@ public class ExamAttemptService {
                 AttemptStatus.IN_PROGRESS
             );
         if (activeAttempt.isPresent()) {
-            LOG.debug("Resuming existing IN_PROGRESS attempt id: {}", activeAttempt.get().getId());
-            return examAttemptMapper.toDto(activeAttempt.get());
+            ExamAttempt existing = activeAttempt.orElseThrow();
+            LOG.debug("Resuming existing IN_PROGRESS attempt id: {}", existing.getId());
+            return examAttemptMapper.toDto(existing);
         }
 
         Exam examRef = examRepository.getReferenceById(startDTO.examId());

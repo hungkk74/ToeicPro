@@ -56,12 +56,7 @@ public class ExamReviewService {
 
         checkOwnershipOrAdmin(attempt.getUserId(), "Bạn không có quyền xem lại bài thi này!");
 
-        int correctCount = attempt.getCorrectAnswers() != null ? attempt.getCorrectAnswers() : 0;
-        int wrongCount = attempt.getWrongAnswers() != null ? attempt.getWrongAnswers() : 0;
-        int skippedCount = attempt.getSkippedAnswers() != null ? attempt.getSkippedAnswers() : 0;
-        int answeredCount = correctCount + wrongCount;
-        int totalQuestions = answeredCount + skippedCount;
-        boolean canViewAnswers = totalQuestions > 0 && ((long) answeredCount * 100 >= (long) totalQuestions * 80);
+        boolean canViewAnswers = attempt.canViewAnswers();
 
         List<UserAnswer> userAnswers = userAnswerRepository.findByExamAttemptIdWithQuestion(attemptId);
 

@@ -7,8 +7,6 @@ import { getCurrentUser, performLogout } from '@/services/authService';
 import { getKeycloakUrl } from '@/lib/api-client';
 import { UserAccountDTO } from '@/types/backend';
 import AccountManagementModal from './AccountManagementModal';
-import LoginModal from './LoginModal';
-import RegisterModal from './RegisterModal';
 
 const PRIVILEGED_ROLES = ['ROLE_ADMIN', 'ROLE_STAFF'];
 
@@ -27,8 +25,6 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
   const [user, setUser] = useState<UserAccountDTO | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,79 +73,42 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
     onRoleResolved?.(false);
   };
 
-  // Mở modal đăng nhập trực tiếp (Không redirect sang Keycloak)
-  const handleSwitchAccount = () => {
-    setIsDropdownOpen(false);
-    setIsModalOpen(false);
-    setIsRegisterModalOpen(false);
-    setIsLoginModalOpen(true);
-  };
-
-  // Mở modal đăng ký trực tiếp
-  const handleOpenRegister = () => {
-    setIsDropdownOpen(false);
-    setIsModalOpen(false);
-    setIsLoginModalOpen(false);
-    setIsRegisterModalOpen(true);
-  };
-
   const handleOpenAccountManagement = () => {
     setIsDropdownOpen(false);
     setIsModalOpen(true);
   };
 
-  const handleLoginSuccess = (newUser: UserAccountDTO) => {
-    setUser(newUser);
-    setIsLoginModalOpen(false);
-    onRoleResolved?.(hasPrivilegedRole(newUser.authorities));
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: newUser } }));
-    }
-  };
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2">
+        {!compact && (
+          <Link
+            href="/dang-ky"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs rounded-lg transition-colors cursor-pointer"
+            title="Đăng ký tài khoản học viên mới"
+          >
+            <UserPlus className="w-3.5 h-3.5 text-slate-500" />
+            <span>Đăng ký</span>
+          </Link>
+        )}
+        <Link
+          href="/dang-nhap"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-lg transition-colors shadow-xs cursor-pointer"
+          title="Đăng nhập tài khoản"
+        >
+          <LogIn className="w-3.5 h-3.5" />
+          <span>Đăng nhập</span>
+        </Link>
+      </div>
+    );
+  }
 
-  const handleRegisterSuccess = (newUser: UserAccountDTO) => {
-    setUser(newUser);
-    setIsRegisterModalOpen(false);
-    onRoleResolved?.(hasPrivilegedRole(newUser.authorities));
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { user: newUser } }));
-    }
-  };
-
-  const handleSwitchToLogin = () => {
-    setIsRegisterModalOpen(false);
-    setIsLoginModalOpen(true);
-  };
-
-  const handleSwitchToRegister = () => {
-    setIsLoginModalOpen(false);
-    setIsRegisterModalOpen(true);
-  };
-
-  const displayName = user
-    ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.login
-    : 'Chưa đăng nhập';
-
-
-
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.login;
   const isAdmin = hasPrivilegedRole(user?.authorities);
 
   return (
     <>
       <div className="relative flex items-center gap-2" ref={dropdownRef}>
-        {/* Nút Đăng ký nhanh khi chưa đăng nhập (desktop view) */}
-        {!user && !compact && (
-          <button
-            type="button"
-            onClick={handleOpenRegister}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-lg transition-colors shadow-xs cursor-pointer"
-            title="Đăng ký tài khoản học viên mới"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Đăng ký</span>
-          </button>
-        )}
-
         {/* Nút người dùng mở menu thao tác */}
         <button
           type="button"
@@ -160,7 +119,7 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
           aria-haspopup="true"
         >
           <div className="w-8 h-8 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0 group-hover:border-blue-500 transition-all">
-              <CircleUserRound className="w-5 h-5 text-slate-600" />
+            <CircleUserRound className="w-5 h-5 text-slate-600" />
           </div>
           {!compact && (
             <div className="hidden lg:flex flex-col text-left">
@@ -168,7 +127,7 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
                 {displayName}
               </span>
               <span className="text-[10px] text-slate-500 leading-tight">
-                {user?.email || (user ? 'Target: 950+' : 'Bấm để đăng nhập')}
+                {user.email || 'Target: 950+'}
               </span>
             </div>
           )}
@@ -183,8 +142,8 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
             {/* User Brief Info Header */}
             <div
               className="px-3.5 py-2.5 border-b border-slate-100 bg-slate-50/50 cursor-pointer hover:bg-slate-100/60 transition-colors"
-              onClick={user ? handleOpenAccountManagement : handleSwitchAccount}
-              title={user ? 'Bấm để xem chi tiết hồ sơ' : 'Bấm để đăng nhập'}
+              onClick={handleOpenAccountManagement}
+              title="Bấm để xem chi tiết hồ sơ"
             >
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-white border border-slate-300 flex items-center justify-center shrink-0">
@@ -195,7 +154,7 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
                     {displayName}
                   </span>
                   <span className="text-[11px] text-slate-500 truncate">
-                    {user?.email || (user ? 'Học viên TOEIC Pro' : 'Nhấn để đăng nhập')}
+                    {user.email || 'Học viên TOEIC Pro'}
                   </span>
                 </div>
               </div>
@@ -203,16 +162,14 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
 
             {/* Menu Items */}
             <div className="p-1.5 space-y-0.5">
-              {user && (
-                <button
-                  type="button"
-                  onClick={handleOpenAccountManagement}
-                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-800 hover:bg-blue-50 hover:text-blue-700 rounded-lg w-full text-left transition-colors cursor-pointer"
-                >
-                  <User className="w-4 h-4 text-blue-600" />
-                  <span className="font-semibold">Quản lý tài khoản</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={handleOpenAccountManagement}
+                className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-800 hover:bg-blue-50 hover:text-blue-700 rounded-lg w-full text-left transition-colors cursor-pointer"
+              >
+                <User className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold">Quản lý tài khoản</span>
+              </button>
 
               {/* Trang Quản Trị Hệ Thống - Chỉ hiển thị cho Admin */}
               {isAdmin && (
@@ -247,37 +204,25 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
                 </a>
               )}
 
-              {user && <div className="h-px bg-slate-100 my-1"></div>}
+              <div className="h-px bg-slate-100 my-1"></div>
 
-              <button
-                type="button"
-                onClick={handleSwitchAccount}
+              <Link
+                href="/dang-nhap"
+                onClick={() => setIsDropdownOpen(false)}
                 className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-900 rounded-lg w-full text-left transition-colors cursor-pointer"
               >
                 <LogIn className="w-4 h-4 text-slate-500" />
-                <span>{user ? 'Đăng nhập tài khoản khác' : 'Đăng nhập'}</span>
-              </button>
+                <span>Đăng nhập tài khoản khác</span>
+              </Link>
 
-              {/* Nút Đăng ký tài khoản mới */}
               <button
                 type="button"
-                onClick={handleOpenRegister}
-                className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50 rounded-lg w-full text-left transition-colors cursor-pointer"
+                onClick={handleLogout}
+                className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 rounded-lg w-full text-left transition-colors cursor-pointer"
               >
-                <UserPlus className="w-4 h-4 text-blue-600" />
-                <span>Đăng ký tài khoản mới</span>
+                <LogOut className="w-4 h-4 text-rose-600" />
+                <span>Đăng xuất tài khoản</span>
               </button>
-
-              {user && (
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 rounded-lg w-full text-left transition-colors cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 text-rose-600" />
-                  <span>Đăng xuất tài khoản</span>
-                </button>
-              )}
             </div>
           </div>
         )}
@@ -289,23 +234,6 @@ export default function UserAccountMenu({ compact = false, onRoleResolved }: Use
         onClose={() => setIsModalOpen(false)}
         user={user}
         onLogout={handleLogout}
-        onSwitchAccount={handleSwitchAccount}
-      />
-
-      {/* Modal Đăng Nhập Trực Tiếp Tại Trang (Zero Keycloak Redirect) */}
-      <LoginModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        onSwitchToRegister={handleSwitchToRegister}
-      />
-
-      {/* Modal Đăng Ký Trực Tiếp Tại Trang (Zero Keycloak Redirect) */}
-      <RegisterModal
-        isOpen={isRegisterModalOpen}
-        onClose={() => setIsRegisterModalOpen(false)}
-        onRegisterSuccess={handleRegisterSuccess}
-        onSwitchToLogin={handleSwitchToLogin}
       />
     </>
   );

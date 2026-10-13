@@ -142,7 +142,7 @@ export default function AdminServicesTab() {
   return (
     <div className="space-y-5">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
         <div className="flex items-center gap-2">
           <Server className="w-5 h-5 text-blue-600" />
           <div>
@@ -153,14 +153,14 @@ export default function AdminServicesTab() {
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 font-semibold text-xs rounded-lg border border-emerald-200">
-            <Activity className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+            <Activity className="w-3.5 h-3.5 text-emerald-600" />
             <span>Tất cả dịch vụ Online (100% Sẵn sàng)</span>
           </span>
         </div>
       </div>
 
       {/* Services Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>

@@ -68,17 +68,33 @@ export default async function HomePage() {
 
   const courses: CourseItem[] =
     backendCourses && backendCourses.length > 0
-      ? backendCourses.map((c) => ({
-        id: c.id,
-        tag: 'TOEIC Pro Master',
-        tagClass: 'bg-blue-50 text-blue-700',
-        title: c.title,
-        desc: c.description || 'Khóa học ôn luyện TOEIC chuẩn format quốc tế.',
-        lessons: '36 bài giảng video',
-        tests: '10 bài test thực hành',
-        price: c.price ? `${c.price.toLocaleString('vi-VN')}₫` : '1.890.000₫',
-        originalPrice: '2.500.000₫',
-      }))
+      ? backendCourses.map((c) => {
+          const effectivePrice = c.discountPrice ?? c.price;
+          const levelLabel =
+            c.level === 'BEGINNER'
+              ? 'Nền tảng'
+              : c.level === 'INTERMEDIATE'
+              ? 'Bứt phá'
+              : c.level === 'ADVANCED'
+              ? 'Nâng cao'
+              : 'TOEIC Pro Master';
+          return {
+            id: c.id,
+            tag: levelLabel,
+            tagClass: 'bg-blue-50 text-blue-700',
+            title: c.title,
+            desc: c.description || 'Khóa học ôn luyện TOEIC chuẩn format quốc tế.',
+            lessons: c.totalLessons ? `${c.totalLessons} bài học` : 'Nhiều bài học',
+            tests: c.totalDurationSeconds
+              ? `${Math.round(c.totalDurationSeconds / 3600)} giờ học`
+              : 'Thực hành tương tác',
+            price: effectivePrice ? `${effectivePrice.toLocaleString('vi-VN')}₫` : 'Miễn phí',
+            originalPrice:
+              c.discountPrice && c.price && c.price > c.discountPrice
+                ? `${c.price.toLocaleString('vi-VN')}₫`
+                : '',
+          };
+        })
       : []; return (
         <div className="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-950">
           <Navbar />

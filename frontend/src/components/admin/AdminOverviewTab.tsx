@@ -193,9 +193,9 @@ export default function AdminOverviewTab({ onNavigateTab, userCount }: AdminOver
       </div>
 
       {/* Quick Action Shortcuts */}
-      <div className="p-4 bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-10 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <div>

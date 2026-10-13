@@ -56,7 +56,7 @@ export default function HomeCarousel() {
               <span>Hệ Thống Đào Tạo &amp; Khảo Thí Chuẩn ETS</span>
             </div>
 
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-semibold text-slate-950 tracking-tight leading-[1.18]">
+            <h1 className="font-serif text-[24px] sm:text-[30px] lg:text-[36px] font-semibold text-slate-950 tracking-normal leading-snug">
               Đo lường chính xác năng lực TOEIC theo thời gian thực.
             </h1>
 

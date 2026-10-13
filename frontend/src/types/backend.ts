@@ -53,10 +53,17 @@ export interface ExamTakeDTO {
 
 export interface CourseDTO {
   id: number;
+  code?: string;
   title: string;
+  slug?: string;
   description?: string;
   price?: number;
+  discountPrice?: number;
   thumbnailUrl?: string;
+  level?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  isPublished?: boolean;
+  totalDurationSeconds?: number;
+  totalLessons?: number;
 }
 
 export interface QuestionAnswerSubmissionDTO {

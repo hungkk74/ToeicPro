@@ -207,7 +207,7 @@ public class UserProfileResource {
         if (userProfileDTO.isPresent()) {
             boolean isAdmin = SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN);
             String currentUser = SecurityUtils.getCurrentUserLogin().orElse(null);
-            if (!isAdmin && (currentUser == null || !currentUser.equals(userProfileDTO.get().getUserId()))) {
+            if (!isAdmin && (currentUser == null || !currentUser.equals(userProfileDTO.orElseThrow().getUserId()))) {
                 return ResponseEntity.notFound().build();
             }
         }

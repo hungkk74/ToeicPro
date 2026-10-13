@@ -72,10 +72,9 @@ export default function Navbar() {
           <button
             type="button"
             aria-label="Thông báo"
-            className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors relative focus:outline-none cursor-pointer"
+            className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none cursor-pointer"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-blue-600 rounded-full" />
           </button>
 
           <div className="h-4 w-px bg-slate-200 hidden sm:block" />

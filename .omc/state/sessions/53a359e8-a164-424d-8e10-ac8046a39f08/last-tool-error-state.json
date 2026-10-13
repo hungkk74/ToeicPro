@@ -1,7 +1,7 @@
 {
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"ls frontend/README.md\",\"description\":\"Check frontend README\"}",
-  "error": "Exit code 2\nls: cannot access 'frontend/README.md': No such file or directory",
-  "timestamp": "2026-10-13T02:45:19.298Z",
+  "tool_name": "Glob",
+  "tool_input_preview": "{\"pattern\":\"*.java\",\"path\":\"courseservice/src/main/java/com/toeic/course/client\"}",
+  "error": "Directory does not exist: courseservice/src/main/java/com/toeic/course/client. Note: your current working directory is D:\\Projects\\Toeic_Pro.",
+  "timestamp": "2026-10-13T08:28:55.346Z",
   "retry_count": 1
 }
